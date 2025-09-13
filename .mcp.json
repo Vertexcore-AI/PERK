@@ -1,0 +1,39 @@
+{
+    "mcpServers": {
+        "filesystem": {
+            "command": "cmd",
+            "args": [
+                "/c",
+                "npx",
+                "-y",
+                "@modelcontextprotocol/server-filesystem",
+                "C:\\Users\\User\\Desktop\\PERK\\PERK"
+            ]
+        },
+        "browsermcp": {
+            "command": "cmd",
+            "args": ["/c", "npx", "-y", "@browsermcp/mcp@latest"]
+        },
+        "context7": {
+            "command": "cmd",
+            "args": ["/c", "npx", "-y", "@upstash/context7-mcp"]
+        },
+        "playwright": {
+            "command": "cmd",
+            "args": ["/c", "npx", "-y", "@playwright/mcp@latest"]
+        },
+        "mcp-freepik": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "mcp-remote",
+                "https://api.freepik.com/mcp",
+                "--header",
+                "x-freepik-api-key:${FREEPIK_API_KEY}"
+            ],
+            "env": {
+                "FREEPIK_API_KEY": "FPSXb1157ae07d50938639347886fb0684b3"
+            }
+        }
+    }
+}
