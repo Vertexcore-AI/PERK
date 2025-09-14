@@ -1,21 +1,21 @@
 @extends('layouts.app')
 
-@section('title', 'Edit Vendor')
+@section('title', 'Edit Category')
 
-@section('page-title', 'Edit Vendor')
+@section('page-title', 'Edit Category')
 
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="{{ url('/dashboard') }}">Dashboard</a></li>
-    <li class="breadcrumb-item"><a href="{{ route('vendors.index') }}">Vendors</a></li>
-    <li class="breadcrumb-item"><a href="{{ route('vendors.show', $vendor) }}">{{ $vendor->name }}</a></li>
+    <li class="breadcrumb-item"><a href="{{ route('categories.index') }}">Categories</a></li>
+    <li class="breadcrumb-item"><a href="{{ route('categories.show', $category) }}">{{ $category->name }}</a></li>
     <li class="breadcrumb-item active">Edit</li>
 @endsection
 
 @section('page-actions')
     <div class="flex items-center gap-4">
-        <a href="{{ route('vendors.index') }}" class="btn-secondary">
+        <a href="{{ route('categories.index') }}" class="btn-secondary">
             <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
-            Back to Vendors
+            Back to Categories
         </a>
     </div>
 @endsection
@@ -42,57 +42,50 @@
     <div class="card">
         <div class="p-6 border-b border-slate-200 dark:border-slate-700">
             <div class="flex items-center">
+                <div class="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center mr-4">
+                    <i data-lucide="tag" class="w-6 h-6 text-white"></i>
+                </div>
                 <div>
-                    <h5 class="text-lg font-semibold text-slate-900 dark:text-white mb-1">Edit Vendor Information</h5>
-                    <p class="text-slate-600 dark:text-slate-400">Update vendor details and contact information</p>
+                    <h5 class="text-lg font-semibold text-slate-900 dark:text-white mb-1">Edit Category Information</h5>
+                    <p class="text-slate-600 dark:text-slate-400">Update category details</p>
                 </div>
             </div>
         </div>
         <div class="p-6">
-            <form action="{{ route('vendors.update', $vendor) }}" method="POST" class="space-y-6">
+            <form action="{{ route('categories.update', $category) }}" method="POST" class="space-y-6">
                 @csrf
                 @method('PUT')
 
-                <div>
+                <div class="animate-in" style="animation-delay: 0.2s">
                     <x-forms.input
-                        label="Vendor Name"
+                        label="Category Name"
                         name="name"
-                        :value="old('name', $vendor->name)"
-                        placeholder="Enter vendor name"
+                        :value="old('name', $category->name)"
+                        placeholder="e.g., Engine Parts"
                         required
-                        icon="building"
+                        icon="tag"
                         :error="$errors->first('name')"
                     />
                 </div>
 
-                <div>
-                    <x-forms.input
-                        label="Contact Information"
-                        name="contact"
-                        :value="old('contact', $vendor->contact)"
-                        placeholder="Phone, email, or contact person"
-                        icon="phone"
-                        :error="$errors->first('contact')"
-                    />
-                </div>
-
-                <div>
+                <div class="animate-in" style="animation-delay: 0.3s">
                     <x-forms.textarea
-                        label="Address"
-                        name="address"
-                        :value="old('address', $vendor->address)"
-                        placeholder="Enter vendor address"
+                        label="Description"
+                        name="description"
+                        :value="old('description', $category->description)"
+                        placeholder="Enter category description"
                         rows="3"
-                        :error="$errors->first('address')"
+                        :error="$errors->first('description')"
+                        help="Optional: Brief description of what this category contains"
                     />
                 </div>
 
-                <div class="flex gap-3 pt-4">
+                <div class="flex gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
                     <button type="submit" class="btn-primary">
                         <i data-lucide="save" class="w-4 h-4 mr-2"></i>
-                        Update Vendor
+                        Update Category
                     </button>
-                    <a href="{{ route('vendors.show', $vendor) }}" class="btn-secondary">
+                    <a href="{{ route('categories.show', $category) }}" class="btn-secondary">
                         <i data-lucide="x" class="w-4 h-4 mr-2"></i>
                         Cancel
                     </a>

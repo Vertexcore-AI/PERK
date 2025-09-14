@@ -82,7 +82,7 @@
     @stack('vendor-scripts')
 
     <!-- Alpine.js for interactions -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.9/dist/cdn.min.js"></script>
 
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
@@ -91,18 +91,13 @@
             if (typeof lucide !== 'undefined') {
                 lucide.createIcons();
             }
+        });
 
-            // Reinitialize icons when content changes
-            const observer = new MutationObserver(() => {
-                if (typeof lucide !== 'undefined') {
-                    lucide.createIcons();
-                }
-            });
-
-            observer.observe(document.body, {
-                childList: true,
-                subtree: true
-            });
+        // Initialize icons after Alpine is ready
+        document.addEventListener('alpine:initialized', function() {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
         });
     </script>
 

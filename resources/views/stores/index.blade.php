@@ -1,22 +1,22 @@
 @extends('layouts.app')
 
-@section('title', 'Vendors')
+@section('title', 'Stores')
 
-@section('page-title', 'Vendor Management')
+@section('page-title', 'Store Management')
 
 @section('breadcrumb')
     <li class="flex items-center">
         <a href="{{ url('/dashboard') }}" class="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300">Dashboard</a>
         <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-400"></i>
     </li>
-    <li class="text-slate-600 dark:text-slate-300">Vendors</li>
+    <li class="text-slate-600 dark:text-slate-300">Stores</li>
 @endsection
 
 @section('page-actions')
     <div class="flex items-center gap-3">
-        <a href="{{ route('vendors.create') }}" class="btn-primary">
+        <a href="{{ route('stores.create') }}" class="btn-primary">
             <i data-lucide="plus" class="w-5 h-5 mr-2"></i>
-            Add New Vendor
+            Add New Store
         </a>
         <button type="button" class="btn-secondary">
             <i data-lucide="download" class="w-5 h-5 mr-2"></i>
@@ -48,18 +48,18 @@
         </div>
     @endif
 
-    <!-- Vendors Table Card -->
+    <!-- Stores Table Card -->
     <div class="card animate-in" style="animation-delay: 0.1s">
         <div class="p-6 border-b border-slate-200 dark:border-slate-700">
             <div class="flex items-center justify-between">
-                <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Vendors</h3>
+                <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Stores & Locations</h3>
 
                 <!-- Search -->
                 <div class="relative">
                     <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400"></i>
                     <input type="text"
-                        id="vendor-search"
-                        placeholder="Search vendors..."
+                        id="store-search"
+                        placeholder="Search stores..."
                         class="pl-10 pr-4 py-2 w-64 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
                 </div>
             </div>
@@ -69,56 +69,54 @@
             <table class="table-modern w-full">
                 <thead>
                     <tr>
-                        <th scope="col">Vendor</th>
-                        <th scope="col">Contact</th>
-                        <th scope="col">Date Added</th>
-                        <th scope="col">Status</th>
+                        <th scope="col">Store</th>
+                        <th scope="col">Location</th>
+                        <th scope="col">Created</th>
                         <th scope="col" class="text-right">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
-                    @forelse($vendors as $vendor)
+                    @forelse($stores as $store)
                         <tr class="group">
                             <td>
                                 <div class="flex items-center gap-3">
-                                   
+                                    
                                     <div>
-                                        <span class="font-medium text-slate-900 dark:text-white">{{ $vendor->name }}</span>
+                                        <span class="font-medium text-slate-900 dark:text-white">{{ $store->store_name }}</span>
+                                        edit.blade
                                     </div>
                                 </div>
                             </td>
                             <td>
-                                @if($vendor->contact)
-                                    <div>
-                                        <span class="text-slate-900 dark:text-slate-100">{{ $vendor->contact }}</span>
-                                        @if($vendor->address)
-                                            <span class="block text-xs text-slate-500 dark:text-slate-400 mt-1">{{ Str::limit($vendor->address, 30) }}</span>
-                                        @endif
-                                    </div>
-                                @else
-                                    <span class="text-slate-400 dark:text-slate-500 italic">No contact info</span>
-                                @endif
+                                <div>
+                                    <span class="text-slate-900 dark:text-slate-100">{{ $store->store_location ?? 'No location specified' }}</span>
+                                </div>
                             </td>
                             <td>
-                                <span class="text-slate-600 dark:text-slate-400">{{ $vendor->created_at->format('d/m/Y H:i') }}</span>
-                            </td>
-                            <td>
-                                <span class="badge badge-success">Active</span>
+                                <span class="text-slate-500 dark:text-slate-400">
+                                    {{ $store->created_at->format('M d, Y') }}
+                                </span>
                             </td>
                             <td>
                                 <div class="flex items-center justify-end gap-1">
-                                    <a href="{{ route('vendors.edit', $vendor) }}"
+                                   
+                                    <a href="{{ route('stores.edit', $store) }}"
                                         class="btn-icon group/btn"
-                                        data-tooltip="Edit Vendor">
+                                        data-tooltip="Edit Store">
                                         <i data-lucide="edit" class="w-4 h-4 text-slate-600 dark:text-slate-400 group-hover/btn:text-primary-600 dark:group-hover/btn:text-primary-400"></i>
                                     </a>
-                                    <form action="{{ route('vendors.destroy', $vendor) }}" method="POST" class="inline">
+                                    <a href="{{ route('bins.index', ['store' => $store->id]) }}"
+                                        class="btn-icon group/btn"
+                                        data-tooltip="Manage Bins">
+                                        <i data-lucide="grid-3x3" class="w-4 h-4 text-slate-600 dark:text-slate-400 group-hover/btn:text-orange-600 dark:group-hover/btn:text-orange-400"></i>
+                                    </a>
+                                    <form action="{{ route('stores.destroy', $store) }}" method="POST" class="inline">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit"
                                             class="btn-icon group/btn"
-                                            data-tooltip="Delete Vendor"
-                                            onclick="return confirm('Are you sure you want to delete this vendor?')">
+                                            data-tooltip="Delete Store"
+                                            onclick="return confirm('Are you sure you want to delete this store?')">
                                             <i data-lucide="trash-2" class="w-4 h-4 text-slate-600 dark:text-slate-400 group-hover/btn:text-rose-600 dark:group-hover/btn:text-rose-400"></i>
                                         </button>
                                     </form>
@@ -127,16 +125,16 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="text-center py-12">
+                            <td colspan="4" class="text-center py-12">
                                 <div class="flex flex-col items-center justify-center">
                                     <div class="w-20 h-20 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center mb-4">
-                                        <i data-lucide="building" class="w-10 h-10 text-slate-400 dark:text-slate-500"></i>
+                                        <i data-lucide="warehouse" class="w-10 h-10 text-slate-400 dark:text-slate-500"></i>
                                     </div>
-                                    <h3 class="text-lg font-medium text-slate-900 dark:text-white mb-1">No vendors found</h3>
-                                    <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Get started by adding your first vendor</p>
-                                    <a href="{{ route('vendors.create') }}" class="btn-primary">
+                                    <h3 class="text-lg font-medium text-slate-900 dark:text-white mb-1">No stores found</h3>
+                                    <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Get started by adding your first store location</p>
+                                    <a href="{{ route('stores.create') }}" class="btn-primary">
                                         <i data-lucide="plus" class="w-5 h-5 mr-2"></i>
-                                        Add New Vendor
+                                        Add New Store
                                     </a>
                                 </div>
                             </td>
@@ -146,52 +144,51 @@
             </table>
         </div>
 
-        @if($vendors->hasPages())
+        @if($stores->hasPages())
             <div class="p-6 border-t border-slate-200 dark:border-slate-700">
                 <div class="flex items-center justify-between">
                     <span class="text-sm text-slate-600 dark:text-slate-400">
-                        Showing {{ $vendors->firstItem() }} to {{ $vendors->lastItem() }} of {{ $vendors->total() }} results
+                        Showing {{ $stores->firstItem() }} to {{ $stores->lastItem() }} of {{ $stores->total() }} results
                     </span>
                     <div class="flex items-center gap-2">
-                        @if ($vendors->onFirstPage())
-                            <button disabled class="px-3 py-1.5 text-slate-400 dark:text-slate-600 cursor-not-allowed">
-                                <i data-lucide="chevron-left" class="w-5 h-5"></i>
-                            </button>
-                        @else
-                            <a href="{{ $vendors->previousPageUrl() }}" class="px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 transition-colors">
-                                <i data-lucide="chevron-left" class="w-5 h-5"></i>
-                            </a>
-                        @endif
-
-                        @foreach ($vendors->getUrlRange(1, $vendors->lastPage()) as $page => $url)
-                            @if ($page == $vendors->currentPage())
-                                <span class="px-3 py-1.5 bg-primary-600 text-white rounded-lg font-medium">{{ $page }}</span>
-                            @else
-                                <a href="{{ $url }}" class="px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 transition-colors">{{ $page }}</a>
-                            @endif
-                        @endforeach
-
-                        @if ($vendors->hasMorePages())
-                            <a href="{{ $vendors->nextPageUrl() }}" class="px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 transition-colors">
-                                <i data-lucide="chevron-right" class="w-5 h-5"></i>
-                            </a>
-                        @else
-                            <button disabled class="px-3 py-1.5 text-slate-400 dark:text-slate-600 cursor-not-allowed">
-                                <i data-lucide="chevron-right" class="w-5 h-5"></i>
-                            </button>
-                        @endif
+                        {{ $stores->links() }}
                     </div>
                 </div>
             </div>
         @endif
     </div>
+
+    <!-- Store Statistics -->
+    <!-- <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+        <div class="card p-6">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
+                    <i data-lucide="warehouse" class="w-6 h-6 text-blue-600 dark:text-blue-400"></i>
+                </div>
+                <span class="badge badge-info">Total</span>
+            </div>
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white">{{ $stores->total() ?? $stores->count() }}</h4>
+            <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Total Stores</p>
+        </div>
+
+        <div class="card p-6">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center">
+                    <i data-lucide="calendar" class="w-6 h-6 text-emerald-600 dark:text-emerald-400"></i>
+                </div>
+                <span class="badge badge-success">Recent</span>
+            </div>
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white">{{ $stores->where('created_at', '>=', now()->subDays(30))->count() }}</h4>
+            <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Added This Month</p>
+        </div>
+    </div> -->
 @endsection
 
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Simple search functionality
-        const searchInput = document.getElementById('vendor-search');
+        const searchInput = document.getElementById('store-search');
         if (searchInput) {
             searchInput.addEventListener('keyup', function() {
                 const searchTerm = this.value.toLowerCase();

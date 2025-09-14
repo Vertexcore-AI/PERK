@@ -1,21 +1,21 @@
 @extends('layouts.app')
 
-@section('title', 'Edit Vendor')
+@section('title', 'Edit Store')
 
-@section('page-title', 'Edit Vendor')
+@section('page-title', 'Edit Store')
 
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="{{ url('/dashboard') }}">Dashboard</a></li>
-    <li class="breadcrumb-item"><a href="{{ route('vendors.index') }}">Vendors</a></li>
-    <li class="breadcrumb-item"><a href="{{ route('vendors.show', $vendor) }}">{{ $vendor->name }}</a></li>
+    <li class="breadcrumb-item"><a href="{{ route('stores.index') }}">Stores</a></li>
+    <li class="breadcrumb-item"><a href="{{ route('stores.show', $store) }}">{{ $store->store_name }}</a></li>
     <li class="breadcrumb-item active">Edit</li>
 @endsection
 
 @section('page-actions')
     <div class="flex items-center gap-4">
-        <a href="{{ route('vendors.index') }}" class="btn-secondary">
+        <a href="{{ route('stores.index') }}" class="btn-secondary">
             <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
-            Back to Vendors
+            Back to Stores
         </a>
     </div>
 @endsection
@@ -42,57 +42,50 @@
     <div class="card">
         <div class="p-6 border-b border-slate-200 dark:border-slate-700">
             <div class="flex items-center">
+                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mr-4">
+                    <i data-lucide="warehouse" class="w-6 h-6 text-white"></i>
+                </div>
                 <div>
-                    <h5 class="text-lg font-semibold text-slate-900 dark:text-white mb-1">Edit Vendor Information</h5>
-                    <p class="text-slate-600 dark:text-slate-400">Update vendor details and contact information</p>
+                    <h5 class="text-lg font-semibold text-slate-900 dark:text-white mb-1">Edit Store Information</h5>
+                    <p class="text-slate-600 dark:text-slate-400">Update store details and location information</p>
                 </div>
             </div>
         </div>
         <div class="p-6">
-            <form action="{{ route('vendors.update', $vendor) }}" method="POST" class="space-y-6">
+            <form action="{{ route('stores.update', $store) }}" method="POST" class="space-y-6">
                 @csrf
                 @method('PUT')
 
-                <div>
+                <div class="animate-in" style="animation-delay: 0.2s">
                     <x-forms.input
-                        label="Vendor Name"
-                        name="name"
-                        :value="old('name', $vendor->name)"
-                        placeholder="Enter vendor name"
+                        label="Store Name"
+                        name="store_name"
+                        :value="old('store_name', $store->store_name)"
+                        placeholder="e.g., Main Warehouse"
                         required
-                        icon="building"
-                        :error="$errors->first('name')"
+                        icon="warehouse"
+                        :error="$errors->first('store_name')"
                     />
                 </div>
 
-                <div>
-                    <x-forms.input
-                        label="Contact Information"
-                        name="contact"
-                        :value="old('contact', $vendor->contact)"
-                        placeholder="Phone, email, or contact person"
-                        icon="phone"
-                        :error="$errors->first('contact')"
-                    />
-                </div>
-
-                <div>
+                <div class="animate-in" style="animation-delay: 0.3s">
                     <x-forms.textarea
-                        label="Address"
-                        name="address"
-                        :value="old('address', $vendor->address)"
-                        placeholder="Enter vendor address"
+                        label="Store Location"
+                        name="store_location"
+                        :value="old('store_location', $store->store_location)"
+                        placeholder="Enter store location/address"
                         rows="3"
-                        :error="$errors->first('address')"
+                        :error="$errors->first('store_location')"
+                        help="Optional: Location or address of the store"
                     />
                 </div>
 
-                <div class="flex gap-3 pt-4">
+                <div class="flex gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
                     <button type="submit" class="btn-primary">
                         <i data-lucide="save" class="w-4 h-4 mr-2"></i>
-                        Update Vendor
+                        Update Store
                     </button>
-                    <a href="{{ route('vendors.show', $vendor) }}" class="btn-secondary">
+                    <a href="{{ route('stores.show', $store) }}" class="btn-secondary">
                         <i data-lucide="x" class="w-4 h-4 mr-2"></i>
                         Cancel
                     </a>
@@ -100,6 +93,7 @@
             </form>
         </div>
     </div>
+
 @endsection
 
 @push('scripts')

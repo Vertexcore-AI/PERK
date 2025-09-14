@@ -41,7 +41,7 @@ npm install lucide
 ```
 
 ### 2.0.2 Basic Reusable Blade Components (Create First)
-Create core UI components matching NXL/Bootstrap theme:
+Create core UI components using **Tailwind CSS** design system:
 ```bash
 # Basic UI Components - Create these first
 php artisan make:component UI/Card
@@ -64,12 +64,23 @@ Update `resources/views/components/navbar.blade.php` with auto parts specific me
 - **Reports** (BarChart icon) - Stock Reports, Sales Analytics, Financial Reports
 - **Settings** (Settings icon) - Vendors, Categories, Stores & Bins
 
-### 2.0.4 Component Features
-- **Theme Consistency** - Match existing NXL classes (nxl-card, nxl-table, etc.)
-- **Lucide Icons** - Replace feather icons with Lucide equivalents
-- **Responsive Design** - Mobile-friendly forms and tables
-- **Validation States** - Error/success styling matching theme colors
-- **Loading States** - Spinners and skeleton loaders
+### 2.0.4 Component Features & Tailwind Theme
+- **Tailwind CSS 4** - Modern utility-first CSS framework
+- **Dark Mode Support** - Built-in dark mode using Tailwind's dark: modifier
+- **Lucide Icons** - Consistent icon library throughout
+- **Responsive Design** - Mobile-first approach with Tailwind breakpoints (sm:, md:, lg:, xl:)
+- **Component Classes**:
+  - Cards: `card` with `border-slate-200 dark:border-slate-700`
+  - Buttons: `btn-primary`, `btn-secondary`, `btn-icon`
+  - Badges: `badge badge-success`, `badge-warning`, etc.
+  - Forms: Custom form components with Tailwind styling
+  - Tables: `table-modern` with proper dark mode support
+- **Color Palette**:
+  - Primary: blue/indigo shades
+  - Slate: grays for UI elements
+  - Success: emerald
+  - Danger: rose/red
+  - Warning: amber/yellow
 
 ---
 
@@ -155,31 +166,26 @@ php artisan make:request UpdateItemRequest
 resources/views/vendors/
 ├── index.blade.php
 ├── create.blade.php
-├── show.blade.php
 └── edit.blade.php
 
 resources/views/categories/
 ├── index.blade.php
 ├── create.blade.php
-├── show.blade.php
 └── edit.blade.php
 
 resources/views/stores/
 ├── index.blade.php
 ├── create.blade.php
-├── show.blade.php
 └── edit.blade.php
 
 resources/views/customers/
 ├── index.blade.php
 ├── create.blade.php
-├── show.blade.php
 └── edit.blade.php
 
 resources/views/items/
 ├── index.blade.php
-├── create.blade.php
-├── show.blade.php
+├── create.blade.phpleft of phase 1 
 └── edit.blade.php
 ```
 
@@ -624,7 +630,12 @@ npm run dev
 **Note**: This implementation plan should be followed sequentially. Each phase builds upon the previous one. Always refer to the context documentation files for detailed specifications and business rules.
 
 **Component Creation Strategy**:
-- **Phase 0**: Create basic UI components (cards, buttons, forms, tables) that will be reused throughout the application
+- **Phase 0**: Create basic UI components (cards, buttons, forms, tables) using Tailwind CSS
 - **Phase 2+**: Create auto-parts specific components only when implementing the related features
-- **Lucide Icons**: Replace all Feather icons with Lucide icons for consistent iconography
-- **Theme Consistency**: All components must match the existing NXL/Bootstrap theme styling
+- **Lucide Icons**: Use Lucide icons consistently throughout the application
+- **Tailwind Theme**: All components use Tailwind utility classes with dark mode support
+- **Consistent Styling**: Follow the established pattern from vendor views:
+  - Card containers with rounded corners and shadows
+  - Responsive tables with hover states
+  - Form inputs with proper focus states
+  - Success/error alerts with appropriate colors
