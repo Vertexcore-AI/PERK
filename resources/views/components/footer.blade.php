@@ -1,13 +1,12 @@
-    <footer class="footer">
-            <p class="fs-11 text-muted fw-medium text-uppercase mb-0 copyright">
-                <span>Copyright ©</span>
-                <script>
-                    document.write(new Date().getFullYear());
-                </script>
-            </p>
-            <div class="d-flex align-items-center gap-4">
-                <a href="javascript:void(0);" class="fs-11 fw-semibold text-uppercase">Help</a>
-                <a href="javascript:void(0);" class="fs-11 fw-semibold text-uppercase">Terms</a>
-                <a href="javascript:void(0);" class="fs-11 fw-semibold text-uppercase">Privacy</a>
-            </div>
-        </footer>
+<footer class="flex items-center justify-between p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700">
+    <p class="text-xs text-slate-500 dark:text-slate-400 font-medium uppercase">
+        <span>Copyright ©</span>
+        <span x-text="new Date().getFullYear()"></span>
+        <span class="ml-1">PERK Enterprises</span>
+    </p>
+    <div class="flex items-center gap-4">
+        <a href="#" class="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase hover:text-primary-600 transition-colors">Help</a>
+        <a href="#" class="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase hover:text-primary-600 transition-colors">Terms</a>
+        <a href="#" class="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase hover:text-primary-600 transition-colors">Privacy</a>
+    </div>
+</footer>

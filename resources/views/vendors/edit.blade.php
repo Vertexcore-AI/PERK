@@ -14,7 +14,7 @@
 @section('page-actions')
     <div class="page-header-right-items">
         <div class="btn-group">
-            <a href="{{ route('vendors.show', $vendor) }}" class="btn btn-outline-secondary">
+            <a href="{{ route('vendors.index') }}" class="btn btn-outline-secondary">
                 <i data-lucide="arrow-left" class="me-2"></i>
                 Back to Details
             </a>
