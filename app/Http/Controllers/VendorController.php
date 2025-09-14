@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Vendor;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Response;
 
 class VendorController extends Controller
 {
@@ -29,7 +30,7 @@ class VendorController extends Controller
         Vendor::create($request->only(['name', 'contact', 'address']));
 
         return redirect()->route('vendors.index')
-                        ->with('success', 'Vendor created successfully');
+            ->with('success', 'Vendor created successfully');
     }
 
     public function show(Vendor $vendor)
@@ -53,13 +54,49 @@ class VendorController extends Controller
         $vendor->update($request->only(['name', 'contact', 'address']));
 
         return redirect()->route('vendors.index')
-                        ->with('success', 'Vendor updated successfully');
+            ->with('success', 'Vendor updated successfully');
     }
 
     public function destroy(Vendor $vendor)
     {
         $vendor->delete();
         return redirect()->route('vendors.index')
-                        ->with('success', 'Vendor deleted successfully');
+            ->with('success', 'Vendor deleted successfully');
+    }
+
+    //export vendors
+    public function exportCsv()
+    {
+        // Fetch all vendors
+        $vendors = Vendor::all();
+
+        // Define CSV headers
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="vendors.csv"',
+        ];
+
+        // Open output stream
+        $callback = function () use ($vendors) {
+            $file = fopen('php://output', 'w');
+
+            // Add CSV column headers
+            fputcsv($file, ['ID', 'Name', 'Contact', 'Address', 'Created At']);
+
+            // Add vendor data
+            foreach ($vendors as $vendor) {
+                fputcsv($file, [
+                    $vendor->id,
+                    $vendor->name,
+                    $vendor->contact,
+                    $vendor->address,
+                    $vendor->created_at->format('d/m/Y H:i')
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return Response::stream($callback, 200, $headers);
     }
 }
