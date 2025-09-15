@@ -52,33 +52,20 @@
                 </li>
 
                 <!-- Customers -->
-                <li class="nxl-item nxl-hasmenu">
-                    <a href="javascript:void(0);" class="nxl-link">
+                <li class="nxl-item">
+                    <a href="{{ route('customers.index') }}" class="nxl-link">
                         <span class="nxl-micon"><i data-lucide="users"></i></span>
                         <span class="nxl-mtext">Customers</span>
-                        <span class="nxl-arrow"><i data-lucide="chevron-right"></i></span>
                     </a>
-                    <ul class="nxl-submenu">
-                        <li class="nxl-item"><a class="nxl-link" href="{{ url('/customers') }}">Customer List</a></li>
-                        <li class="nxl-item"><a class="nxl-link" href="{{ url('/customers/create') }}">Add Customer</a>
-                        </li>
-                    </ul>
                 </li>
-
                 <!-- Quotations -->
-                <li class="nxl-item nxl-hasmenu">
-                    <a href="javascript:void(0);" class="nxl-link">
+                <li class="nxl-item">
+                    <a href="{{ route('quotations.index') }}" class="nxl-link">
                         <span class="nxl-micon"><i data-lucide="file-text"></i></span>
                         <span class="nxl-mtext">Quotations</span>
-                        <span class="nxl-arrow"><i data-lucide="chevron-right"></i></span>
                     </a>
-                    <ul class="nxl-submenu">
-                        <li class="nxl-item"><a class="nxl-link" href="{{ url('/quotations/create') }}">Create Quote</a>
-                        </li>
-                        <li class="nxl-item"><a class="nxl-link" href="{{ url('/quotations') }}">Manage Quotes</a></li>
-                        <li class="nxl-item"><a class="nxl-link" href="{{ url('/invoices') }}">Invoices</a></li>
-                    </ul>
                 </li>
+
 
                 <!-- Reports -->
                 <li class="nxl-item nxl-hasmenu">
@@ -114,6 +101,13 @@
                     <a class="nxl-link" href="{{ url('/categories') }}">
                         <span class="nxl-micon"><i data-lucide="layers"></i></span>
                         <span class="nxl-mtext">Categories</span>
+                    </a>
+                </li>
+
+                <li class="nxl-item">
+                    <a class="nxl-link" href="{{ route('items.index') }}">
+                        <span class="nxl-micon"><i data-lucide="box"></i></span>
+                        <span class="nxl-mtext">Items</span>
                     </a>
                 </li>
 
