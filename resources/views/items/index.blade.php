@@ -128,9 +128,9 @@
                             </td>
                             <td>
                                 <div class="flex items-center gap-2">
-                                    <span class="text-slate-900 dark:text-slate-100 font-medium">{{ $item->current_stock ?? 0 }}</span>
+                                    <span class="text-slate-900 dark:text-slate-100 font-medium">{{ $item->min_stock ?? 0 }}</span>
                                     <span class="text-slate-500 dark:text-slate-400">{{ $item->unit_of_measure }}</span>
-                                    @if(($item->current_stock ?? 0) <= $item->reorder_point)
+                                    @if(($item->min_stock ?? 0) <= $item->reorder_point)
                                         <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/20 dark:text-amber-300">
                                             Low
                                         </span>

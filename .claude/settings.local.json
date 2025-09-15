@@ -49,7 +49,15 @@
       "mcp__filesystem__read_multiple_files",
       "mcp__filesystem__write_file",
       "mcp__playwright__browser_navigate",
-      "mcp__context7__get-library-docs"
+      "mcp__context7__get-library-docs",
+      "mcp__MCP_SQLite_Server__get_table_schema",
+      "mcp__MCP_SQLite_Server__query",
+      "mcp__MCP_SQLite_Server__create_record",
+      "mcp__playwright__browser_select_option",
+      "mcp__playwright__browser_type",
+      "mcp__MCP_SQLite_Server__read_records",
+      "mcp__MCP_SQLite_Server__update_records",
+      "mcp__MCP_SQLite_Server__delete_records"
     ]
   },
   "enableAllProjectMcpServers": true,

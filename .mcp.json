@@ -34,6 +34,11 @@
             "env": {
                 "FREEPIK_API_KEY": "FPSXb1157ae07d50938639347886fb0684b3"
             }
+        },
+        "MCP SQLite Server": {
+            "type": "stdio",
+            "command": "npx",
+            "args": ["-y", "mcp-sqlite", "database\\database.sqlite"]
         }
     }
 }

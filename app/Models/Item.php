@@ -10,21 +10,30 @@ class Item extends Model
 {
     protected $fillable = [
         'item_no',
+        'name',
         'description',
-        'vat',
-        'manufacturer_name',
         'category_id',
+        'unit_cost',
+        'selling_price',
         'unit_of_measure',
+        'reorder_point',
+        'barcode',
         'min_stock',
         'max_stock',
+        'vat',
         'is_serialized',
+        'is_active',
     ];
 
     protected $casts = [
+        'unit_cost' => 'decimal:2',
+        'selling_price' => 'decimal:2',
         'vat' => 'decimal:2',
+        'reorder_point' => 'integer',
         'min_stock' => 'integer',
         'max_stock' => 'integer',
         'is_serialized' => 'boolean',
+        'is_active' => 'boolean',
     ];
 
     public function category(): BelongsTo

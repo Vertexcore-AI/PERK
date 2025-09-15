@@ -63,19 +63,38 @@
                 <div x-show="open && expanded" x-collapse class="mt-1 space-y-1">
                     <a href="{{ url('/grns') }}"
                         class="sidebar-item pl-12 {{ request()->is('grns*') ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400' : '' }}">
+                        <i data-lucide="truck" class="w-4 h-4 mr-2"></i>
                         GRN Entry
                     </a>
+                    <a href="{{ route('inventory.mappings.index') }}"
+                        class="sidebar-item pl-12 {{ request()->is('inventory/mappings*') ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400' : '' }}">
+                        <i data-lucide="link" class="w-4 h-4 mr-2"></i>
+                        Vendor Mapping
+                    </a>
                     <a href="{{ url('/inventory') }}"
-                        class="sidebar-item pl-12 {{ request()->is('inventory*') ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400' : '' }}">
+                        class="sidebar-item pl-12 {{ request()->is('inventory') || request()->is('inventory/stock-*') ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400' : '' }}">
+                        <i data-lucide="warehouse" class="w-4 h-4 mr-2"></i>
                         Stock Overview
                     </a>
-                    <a href="{{ url('/items') }}"
-                        class="sidebar-item pl-12 {{ request()->is('items*') ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400' : '' }}">
-                        Items Registry
+                    <a href="{{ route('inventory.stock-by-item') }}"
+                        class="sidebar-item pl-12 {{ request()->is('inventory/stock-by-item') ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400' : '' }}">
+                        <i data-lucide="package-search" class="w-4 h-4 mr-2"></i>
+                        Stock by Item
+                    </a>
+                    <a href="{{ route('inventory.low-stock') }}"
+                        class="sidebar-item pl-12 {{ request()->is('inventory/low-stock') ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400' : '' }}">
+                        <i data-lucide="alert-triangle" class="w-4 h-4 mr-2"></i>
+                        Low Stock Alert
                     </a>
                     <a href="{{ url('/batches') }}"
                         class="sidebar-item pl-12 {{ request()->is('batches*') ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400' : '' }}">
-                        Batch Tracking
+                        <i data-lucide="layers" class="w-4 h-4 mr-2"></i>
+                        Batch Management
+                    </a>
+                    <a href="{{ url('/items') }}"
+                        class="sidebar-item pl-12 {{ request()->is('items*') ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400' : '' }}">
+                        <i data-lucide="database" class="w-4 h-4 mr-2"></i>
+                        Items Registry
                     </a>
                 </div>
             </div>

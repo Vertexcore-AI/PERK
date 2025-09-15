@@ -20,11 +20,11 @@ class ItemController extends Controller
         $categories = Category::all();
 
         $totalItems = Item::count();
-        $serializedItems = Item::where('is_serialized', true)->count();
-        $lowStockItems = Item::whereRaw('COALESCE(min_stock, 0) > 0')->count();
-        $totalValue = 0; // Will be calculated in Phase 2
+        $activeItems = Item::where('is_active', true)->count();
+        $lowStockItems = Item::whereRaw('reorder_point > COALESCE(min_stock, 0)')->count();
+        $totalValue = Item::where('is_active', true)->sum(\DB::raw('unit_cost * COALESCE(min_stock, 0)'));
 
-        return view('items.index', compact('items', 'categories', 'totalItems', 'serializedItems', 'lowStockItems', 'totalValue'));
+        return view('items.index', compact('items', 'categories', 'totalItems', 'activeItems', 'lowStockItems', 'totalValue'));
     }
 
     /**
@@ -43,14 +43,16 @@ class ItemController extends Controller
     {
         $request->validate([
             'item_no' => 'required|string|unique:items|max:50',
-            'description' => 'required|string|max:255',
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
             'category_id' => 'required|exists:categories,id',
-            'vat' => 'nullable|numeric|min:0|max:100',
-            'manufacturer_name' => 'nullable|string|max:255',
+            'unit_cost' => 'nullable|numeric|min:0',
+            'selling_price' => 'nullable|numeric|min:0',
             'unit_of_measure' => 'nullable|string|max:10',
-            'min_stock' => 'nullable|integer|min:0',
-            'max_stock' => 'nullable|integer|min:0',
+            'reorder_point' => 'nullable|integer|min:0',
+            'barcode' => 'nullable|string|max:255',
             'is_serialized' => 'boolean',
+            'is_active' => 'boolean',
         ]);
 
         Item::create($request->all());
@@ -84,14 +86,16 @@ class ItemController extends Controller
     {
         $request->validate([
             'item_no' => 'required|string|max:50|unique:items,item_no,' . $item->id,
-            'description' => 'required|string|max:255',
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
             'category_id' => 'required|exists:categories,id',
-            'vat' => 'nullable|numeric|min:0|max:100',
-            'manufacturer_name' => 'nullable|string|max:255',
+            'unit_cost' => 'nullable|numeric|min:0',
+            'selling_price' => 'nullable|numeric|min:0',
             'unit_of_measure' => 'nullable|string|max:10',
-            'min_stock' => 'nullable|integer|min:0',
-            'max_stock' => 'nullable|integer|min:0',
+            'reorder_point' => 'nullable|integer|min:0',
+            'barcode' => 'nullable|string|max:255',
             'is_serialized' => 'boolean',
+            'is_active' => 'boolean',
         ]);
 
         $item->update($request->all());
