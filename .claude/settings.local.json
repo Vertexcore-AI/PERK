@@ -57,7 +57,8 @@
       "mcp__playwright__browser_type",
       "mcp__MCP_SQLite_Server__read_records",
       "mcp__MCP_SQLite_Server__update_records",
-      "mcp__MCP_SQLite_Server__delete_records"
+      "mcp__MCP_SQLite_Server__delete_records",
+      "mcp__MCP_SQLite_Server__db_info"
     ]
   },
   "enableAllProjectMcpServers": true,

@@ -25,33 +25,40 @@ The workflows cover all core modules: Inventory Management, Sales Management, Sa
 ## 2. Workflows
 
 ### 2.1 Goods Received Note (GRN) Entry and Inventory Update
-**Objective**: Record incoming parts from vendors and update inventory stock.  
+**Objective**: Record incoming parts from vendors with pricing and update inventory stock.  
 **Actors**: Shop owner, staff.  
 **Steps**:
 1. **Initiate GRN**: User opens the GRN entry form and selects a vendor from the `Vendors` table.
-2. **Enter Details**: Input GRN fields: inv_no, billing_date, and line items (vendor_item_code, received_qty, unit_price, discount, vat).
+2. **Enter Details**: Input GRN fields: inv_no, billing_date, and line items (vendor_item_code, received_qty, unit_price, **selling_price**, discount, vat).
 3. **Resolve Item Mapping**: System queries `Vendor_Item_Mappings` to match vendor_item_code to internal item_id. If unmatched, prompt user to map to an existing `Items.item_no` or create a new item.
-4. **Calculate Costs**: Compute unit_cost (unit_price - discount), total_cost (unit_cost * received_qty), and apply vat. Update `GRNs` and `GRN_Items` tables.
-5. **Create Batch**: Generate a new `Batches` record with batch_number, cost, and initial quantity.
+4. **Calculate Costs**: Compute unit_cost (unit_price - discount), total_cost (unit_cost * received_qty), and apply vat. Update `GRNs` and `GRN_Items` tables including the selling_price.
+5. **Create Batch with Pricing**: Generate a new `Batches` record with batch_number, **unit_cost**, **selling_price**, initial quantity, received_date, and optional expiry_date. The selling_price is copied from the GRN item entry.
 6. **Decide Stored Quantity**: User specifies stored_qty (≤ received_qty) per item. If `Items.is_serialized = TRUE`, generate `Serial_Items` records with unique serial_no for each unit.
 7. **Update Inventory**: Insert/update `Inventory_Stock` with stored_qty per store/bin/batch via trigger.
 8. **Save and Audit**: Save transaction; log action in `Audit_Logs`.
 
-**Output**: Updated stock in `Inventory_Stock`, new batch records, and GRN history.
+**Output**: Updated stock in `Inventory_Stock`, new batch records with pricing, and GRN history.
 
 ### 2.2 Sales Processing
-**Objective**: Process customer purchases and update stock.  
+**Objective**: Process customer purchases with batch selection and update stock.  
 **Actors**: Sales staff.  
 **Steps**:
 1. **Start Sale**: Open POS interface and select customer from `Customers` or add new.
-2. **Add Items**: Scan barcode (if serialized) or search `Items.item_no`/`description`. Select batch (FIFO via `Batches.created_at`) and quantity.
-3. **Calculate Totals**: Apply unit_price (from last batch cost or `Vendor_Item_Mappings`), discount, and vat. Compute total for `Sale_Items`.
-4. **Process Payment**: Enter payment method (cash/card) and amount. Update `Sales.total_amount`.
-5. **Update Stock**: Deduct quantity from `Inventory_Stock` per batch. If serialized, update `Serial_Items.status` to 1.
-6. **Generate Invoice**: Trigger `generate_invoice()` to create `Invoices` record.
-7. **Save and Audit**: Save transaction; log in `Audit_Logs`.
+2. **Add Items**: Search `Items.item_no`/`description` or scan barcode (if serialized).
+3. **Select Batch**: System displays available batches for the item showing:
+   - Batch number
+   - Available quantity
+   - **Selling price** (from batch)
+   - Expiry date (if applicable)
+   - Default selection: FIFO (oldest batch first)
+   - Allow manual batch selection if needed
+4. **Calculate Totals**: Use the selected batch's **selling_price**, apply any additional discount, and vat. Compute total for `Sale_Items`. Record both selling_price and unit_cost from batch for profit tracking.
+5. **Process Payment**: Enter payment method (cash/card) and amount. Update `Sales.total_amount`.
+6. **Update Stock**: Deduct quantity from `Inventory_Stock` for the selected batch. If serialized, update `Serial_Items.status` to 1.
+7. **Generate Invoice**: Trigger `generate_invoice()` to create `Invoices` record with actual batch prices used.
+8. **Save and Audit**: Save transaction; log in `Audit_Logs`.
 
-**Output**: Completed sale, updated stock, and invoice.
+**Output**: Completed sale with batch tracking, updated stock, and invoice with accurate pricing.
 
 ### 2.3 Sales Returns Processing
 **Objective**: Handle returned items and restore stock.  
@@ -67,17 +74,22 @@ The workflows cover all core modules: Inventory Management, Sales Management, Sa
 **Output**: Restored stock, return record, and refund/credit note.
 
 ### 2.4 Quotation Generation
-**Objective**: Provide estimates for insurance agents/customers.  
+**Objective**: Provide estimates for insurance agents/customers based on current batch prices.  
 **Actors**: Manager, staff.  
 **Steps**:
 1. **Start Quote**: Open quote form and select customer from `Customers` (e.g., insurance type).
-2. **Add Items**: Search `Items` by item_no/description, select quantities, and set unit_price (from batch cost).
-3. **Calculate Totals**: Apply discount and vat; compute `Quote_Items.total` and `Quotations.total_estimate`.
-4. **Set Validity**: Define valid_until date (e.g., 30 days).
-5. **Save Quote**: Insert into `Quotations` and `Quote_Items`. Status defaults to "Pending".
-6. **Save and Audit**: Log action in `Audit_Logs`.
+2. **Add Items**: Search `Items` by item_no/description and select quantities.
+3. **Price Selection**:
+   - **Option A**: Use average selling price across all available batches
+   - **Option B**: Use specific batch prices (most recent or selected batch)
+   - **Option C**: Allow manual price override with justification
+4. **Calculate Totals**: Apply the selected pricing strategy, discount and vat; compute `Quote_Items.total` and `Quotations.total_estimate`.
+5. **Set Validity**: Define valid_until date (e.g., 30 days).
+6. **Save Quote**: Insert into `Quotations` and `Quote_Items` with price reference. Status defaults to "Pending".
+7. **Quote Conversion**: When converting to sale, allow batch selection at that time for actual pricing.
+8. **Save and Audit**: Log action in `Audit_Logs`.
 
-**Output**: Saved quotation document, convertible to sale/invoice.
+**Output**: Saved quotation document with flexible pricing, convertible to sale/invoice.
 
 ### 2.5 Invoice Generation
 **Objective**: Create billing documents from sales or accepted quotes.  

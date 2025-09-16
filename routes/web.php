@@ -34,6 +34,12 @@ Route::resource('grns', GRNController::class);
 Route::put('grns/{grn}/items/{grnItem}/stored-qty', [GRNController::class, 'updateStoredQty'])
     ->name('grns.update-stored-qty');
 
+// GRN Import routes
+Route::post('grns/upload-excel', [GRNController::class, 'uploadExcel'])->name('grns.upload-excel');
+Route::post('grns/resolve-mapping', [GRNController::class, 'resolveMapping'])->name('grns.resolve-mapping');
+Route::post('grns/process-import', [GRNController::class, 'processImport'])->name('grns.process-import');
+Route::get('grns/download-template', [GRNController::class, 'downloadTemplate'])->name('grns.download-template');
+
 // Batch Management routes
 Route::resource('batches', \App\Http\Controllers\BatchController::class)->only(['index', 'show', 'edit', 'update']);
 Route::get('batches/stock-value', [\App\Http\Controllers\BatchController::class, 'stockValue'])->name('batches.stock-value');

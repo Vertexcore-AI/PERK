@@ -40,24 +40,28 @@ The initial scope excludes mobile apps, e-commerce integration, or custom hardwa
 ### 2.1 Functional Requirements
 
 #### 2.1.1 Inventory Management
-- **GRN Entry**: Allow entry of GRNs with fields: vendor, inv_no, billing_date, created_at, received_qty, unit_price, discount, unit_cost, total_cost, grn_id, item_id, stored_qty, vat.
-- **Item Registry**: Map vendor-specific item codes to a unique internal item_no via a Vendor_Item_Mappings table, enabling multi-vendor support.
+- **GRN Entry**: Allow entry of GRNs with fields: vendor, inv_no, billing_date, created_at, received_qty, unit_price, selling_price, discount, unit_cost, total_cost, grn_id, item_id, stored_qty, vat.
+- **Item Registry**: Map vendor-specific item codes to a unique internal item_no via a Vendor_Item_Mappings table, enabling multi-vendor support without fixed pricing.
 - **Stock Updates**: Transfer stored_qty from GRN to Inventory_Stock per batch and store/bin after user approval.
-- **Batch Tracking**: Track batches with batch_id, cost, and quantity for quality control and FIFO stock management.
+- **Batch Tracking**: Track batches with batch_id, unit_cost, selling_price, quantity, and expiry_date for quality control and FIFO stock management.
+- **Batch-Based Pricing**: Store both purchase cost and selling price at the batch level, allowing dynamic pricing per batch based on market conditions.
 - **Serialization (Optional)**: Support barcode/serial number tracking for individual items via Serial_Items (status 0: Available, 1: Sold).
 
 #### 2.1.2 Sales Management
-- **POS Interface**: Enable sales entry with customer details, cart management, discounts, taxes, and payment processing (cash/card).
-- **Stock Deduction**: Automatically reduce Inventory_Stock quantity per batch on sale completion.
-- **Batch Selection**: Use FIFO logic to select batches for sales.
+- **POS Interface**: Enable sales entry with customer details, cart management, batch selection, discounts, taxes, and payment processing (cash/card).
+- **Batch Selection**: Display available batches with quantity, selling price, and expiry date. Default to FIFO logic but allow manual batch selection.
+- **Stock Deduction**: Automatically reduce Inventory_Stock quantity from selected batch on sale completion.
+- **Price Retrieval**: Fetch selling price from the selected batch, ensuring accurate pricing based on purchase costs.
+- **Profit Tracking**: Record both selling price and unit cost from batch for accurate profit calculation.
 
 #### 2.1.3 Sales Returns
 - **Return Processing**: Handle returns with reason, original sale reference, and refund/credit note generation.
 - **Stock Restoration**: Add returned quantity back to Inventory_Stock per batch.
 
 #### 2.1.4 Quotation Management
-- **Quote Generation**: Create quotes for insurance agents with parts, quantities, and validity periods (e.g., 30 days).
-- **Conversion**: Convert accepted quotes to sales/invoices.
+- **Quote Generation**: Create quotes for insurance agents with parts, quantities based on current batch prices, and validity periods (e.g., 30 days).
+- **Price Strategy**: Use average batch prices or specific batch prices for quotations.
+- **Conversion**: Convert accepted quotes to sales/invoices with actual batch selection at time of conversion.
 
 #### 2.1.5 Invoice Generation
 - **Billing**: Generate printable/digital invoices with line items, tax calculations, and email/SMS delivery.

@@ -13,7 +13,7 @@
                     Track and manage inventory batches with FIFO support
                 </p>
             </div>
-            <div class="flex items-center gap-3">
+            <!-- <div class="flex items-center gap-3">
                 <a href="{{ route('batches.stock-value') }}"
                    class="btn-secondary">
                     <i data-lucide="dollar-sign" class="w-4 h-4"></i>
@@ -24,11 +24,11 @@
                     <i data-lucide="calendar-x" class="w-4 h-4"></i>
                     Expiring Batches
                 </a>
-            </div>
+            </div> -->
         </div>
 
         <!-- Statistics Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+        <!-- <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
             <div class="bg-white dark:bg-slate-800 rounded-lg p-6 border border-slate-200 dark:border-slate-700">
                 <div class="flex items-center">
                     <div class="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
@@ -76,12 +76,12 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
 
         <!-- Filters -->
         <div class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 mb-6">
             <div class="p-6">
-                <form method="GET" class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Search</label>
                         <input type="text" name="search" value="{{ request('search') }}"
@@ -113,7 +113,7 @@
                         </select>
                     </div>
 
-                    <div>
+                    <!-- <div>
                         <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Status</label>
                         <select name="status" class="select w-full">
                             <option value="">All Batches</option>
@@ -121,9 +121,9 @@
                             <option value="depleted" {{ request('status') == 'depleted' ? 'selected' : '' }}>Depleted</option>
                             <option value="low_stock" {{ request('status') == 'low_stock' ? 'selected' : '' }}>Low Stock</option>
                         </select>
-                    </div>
+                    </div> -->
 
-                    <div class="flex items-end gap-2">
+                    <div class="flex items-end gap-2 mb-2">
                         <button type="submit" class="btn-primary">
                             <i data-lucide="search" class="w-4 h-4"></i>
                             Search
@@ -155,7 +155,7 @@
                                     <th class="text-left py-3 px-4 font-medium text-slate-700 dark:text-slate-300">Item</th>
                                     <th class="text-left py-3 px-4 font-medium text-slate-700 dark:text-slate-300">Vendor</th>
                                     <th class="text-center py-3 px-4 font-medium text-slate-700 dark:text-slate-300">Stock</th>
-                                    <th class="text-right py-3 px-4 font-medium text-slate-700 dark:text-slate-300">Unit Cost</th>
+
                                     <th class="text-right py-3 px-4 font-medium text-slate-700 dark:text-slate-300">Total Value</th>
                                     <th class="text-center py-3 px-4 font-medium text-slate-700 dark:text-slate-300">Status</th>
                                     <th class="text-center py-3 px-4 font-medium text-slate-700 dark:text-slate-300">Created</th>
@@ -210,9 +210,7 @@
                                                 </span>
                                             @endif
                                         </td>
-                                        <td class="py-4 px-4 text-right font-medium text-slate-900 dark:text-white">
-                                            ${{ number_format($batch->unit_cost, 2) }}
-                                        </td>
+                                       
                                         <td class="py-4 px-4 text-right font-bold text-slate-900 dark:text-white">
                                             ${{ number_format($stockValue, 2) }}
                                         </td>

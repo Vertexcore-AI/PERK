@@ -9,9 +9,9 @@ use Illuminate\Support\Str;
 class BatchService
 {
     /**
-     * Create a new batch for an item with actual purchase cost
+     * Create a new batch for an item with actual purchase cost and selling price
      */
-    public function createBatch($itemId, $vendorId, $actualCost, $quantity, $grnData = [])
+    public function createBatch($itemId, $vendorId, $actualCost, $sellingPrice, $quantity, $grnData = [])
     {
         $batchNumber = Batch::generateBatchNumber($itemId, $vendorId);
 
@@ -20,6 +20,7 @@ class BatchService
             'vendor_id' => $vendorId,
             'batch_no' => $batchNumber,
             'unit_cost' => $actualCost, // This is the actual purchase cost after discount
+            'selling_price' => $sellingPrice, // Selling price for this batch
             'received_qty' => $quantity,
             'remaining_qty' => $quantity,
             'received_date' => now()->toDateString(),
@@ -30,7 +31,7 @@ class BatchService
     }
 
     /**
-     * Create batch with enhanced pricing data
+     * Create batch with enhanced pricing data including selling price
      */
     public function createBatchWithPricing($itemId, $vendorId, $pricingData, $quantity)
     {
@@ -39,33 +40,19 @@ class BatchService
         $discount = $pricingData['discount'] ?? 0;
         $actualCost = $unitPrice - ($unitPrice * $discount / 100);
 
-        $batch = $this->createBatch($itemId, $vendorId, $actualCost, $quantity, [
+        // Get selling price from GRN data
+        $sellingPrice = $pricingData['selling_price'] ?? ($actualCost * 1.3); // Default 30% markup if not specified
+
+        $batch = $this->createBatch($itemId, $vendorId, $actualCost, $sellingPrice, $quantity, [
             'expiry_date' => $pricingData['expiry_date'] ?? null,
             'notes' => $pricingData['notes'] ?? null,
             'discount' => $pricingData['discount'] ?? 0,
             'vat' => $pricingData['vat'] ?? 0,
         ]);
 
-        // Update vendor item mapping with latest cost if this is preferred vendor
-        $this->updateVendorMappingCost($vendorId, $itemId, $actualCost);
-
         return $batch;
     }
 
-    /**
-     * Update vendor mapping with latest actual cost
-     */
-    private function updateVendorMappingCost($vendorId, $itemId, $actualCost)
-    {
-        $mapping = \App\Models\VendorItemMapping::where('vendor_id', $vendorId)
-            ->where('item_id', $itemId)
-            ->first();
-
-        if ($mapping && $mapping->is_preferred) {
-            // Update reference cost with actual cost for preferred vendors
-            $mapping->update(['vendor_cost' => $actualCost]);
-        }
-    }
 
     /**
      * Update batch quantity
@@ -158,7 +145,16 @@ class BatchService
     public function calculateBatchCost($batchId, $quantity)
     {
         $batch = Batch::findOrFail($batchId);
-        return $batch->cost * $quantity;
+        return $batch->unit_cost * $quantity;
+    }
+
+    /**
+     * Calculate batch selling price for quantity
+     */
+    public function calculateBatchSellingPrice($batchId, $quantity)
+    {
+        $batch = Batch::findOrFail($batchId);
+        return $batch->selling_price * $quantity;
     }
 
     /**

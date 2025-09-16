@@ -75,7 +75,9 @@
                                     <th class="text-left py-3 px-4 font-medium text-slate-700 dark:text-slate-300">Vendor Code</th>
                                     <th class="text-center py-3 px-4 font-medium text-slate-700 dark:text-slate-300">Received</th>
                                     <th class="text-center py-3 px-4 font-medium text-slate-700 dark:text-slate-300">Stored</th>
-                                    <th class="text-right py-3 px-4 font-medium text-slate-700 dark:text-slate-300">Unit Price</th>
+                                    <th class="text-right py-3 px-4 font-medium text-slate-700 dark:text-slate-300">Unit Cost</th>
+                                    <th class="text-right py-3 px-4 font-medium text-slate-700 dark:text-slate-300">Selling Price</th>
+                                    <th class="text-center py-3 px-4 font-medium text-slate-700 dark:text-slate-300">Margin</th>
                                     <th class="text-center py-3 px-4 font-medium text-slate-700 dark:text-slate-300">Discount</th>
                                     <th class="text-center py-3 px-4 font-medium text-slate-700 dark:text-slate-300">VAT</th>
                                     <th class="text-right py-3 px-4 font-medium text-slate-700 dark:text-slate-300">Total</th>
@@ -126,11 +128,30 @@
                                             @endif
                                         </td>
                                         <td class="py-4 px-4 text-right font-medium text-slate-900 dark:text-white">
-                                            ${{ number_format($grnItem->unit_price, 2) }}
+                                            ${{ number_format($grnItem->unit_cost, 2) }}
+                                        </td>
+                                        <td class="py-4 px-4 text-right font-medium text-green-600 dark:text-green-400">
+                                            @if($grnItem->selling_price > 0)
+                                                ${{ number_format($grnItem->selling_price, 2) }}
+                                            @else
+                                                <span class="text-slate-400">Not set</span>
+                                            @endif
+                                        </td>
+                                        <td class="py-4 px-4 text-center">
+                                            @if($grnItem->selling_price > 0 && $grnItem->unit_cost > 0)
+                                                @php
+                                                    $margin = (($grnItem->selling_price - $grnItem->unit_cost) / $grnItem->unit_cost) * 100;
+                                                @endphp
+                                                <span class="text-sm font-medium {{ $margin > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}">
+                                                    {{ number_format($margin, 1) }}%
+                                                </span>
+                                            @else
+                                                <span class="text-slate-400">-</span>
+                                            @endif
                                         </td>
                                         <td class="py-4 px-4 text-center">
                                             @if($grnItem->discount > 0)
-                                                <span class="text-green-600 dark:text-green-400 font-medium">
+                                                <span class="text-orange-600 dark:text-orange-400 font-medium">
                                                     {{ $grnItem->discount }}%
                                                 </span>
                                             @else
@@ -166,16 +187,46 @@
 
                     <!-- Summary -->
                     <div class="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
-                        <div class="flex justify-between items-center">
-                            <div class="text-sm text-slate-600 dark:text-slate-400">
-                                {{ $grn->grnItems->count() }} item(s) •
-                                {{ $grn->grnItems->sum('received_qty') }} total units received •
-                                {{ $grn->grnItems->sum('stored_qty') }} units stored
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                            <div class="bg-slate-50 dark:bg-slate-800 rounded-lg p-4">
+                                <div class="text-sm text-slate-600 dark:text-slate-400">Items</div>
+                                <div class="text-xl font-bold text-slate-900 dark:text-white">{{ $grn->grnItems->count() }}</div>
                             </div>
-                            <div class="text-xl font-bold text-slate-900 dark:text-white">
-                                Total: ${{ number_format($grn->total_amount, 2) }}
+                            <div class="bg-slate-50 dark:bg-slate-800 rounded-lg p-4">
+                                <div class="text-sm text-slate-600 dark:text-slate-400">Units Received</div>
+                                <div class="text-xl font-bold text-slate-900 dark:text-white">{{ $grn->grnItems->sum('received_qty') }}</div>
+                            </div>
+                            <div class="bg-slate-50 dark:bg-slate-800 rounded-lg p-4">
+                                <div class="text-sm text-slate-600 dark:text-slate-400">Units Stored</div>
+                                <div class="text-xl font-bold text-slate-900 dark:text-white">{{ $grn->grnItems->sum('stored_qty') }}</div>
+                            </div>
+                            <div class="bg-slate-50 dark:bg-slate-800 rounded-lg p-4">
+                                <div class="text-sm text-slate-600 dark:text-slate-400">Total Cost</div>
+                                <div class="text-xl font-bold text-slate-900 dark:text-white">${{ number_format($grn->total_amount, 2) }}</div>
                             </div>
                         </div>
+
+                        @php
+                            $totalSellingValue = $grn->grnItems->sum(function($item) {
+                                return $item->selling_price * $item->stored_qty;
+                            });
+                            $avgMargin = $grn->grnItems->where('selling_price', '>', 0)->avg(function($item) {
+                                return $item->unit_cost > 0 ? (($item->selling_price - $item->unit_cost) / $item->unit_cost) * 100 : 0;
+                            });
+                        @endphp
+
+                        @if($totalSellingValue > 0)
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+                                    <div class="text-sm text-green-700 dark:text-green-300">Potential Selling Value</div>
+                                    <div class="text-xl font-bold text-green-900 dark:text-green-100">${{ number_format($totalSellingValue, 2) }}</div>
+                                </div>
+                                <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                                    <div class="text-sm text-blue-700 dark:text-blue-300">Average Margin</div>
+                                    <div class="text-xl font-bold text-blue-900 dark:text-blue-100">{{ number_format($avgMargin ?? 0, 1) }}%</div>
+                                </div>
+                            </div>
+                        @endif
                     </div>
                 @else
                     <div class="text-center py-8">

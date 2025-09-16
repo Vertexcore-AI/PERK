@@ -21,7 +21,7 @@
                 </a>
                 <a href="{{ route('batches.edit', $batch) }}"
                    class="btn-primary">
-                    <i data-lucide="edit-3" class="w-4 h-4"></i>
+                   
                     Edit Batch
                 </a>
             </div>
@@ -60,6 +60,24 @@
                             <p class="text-slate-900 dark:text-white font-bold text-lg mt-1">
                                 ${{ number_format($batch->unit_cost, 2) }}
                             </p>
+                        </div>
+                        <div>
+                            <label class="text-sm font-medium text-slate-700 dark:text-slate-300">Selling Price</label>
+                            @if($batch->selling_price > 0)
+                                <p class="text-green-600 dark:text-green-400 font-bold text-lg mt-1">
+                                    ${{ number_format($batch->selling_price, 2) }}
+                                </p>
+                                @php
+                                    $margin = (($batch->selling_price - $batch->unit_cost) / $batch->unit_cost) * 100;
+                                @endphp
+                                <p class="text-sm {{ $margin > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}">
+                                    {{ number_format($margin, 1) }}% margin
+                                </p>
+                            @else
+                                <p class="text-slate-400 dark:text-slate-500 font-medium text-lg mt-1">
+                                    Not set
+                                </p>
+                            @endif
                         </div>
                         <div>
                             <label class="text-sm font-medium text-slate-700 dark:text-slate-300">Received Date</label>
@@ -114,11 +132,19 @@
                             <p class="text-2xl font-bold text-slate-600 dark:text-slate-400">{{ $totalSold }}</p>
                         </div>
                         <div class="pt-4 border-t border-slate-200 dark:border-slate-700">
-                            <label class="text-sm font-medium text-slate-700 dark:text-slate-300">Stock Value</label>
+                            <label class="text-sm font-medium text-slate-700 dark:text-slate-300">Stock Value (Cost)</label>
                             <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">
                                 ${{ number_format($stockValue, 2) }}
                             </p>
                         </div>
+                        @if($batch->selling_price > 0)
+                            <div>
+                                <label class="text-sm font-medium text-slate-700 dark:text-slate-300">Potential Selling Value</label>
+                                <p class="text-2xl font-bold text-green-600 dark:text-green-400">
+                                    ${{ number_format($currentStock * $batch->selling_price, 2) }}
+                                </p>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -194,9 +220,15 @@
                                     <p class="text-slate-900 dark:text-white font-medium">{{ $grnItem->received_qty }}</p>
                                 </div>
                                 <div>
-                                    <label class="text-sm font-medium text-slate-700 dark:text-slate-300">Unit Price</label>
-                                    <p class="text-slate-900 dark:text-white font-medium">${{ number_format($grnItem->unit_price, 2) }}</p>
+                                    <label class="text-sm font-medium text-slate-700 dark:text-slate-300">Unit Cost</label>
+                                    <p class="text-slate-900 dark:text-white font-medium">${{ number_format($grnItem->unit_cost, 2) }}</p>
                                 </div>
+                                @if($grnItem->selling_price > 0)
+                                    <div class="md:col-span-2">
+                                        <label class="text-sm font-medium text-slate-700 dark:text-slate-300">Selling Price</label>
+                                        <p class="text-green-600 dark:text-green-400 font-medium">${{ number_format($grnItem->selling_price, 2) }}</p>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     @endforeach

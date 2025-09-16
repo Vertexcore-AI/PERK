@@ -22,7 +22,12 @@ class ItemController extends Controller
         $totalItems = Item::count();
         $activeItems = Item::where('is_active', true)->count();
         $lowStockItems = Item::whereRaw('reorder_point > COALESCE(min_stock, 0)')->count();
-        $totalValue = Item::where('is_active', true)->sum(\DB::raw('unit_cost * COALESCE(min_stock, 0)'));
+        // Calculate total value from batches instead of item unit_cost
+        $totalValue = \DB::table('batches')
+            ->join('items', 'batches.item_id', '=', 'items.id')
+            ->where('items.is_active', true)
+            ->where('batches.remaining_qty', '>', 0)
+            ->sum(\DB::raw('batches.unit_cost * batches.remaining_qty'));
 
         return view('items.index', compact('items', 'categories', 'totalItems', 'activeItems', 'lowStockItems', 'totalValue'));
     }
@@ -46,8 +51,6 @@ class ItemController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'category_id' => 'required|exists:categories,id',
-            'unit_cost' => 'nullable|numeric|min:0',
-            'selling_price' => 'nullable|numeric|min:0',
             'unit_of_measure' => 'nullable|string|max:10',
             'reorder_point' => 'nullable|integer|min:0',
             'barcode' => 'nullable|string|max:255',
@@ -66,7 +69,7 @@ class ItemController extends Controller
      */
     public function show(Item $item)
     {
-        $item->load('category');
+        $item->load(['category', 'batches.vendor']);
         return view('items.show', compact('item'));
     }
 
@@ -89,8 +92,6 @@ class ItemController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'category_id' => 'required|exists:categories,id',
-            'unit_cost' => 'nullable|numeric|min:0',
-            'selling_price' => 'nullable|numeric|min:0',
             'unit_of_measure' => 'nullable|string|max:10',
             'reorder_point' => 'nullable|integer|min:0',
             'barcode' => 'nullable|string|max:255',

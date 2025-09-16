@@ -12,12 +12,10 @@ class VendorItemMapping extends Model
         'item_id',
         'vendor_item_code',
         'vendor_item_name',
-        'vendor_cost',
         'is_preferred',
     ];
 
     protected $casts = [
-        'vendor_cost' => 'decimal:2',
         'is_preferred' => 'boolean',
     ];
 
@@ -87,36 +85,54 @@ class VendorItemMapping extends Model
     }
 
     /**
-     * Get best price vendor for an item (lowest cost)
+     * Get best price vendor for an item (based on recent batch costs)
      */
     public static function getBestPriceVendor($itemId)
     {
-        return self::where('item_id', $itemId)
-            ->whereNotNull('vendor_cost')
-            ->orderBy('vendor_cost', 'asc')
-            ->with('vendor')
+        // Get vendor with lowest average batch cost
+        $bestVendor = \App\Models\Batch::where('item_id', $itemId)
+            ->selectRaw('vendor_id, AVG(unit_cost) as avg_cost')
+            ->groupBy('vendor_id')
+            ->orderBy('avg_cost', 'asc')
             ->first();
+
+        if ($bestVendor) {
+            return self::where('item_id', $itemId)
+                ->where('vendor_id', $bestVendor->vendor_id)
+                ->with('vendor')
+                ->first();
+        }
+
+        return null;
     }
 
     /**
-     * Compare vendor prices for an item
+     * Compare vendor prices for an item (using batch history)
      */
     public static function compareVendorPrices($itemId)
     {
-        return self::where('item_id', $itemId)
-            ->whereNotNull('vendor_cost')
-            ->with('vendor')
-            ->orderBy('vendor_cost', 'asc')
+        // Get average costs from batches for each vendor
+        $vendorCosts = \App\Models\Batch::where('item_id', $itemId)
+            ->selectRaw('vendor_id, AVG(unit_cost) as avg_cost, COUNT(*) as batch_count')
+            ->groupBy('vendor_id')
             ->get()
-            ->map(function ($mapping) {
+            ->keyBy('vendor_id');
+
+        return self::where('item_id', $itemId)
+            ->with('vendor')
+            ->get()
+            ->map(function ($mapping) use ($vendorCosts) {
+                $vendorStats = $vendorCosts->get($mapping->vendor_id);
                 return [
                     'vendor_name' => $mapping->vendor->name,
                     'vendor_item_code' => $mapping->vendor_item_code,
-                    'vendor_cost' => $mapping->vendor_cost,
+                    'avg_cost' => $vendorStats ? round($vendorStats->avg_cost, 2) : null,
+                    'batch_count' => $vendorStats ? $vendorStats->batch_count : 0,
                     'is_preferred' => $mapping->is_preferred,
                     'mapping_id' => $mapping->id,
                 ];
-            });
+            })
+            ->sortBy('avg_cost');
     }
 
     /**
@@ -136,7 +152,7 @@ class VendorItemMapping extends Model
             ->map(function ($batch) {
                 return [
                     'vendor_name' => $batch->vendor->name,
-                    'actual_cost' => $batch->cost,
+                    'actual_cost' => $batch->unit_cost,
                     'quantity' => $batch->quantity,
                     'batch_number' => $batch->batch_number,
                     'purchase_date' => $batch->created_at,
@@ -145,20 +161,4 @@ class VendorItemMapping extends Model
             });
     }
 
-    /**
-     * Update reference cost based on recent actual purchases
-     */
-    public function updateReferenceFromActualCosts()
-    {
-        // Get average cost from last 3 batches
-        $recentCost = \App\Models\Batch::where('item_id', $this->item_id)
-            ->where('vendor_id', $this->vendor_id)
-            ->orderBy('created_at', 'desc')
-            ->limit(3)
-            ->avg('cost');
-
-        if ($recentCost) {
-            $this->update(['vendor_cost' => round($recentCost, 2)]);
-        }
-    }
 }

@@ -13,6 +13,7 @@ class Batch extends Model
         'vendor_id',
         'batch_no',
         'unit_cost',
+        'selling_price',
         'received_qty',
         'remaining_qty',
         'received_date',
@@ -24,6 +25,7 @@ class Batch extends Model
 
     protected $casts = [
         'unit_cost' => 'decimal:2',
+        'selling_price' => 'decimal:2',
         'received_qty' => 'integer',
         'remaining_qty' => 'integer',
         'discount_percent' => 'decimal:2',
@@ -150,5 +152,28 @@ class Batch extends Model
             ->join('inventory_stock', 'batches.id', '=', 'inventory_stock.batch_id')
             ->selectRaw('SUM(batches.unit_cost * inventory_stock.quantity) as total_value')
             ->value('total_value') ?? 0;
+    }
+
+    /**
+     * Calculate average selling price for an item across all batches
+     */
+    public static function getAverageSellingPrice($itemId)
+    {
+        return self::where('item_id', $itemId)
+            ->whereHas('inventoryStock', function ($q) {
+                $q->where('quantity', '>', 0);
+            })
+            ->avg('selling_price') ?? 0;
+    }
+
+    /**
+     * Get profit margin for this batch
+     */
+    public function getProfitMarginAttribute()
+    {
+        if ($this->unit_cost > 0) {
+            return round((($this->selling_price - $this->unit_cost) / $this->unit_cost) * 100, 2);
+        }
+        return 0;
     }
 }

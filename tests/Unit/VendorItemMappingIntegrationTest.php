@@ -48,11 +48,7 @@ class VendorItemMappingIntegrationTest extends TestCase
             'category_id' => $category->id,
             'name' => 'Test Item',
             'item_no' => 'ITM001',
-            'unit_cost' => 10.00,
-            'selling_price' => 15.00,
-            'min_stock' => 5,
-            'max_stock' => 100,
-            'reorder_level' => 10,
+            'reorder_point' => 10,
             'is_active' => true,
         ]);
 
@@ -62,7 +58,6 @@ class VendorItemMappingIntegrationTest extends TestCase
             'item_id' => $item->id,
             'vendor_item_code' => 'V-BP-001',
             'vendor_item_name' => 'Vendor Brake Pad',
-            'vendor_cost' => 9.50,
             'is_preferred' => true,
         ]);
 
@@ -95,11 +90,7 @@ class VendorItemMappingIntegrationTest extends TestCase
             'category_id' => $category->id,
             'name' => 'Test Item',
             'item_no' => 'ITM002',
-            'unit_cost' => 10.00,
-            'selling_price' => 15.00,
-            'min_stock' => 5,
-            'max_stock' => 100,
-            'reorder_level' => 10,
+            'reorder_point' => 10,
             'is_active' => true,
         ]);
 
@@ -154,11 +145,7 @@ class VendorItemMappingIntegrationTest extends TestCase
             'category_id' => $category->id,
             'name' => 'Test Item',
             'item_no' => 'ITM003',
-            'unit_cost' => 10.00,
-            'selling_price' => 15.00,
-            'min_stock' => 5,
-            'max_stock' => 100,
-            'reorder_level' => 10,
+            'reorder_point' => 10,
             'is_active' => true,
         ]);
 
@@ -167,7 +154,6 @@ class VendorItemMappingIntegrationTest extends TestCase
             'item_id' => $item->id,
             'vendor_item_code' => 'V-BP-003',
             'vendor_item_name' => 'Vendor Brake Pad 003',
-            'vendor_cost' => 9.50,
             'is_preferred' => true,
         ]);
 
@@ -206,11 +192,7 @@ class VendorItemMappingIntegrationTest extends TestCase
             'category_id' => $category->id,
             'name' => 'Test Item',
             'item_no' => 'ITM004',
-            'unit_cost' => 10.00,
-            'selling_price' => 15.00,
-            'min_stock' => 5,
-            'max_stock' => 100,
-            'reorder_level' => 10,
+            'reorder_point' => 10,
             'is_active' => true,
         ]);
 
@@ -220,7 +202,6 @@ class VendorItemMappingIntegrationTest extends TestCase
             'item_id' => $item->id,
             'vendor_item_code' => 'V1-BP-004',
             'vendor_item_name' => 'Vendor 1 Brake Pad',
-            'vendor_cost' => 9.50,
             'is_preferred' => true,
         ]);
 
@@ -229,7 +210,6 @@ class VendorItemMappingIntegrationTest extends TestCase
             'item_id' => $item->id,
             'vendor_item_code' => 'V2-BP-004',
             'vendor_item_name' => 'Vendor 2 Brake Pad',
-            'vendor_cost' => 8.75,
             'is_preferred' => false,
         ]);
 

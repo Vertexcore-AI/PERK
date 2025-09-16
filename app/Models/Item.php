@@ -13,22 +13,17 @@ class Item extends Model
         'name',
         'description',
         'category_id',
-        'unit_cost',
-        'selling_price',
         'unit_of_measure',
         'reorder_point',
         'barcode',
         'min_stock',
         'max_stock',
-        'vat',
+        'manufacturer_name',
         'is_serialized',
         'is_active',
     ];
 
     protected $casts = [
-        'unit_cost' => 'decimal:2',
-        'selling_price' => 'decimal:2',
-        'vat' => 'decimal:2',
         'reorder_point' => 'integer',
         'min_stock' => 'integer',
         'max_stock' => 'integer',

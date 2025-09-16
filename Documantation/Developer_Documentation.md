@@ -81,7 +81,6 @@ CREATE TABLE Items (
     item_id INTEGER PRIMARY KEY,
     item_no TEXT UNIQUE NOT NULL,
     description TEXT NOT NULL,
-    vat DECIMAL(5,2) DEFAULT 0,
     manufacturer_name TEXT,
     category_id INTEGER,
     unit_of_measure TEXT DEFAULT 'PCS',
@@ -97,7 +96,8 @@ CREATE TABLE Vendor_Item_Mappings (
     vendor_id INTEGER,
     vendor_item_code TEXT NOT NULL,
     item_id INTEGER,
-    unit_cost DECIMAL(10,2),
+    vendor_item_name TEXT,
+    is_preferred BOOLEAN DEFAULT FALSE,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     UNIQUE (vendor_id, vendor_item_code),
     FOREIGN KEY (vendor_id) REFERENCES Vendors(vendor_id),
@@ -109,8 +109,14 @@ CREATE TABLE Batches (
     item_id INTEGER,
     vendor_id INTEGER,
     batch_number TEXT,
-    cost DECIMAL(10,2),
+    unit_cost DECIMAL(10,2),
+    selling_price DECIMAL(10,2),
     quantity INTEGER DEFAULT 0 CHECK (quantity >= 0),
+    remaining_quantity INTEGER DEFAULT 0 CHECK (remaining_quantity >= 0),
+    received_date DATE,
+    expiry_date DATE,
+    discount_percent DECIMAL(5,2) DEFAULT 0,
+    vat_percent DECIMAL(5,2) DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (item_id) REFERENCES Items(item_id),
     FOREIGN KEY (vendor_id) REFERENCES Vendors(vendor_id)
@@ -144,6 +150,7 @@ CREATE TABLE GRN_Items (
     vendor_item_code TEXT,
     received_qty INTEGER CHECK (received_qty >= 0),
     unit_price DECIMAL(10,2),
+    selling_price DECIMAL(10,2),
     discount DECIMAL(5,2) DEFAULT 0,
     unit_cost DECIMAL(10,2),
     vat DECIMAL(5,2) DEFAULT 0,
@@ -195,6 +202,7 @@ CREATE TABLE Sale_Items (
     batch_id INTEGER,
     quantity INTEGER CHECK (quantity > 0),
     unit_price DECIMAL(10,2),
+    unit_cost DECIMAL(10,2),
     discount DECIMAL(5,2) DEFAULT 0,
     vat DECIMAL(5,2),
     total DECIMAL(10,2),
@@ -302,22 +310,32 @@ CREATE TABLE Users (
 ### 4.2 Core Functions
 - **GRN Processing**:
   - Function: `process_grn(vendor_id, inv_no, items)`.
-  - Logic: Insert into `GRNs`, resolve `item_id` via `Vendor_Item_Mappings`, create `Batches`, update `Inventory_Stock`.
+  - Logic: Insert into `GRNs`, resolve `item_id` via `Vendor_Item_Mappings`, create `Batches` with both `unit_cost` and `selling_price` from GRN items, update `Inventory_Stock`.
+  - Pricing: User enters both unit_price (cost) and selling_price for each item. These are stored in the batch for future sales.
   - Trigger: On `GRN_Items` insert, update batch/stock if `stored_qty > 0`.
 - **Sales Processing**:
   - Function: `process_sale(customer_id, items)`.
-  - Logic: Insert into `Sales` and `Sale_Items`, deduct from `Inventory_Stock` (FIFO via `Batches.created_at`).
+  - Logic: Insert into `Sales` and `Sale_Items`, allow batch selection (manual or FIFO), use batch's `selling_price` for pricing, deduct from `Inventory_Stock`.
+  - Batch Selection: Show available batches with quantity, selling_price, and expiry_date. Default to FIFO but allow manual selection.
+  - Pricing: Use the selected batch's `selling_price` and track `unit_cost` for profit calculation.
 - **Returns Processing**:
   - Function: `process_return(sale_id, items)`.
-  - Logic: Insert into `Returns` and `Return_Items`, add to `Inventory_Stock`.
+  - Logic: Insert into `Returns` and `Return_Items`, restore to original batch in `Inventory_Stock`.
 - **Quotation Generation**:
   - Function: `generate_quote(customer_id, items)`.
-  - Logic: Insert into `Quotations` and `Quote_Items`, calculate totals.
+  - Logic: Insert into `Quotations` and `Quote_Items`, use average or specific batch pricing for estimates.
 - **Invoice Generation**:
   - Function: `generate_invoice(sale_id_or_quote_id)`.
-  - Logic: Insert into `Invoices`, populate from `Sales` or `Quotations`.
+  - Logic: Insert into `Invoices`, populate from `Sales` or `Quotations` with actual batch prices used.
 
-### 4.3 Serialization Handling
+### 4.3 Batch-Based Pricing System
+- **Price Storage**: All pricing information (unit_cost and selling_price) is stored at the batch level, not the item level.
+- **Price Entry**: During GRN entry, users specify both the purchase price (unit_cost) and intended selling price for each batch.
+- **Price Flexibility**: Different batches of the same item can have different selling prices based on purchase cost or market conditions.
+- **Profit Tracking**: Each sale records both selling_price and unit_cost from the batch, enabling accurate profit calculation.
+- **FIFO with Override**: Default to FIFO batch selection but allow manual selection for specific business needs.
+
+### 4.4 Serialization Handling
 - If `Items.is_serialized = TRUE`, generate `Serial_Items` records during GRN (e.g., loop for `stored_qty` with unique `serial_no`).
 - Update `status` (0 to 1) on sale; revert on return.
 

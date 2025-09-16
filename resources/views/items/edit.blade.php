@@ -179,49 +179,17 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label for="unit_cost" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                            Unit Cost
-                        </label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <span class="text-slate-400">$</span>
-                            </div>
-                            <input type="number"
-                                name="unit_cost"
-                                id="unit_cost"
-                                value="{{ old('unit_cost', $item->unit_cost) }}"
-                                step="0.01"
-                                min="0"
-                                class="pl-8 w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent @error('unit_cost') border-rose-500 @enderror"
-                                placeholder="0.00">
+                <!-- Note: Pricing is now managed at batch level through GRN entries -->
+                <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4">
+                    <div class="flex items-start gap-3">
+                        <i data-lucide="info" class="w-5 h-5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0"></i>
+                        <div>
+                            <h6 class="font-medium text-amber-800 dark:text-amber-200">Batch-Based Pricing</h6>
+                            <p class="text-sm text-amber-700 dark:text-amber-300 mt-1">
+                                Pricing is now managed at the batch level. Current pricing information can be found
+                                in the batch details. New pricing is set when receiving items through GRN.
+                            </p>
                         </div>
-                        @error('unit_cost')
-                            <p class="mt-1 text-sm text-rose-600 dark:text-rose-400">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div>
-                        <label for="selling_price" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                            Selling Price
-                        </label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <span class="text-slate-400">$</span>
-                            </div>
-                            <input type="number"
-                                name="selling_price"
-                                id="selling_price"
-                                value="{{ old('selling_price', $item->selling_price) }}"
-                                step="0.01"
-                                min="0"
-                                class="pl-8 w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent @error('selling_price') border-rose-500 @enderror"
-                                placeholder="0.00">
-                        </div>
-                        @error('selling_price')
-                            <p class="mt-1 text-sm text-rose-600 dark:text-rose-400">{{ $message }}</p>
-                        @enderror
                     </div>
                 </div>
 

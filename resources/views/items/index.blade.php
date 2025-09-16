@@ -81,7 +81,7 @@
                     <tr>
                         <th scope="col">Item</th>
                         <th scope="col">Category</th>
-                        <th scope="col">Pricing</th>
+                        <th scope="col">Batches</th>
                         <th scope="col">Stock</th>
                         <th scope="col">Status</th>
                         <th scope="col">Last Updated</th>
@@ -117,12 +117,21 @@
                                 </span>
                             </td>
                             <td>
+                                @php
+                                    $batchCount = $item->batches->count();
+                                    $avgSellingPrice = $item->batches->where('selling_price', '>', 0)->avg('selling_price');
+                                    $avgCost = $item->batches->where('unit_cost', '>', 0)->avg('unit_cost');
+                                @endphp
                                 <div>
-                                    <span class="font-medium text-slate-900 dark:text-white">${{ number_format($item->selling_price, 2) }}</span>
-                                    @if($item->unit_cost > 0)
-                                        <span class="block text-xs text-slate-500 dark:text-slate-400 mt-1">
-                                            Cost: ${{ number_format($item->unit_cost, 2) }}
-                                        </span>
+                                    @if($batchCount > 0)
+                                        <span class="font-medium text-slate-900 dark:text-white">{{ $batchCount }} batch{{ $batchCount > 1 ? 'es' : '' }}</span>
+                                        @if($avgSellingPrice > 0)
+                                            <span class="block text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                                Avg. Price: ${{ number_format($avgSellingPrice, 2) }}
+                                            </span>
+                                        @endif
+                                    @else
+                                        <span class="text-slate-400 text-xs">No batches</span>
                                     @endif
                                 </div>
                             </td>
