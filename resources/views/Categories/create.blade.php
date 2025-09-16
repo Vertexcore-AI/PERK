@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'Add Bin')
+@section('title', 'Add category')
 
-@section('page-title', 'Add New Bin')
+@section('page-title', 'Add New Category')
 
 @section('breadcrumb')
 <li class="breadcrumb-item"><a href="{{ url('/dashboard') }}">Dashboard</a></li>
-<li class="breadcrumb-item"><a href="{{ route('bins.index') }}">Bin</a></li>
-<li class="breadcrumb-item active">Add Bin</li>
+<li class="breadcrumb-item"><a href="{{ route('bins.index') }}">Category</a></li>
+<li class="breadcrumb-item active">Add category</li>
 @endsection
 
 @section('page-actions')
@@ -15,7 +15,7 @@
     <div class="btn-group">
         <a href="{{ route('bins.index') }}" class="btn btn-outline-secondary">
             <i data-lucide="arrow-left" class="me-2"></i>
-            Back to Bin
+            Back to Category
         </a>
     </div>
 </div>
@@ -39,18 +39,18 @@
     <div class="col-lg-12 col-12">
         <div class="card">
             <div class="card-header">
-                <h5 class="card-title">Add New Bin</h5>
+                <h5 class="card-title">Add New Category</h5>
             </div>
 
             <div class="card-body">
                 <form action="{{ route('categories.store') }}" method="POST">
                     @csrf
 
-                    <!-- Bin Name -->
+                    <!-- Category name -->
                     <div class="row">
                         <div class="col-md-12">
-                            <x-forms.input label="Bin Name" name="name" :value="old('name')"
-                                placeholder="Enter Bin name" required icon="layers" :error="$errors->first('name')" />
+                            <x-forms.input label="Category name" name="name" :value="old('name')"
+                                placeholder="Enter Category name" required icon="layers" :error="$errors->first('name')" />
                         </div>
                     </div>
 
@@ -67,7 +67,7 @@
                     <div class="d-flex gap-2 pt-3">
                         <button type="submit" class="btn btn-success">
                             <i data-lucide="save" class="me-2"></i>
-                            Save Bin
+                            Save Category
                         </button>
                         <a href="{{ route('categories.index') }}" class="btn btn-outline-secondary">
                             <i data-lucide="x" class="me-2"></i>

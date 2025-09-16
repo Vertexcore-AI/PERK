@@ -155,53 +155,66 @@ class ItemController extends Controller
         return Response::stream($callback, 200, $headers);
     }
 
-    //upload the CSV
+    //import CSV
     public function importCsv(Request $request)
     {
-        // 1️⃣ Validate uploaded file
         $request->validate([
-            'csv_file' => 'required|file|mimes:csv,txt|max:2048', // max 2MB
+            'csv_file' => 'required|file|mimes:csv,txt|max:2048',
         ]);
 
         $file = $request->file('csv_file');
 
         try {
-            // 2️⃣ Read CSV
             $csv = Reader::createFromPath($file->getRealPath(), 'r');
-            $csv->setHeaderOffset(0); // first row is header
-            $records = $csv->getRecords(); // iterable records
+            $csv->setHeaderOffset(0);
+            $records = $csv->getRecords();
 
             $imported = 0;
             $errors = [];
 
-            // 3️⃣ Iterate through rows
             foreach ($records as $index => $row) {
-                // Validate each row
+                //Normalize category name
+                $categoryName = trim($row['category_name']);
+
+                //create category if not exists
+                $category = Category::firstOrCreate(
+                    ['name' => $categoryName],
+                    ['description' => 'Created via CSV import']
+                );
+
+                //Find category by name
+                $category = Category::whereRaw('LOWER(name) = ?', [strtolower($categoryName)])->first();
+
+                if (!$category) {
+                    $errors[$index + 2] = ["Category '{$categoryName}' does not exist."];
+                    continue;
+                }
+
+                // Validate other fields
                 $validator = Validator::make($row, [
                     'item_no' => 'required|string|max:255|unique:items,item_no',
                     'description' => 'required|string',
                     'vat' => 'nullable|numeric|min:0|max:100',
                     'unit_of_measure' => 'required|string|max:50',
                     'manufacturer_name' => 'nullable|string|max:255',
-                    'category_id' => 'required|exists:categories,id',
                     'min_stock' => 'nullable|integer|min:0',
                     'max_stock' => 'nullable|integer|min:0',
                     'is_serialized' => 'nullable|in:0,1',
                 ]);
 
                 if ($validator->fails()) {
-                    $errors[$index + 2] = $validator->errors()->all(); // +2 because CSV header is row 1
+                    $errors[$index + 2] = $validator->errors()->all();
                     continue;
                 }
 
-                // 4️⃣ Insert row into DB
+                // Insert item with category_id from lookup
                 Item::create([
                     'item_no' => $row['item_no'],
                     'description' => $row['description'],
                     'vat' => $row['vat'] ?? 0,
                     'unit_of_measure' => $row['unit_of_measure'],
                     'manufacturer_name' => $row['manufacturer_name'] ?? null,
-                    'category_id' => $row['category_id'],
+                    'category_id' => $category->id,  // 👈 mapped ID
                     'min_stock' => $row['min_stock'] ?? 0,
                     'max_stock' => $row['max_stock'] ?? null,
                     'is_serialized' => isset($row['is_serialized']) ? (bool)$row['is_serialized'] : false,
@@ -213,11 +226,13 @@ class ItemController extends Controller
             $message = "$imported items imported successfully.";
             if (!empty($errors)) {
                 $message .= " Some rows had errors and were skipped.";
+                session()->flash('csv_errors', $errors);
             }
 
             return redirect()->route('items.index')->with('success', $message);
         } catch (Exception $e) {
-            return redirect()->route('items.index')->with('error', 'Failed to read CSV file: ' . $e->getMessage());
+            return redirect()->route('items.index')
+                ->with('error', 'Failed to read CSV file: ' . $e->getMessage());
         }
     }
 }
