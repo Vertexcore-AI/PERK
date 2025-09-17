@@ -42,9 +42,9 @@ class CustomerController extends Controller
             'type' => 'required|in:Retail,Insurance,Wholesale',
         ]);
 
-        Customer::create($request->only(['name', 'contact', 'address', 'type']));
+        $customer = Customer::create($request->only(['name', 'contact', 'address', 'type']));
 
-        return redirect()->route('customers.index')
+        return redirect()->route('customers.show', $customer)
             ->with('success', 'Customer created successfully.');
     }
 

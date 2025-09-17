@@ -112,10 +112,12 @@
                 <div x-show="open && expanded" x-collapse class="mt-1 space-y-1">
                     <a href="{{ url('/pos') }}"
                         class="sidebar-item pl-12 {{ request()->is('pos*') ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400' : '' }}">
+                        <i data-lucide="credit-card" class="w-4 h-4 mr-2"></i>
                         Point of Sale
                     </a>
                     <a href="{{ url('/sales') }}"
                         class="sidebar-item pl-12 {{ request()->is('sales*') ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400' : '' }}">
+                        <i data-lucide="receipt" class="w-4 h-4 mr-2"></i>
                         Sales History
                     </a>
                     <a href="{{ url('/returns') }}"

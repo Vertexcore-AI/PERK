@@ -9,6 +9,8 @@ use App\Http\Controllers\ItemController;
 use App\Http\Controllers\GRNController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\VendorItemMappingController;
+use App\Http\Controllers\SalesController;
+use App\Http\Controllers\POSController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -64,4 +66,29 @@ Route::prefix('inventory')->name('inventory.')->group(function () {
     Route::post('/mappings/{mapping}/set-preferred', [VendorItemMappingController::class, 'setPreferred'])->name('mappings.set-preferred');
     Route::get('/api/search-items', [VendorItemMappingController::class, 'searchItems'])->name('mappings.search-items');
     Route::post('/mappings/bulk-import', [VendorItemMappingController::class, 'bulkImport'])->name('mappings.bulk-import');
+});
+
+// Phase 3: Sales Management routes
+Route::resource('sales', SalesController::class)->except(['edit', 'update']);
+Route::get('sales/{sale}/receipt', [SalesController::class, 'receipt'])->name('sales.receipt');
+Route::get('sales/export', [SalesController::class, 'export'])->name('sales.export');
+
+// POS Routes
+Route::prefix('pos')->name('pos.')->group(function () {
+    Route::get('/', [POSController::class, 'index'])->name('index');
+    Route::get('/receipt', [POSController::class, 'generateReceipt'])->name('receipt');
+    Route::get('/print/{saleId}', [POSController::class, 'printReceipt'])->name('print');
+    Route::get('/dashboard-data', [POSController::class, 'getDashboardData'])->name('dashboard-data');
+});
+
+// POS API Routes (AJAX endpoints)
+Route::prefix('api/pos')->name('api.pos.')->group(function () {
+    Route::post('/search-items', [POSController::class, 'searchItems'])->name('search-items');
+    Route::get('/batches/{item}', [POSController::class, 'getBatches'])->name('batches');
+    Route::post('/preview-batch-selection', [POSController::class, 'previewBatchSelection'])->name('preview-batch-selection');
+    Route::post('/calculate-total', [POSController::class, 'calculateTotal'])->name('calculate-total');
+    Route::post('/validate-stock', [POSController::class, 'validateStock'])->name('validate-stock');
+    Route::post('/search-customers', [POSController::class, 'searchCustomers'])->name('search-customers');
+    Route::post('/quick-create-customer', [POSController::class, 'quickCreateCustomer'])->name('quick-create-customer');
+    Route::post('/process-sale', [POSController::class, 'processSale'])->name('process-sale');
 });

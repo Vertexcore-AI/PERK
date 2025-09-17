@@ -158,39 +158,82 @@ class InventoryService
             $query = InventoryStock::where('item_id', $itemId)
                 ->where('quantity', '>', 0)
                 ->orderBy('created_at', 'asc'); // FIFO
-            
+
             if ($storeId) {
                 $query->where('store_id', $storeId);
             }
-            
+
             $stocks = $query->get();
-            
+
             $remainingQty = $quantity;
             $deductedBatches = [];
-            
+
             foreach ($stocks as $stock) {
                 if ($remainingQty <= 0) break;
-                
+
                 $deductQty = min($stock->quantity, $remainingQty);
-                
+
                 $stock->quantity -= $deductQty;
                 $stock->last_updated = now();
                 $stock->save();
-                
+
                 $deductedBatches[] = [
                     'batch_id' => $stock->batch_id,
                     'quantity' => $deductQty,
                     'unit_cost' => $stock->batch->cost ?? 0,
                 ];
-                
+
                 $remainingQty -= $deductQty;
             }
-            
+
             if ($remainingQty > 0) {
                 throw new \Exception("Insufficient stock. Short by: {$remainingQty}");
             }
-            
+
             return $deductedBatches;
+        });
+    }
+
+    /**
+     * Get total available stock for an item
+     */
+    public function getTotalAvailableStock($itemId)
+    {
+        return InventoryStock::where('item_id', $itemId)
+            ->where('quantity', '>', 0)
+            ->sum('quantity');
+    }
+
+    /**
+     * Deduct stock from specific batch
+     */
+    public function deductStockFromBatch($batchId, $quantity)
+    {
+        return DB::transaction(function () use ($batchId, $quantity) {
+            $stocks = InventoryStock::where('batch_id', $batchId)
+                ->where('quantity', '>', 0)
+                ->orderBy('created_at', 'asc')
+                ->get();
+
+            $remainingQty = $quantity;
+
+            foreach ($stocks as $stock) {
+                if ($remainingQty <= 0) break;
+
+                $deductQty = min($stock->quantity, $remainingQty);
+
+                $stock->quantity -= $deductQty;
+                $stock->last_updated = now();
+                $stock->save();
+
+                $remainingQty -= $deductQty;
+            }
+
+            if ($remainingQty > 0) {
+                throw new \Exception("Insufficient stock in batch. Short by: {$remainingQty}");
+            }
+
+            return true;
         });
     }
 }

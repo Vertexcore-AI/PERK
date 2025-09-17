@@ -113,13 +113,13 @@
                             </td>
                             <td>
                                 <div>
-                                    @if($customer->phone)
-                                        <span class="text-slate-900 dark:text-slate-100">{{ $customer->phone }}</span>
+                                    @if($customer->contact)
+                                    <span class="text-slate-900 dark:text-slate-100">{{ $customer->contact }}</span>
                                     @endif
                                     @if($customer->email)
                                         <span class="block text-xs text-slate-500 dark:text-slate-400 mt-1">{{ $customer->email }}</span>
                                     @endif
-                                    @if(!$customer->phone && !$customer->email)
+                                    @if(!$customer->contact && !$customer->email)
                                         <span class="text-slate-400 dark:text-slate-500 italic">No contact info</span>
                                     @endif
                                 </div>
