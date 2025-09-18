@@ -300,25 +300,25 @@ class SalesService
 
     private function getAvailableBatch(int $batchId, int $itemId): ?Batch
     {
-        return Batch::where('batch_id', $batchId)
+        return Batch::where('id', $batchId)
             ->where('item_id', $itemId)
-            ->where('remaining_quantity', '>', 0)
+            ->where('remaining_qty', '>', 0)
             ->first();
     }
 
     private function getAvailableBatchesFIFO(int $itemId, ?int $excludeBatchId = null): \Illuminate\Database\Eloquent\Collection
     {
         $query = Batch::where('item_id', $itemId)
-            ->where('remaining_quantity', '>', 0)
+            ->where('remaining_qty', '>', 0)
             ->orderBy('received_date', 'asc')
-            ->orderBy('batch_id', 'asc');
+            ->orderBy('id', 'asc');
 
         if ($excludeBatchId) {
-            $query->where('batch_id', '!=', $excludeBatchId);
+            $query->where('id', '!=', $excludeBatchId);
         }
 
         return $query->get()->map(function ($batch) {
-            $batch->available_quantity = $batch->remaining_quantity;
+            $batch->available_quantity = $batch->remaining_qty;
             return $batch;
         });
     }

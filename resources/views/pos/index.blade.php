@@ -141,6 +141,15 @@
                         </button>
                     </div>
                 </div>
+
+                <!-- Load Quotation Button -->
+                <div class="mt-3">
+                    <button @click="showQuotationModal = true; searchQuotations()"
+                            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors">
+                        <i data-lucide="file-text" class="w-4 h-4 mr-2 inline"></i>
+                        Load Quotation
+                    </button>
+                </div>
             </div>
 
             <!-- Shopping Cart -->
@@ -455,6 +464,185 @@
             </div>
         </div>
     </div>
+
+    <!-- Load Quotation Modal -->
+    <div x-show="showQuotationModal"
+         x-transition:enter="ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 z-40 overflow-y-auto"
+         @click.self="showQuotationModal = false">
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-slate-500 bg-opacity-75 transition-opacity" @click="showQuotationModal = false"></div>
+
+            <div class="inline-block align-bottom bg-white dark:bg-slate-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full relative z-10">
+                <div class="bg-white dark:bg-slate-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <!-- Modal Header -->
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-medium text-slate-900 dark:text-white">Load Quotation</h3>
+                        <button @click="showQuotationModal = false" class="text-slate-400 hover:text-slate-600">
+                            <i data-lucide="x" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+
+                    <!-- Search -->
+                    <div class="mb-4">
+                        <input
+                            type="text"
+                            x-model="quotationSearch"
+                            @input.debounce.300ms="searchQuotations()"
+                            placeholder="Search quotations by customer name or quote number..."
+                            class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-500"
+                        >
+                    </div>
+
+                    <!-- Loading -->
+                    <div x-show="loadingQuotations" class="text-center py-8">
+                        <div class="animate-spin rounded-full h-8 w-8 border-2 border-blue-500 border-t-transparent mx-auto"></div>
+                        <p class="text-slate-500 dark:text-slate-400 mt-2">Loading quotations...</p>
+                    </div>
+
+                    <!-- Quotations List -->
+                    <div x-show="!loadingQuotations" class="max-h-96 overflow-y-auto">
+                        <div x-show="availableQuotations.length === 0" class="text-center py-8">
+                            <i data-lucide="file-text" class="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-4"></i>
+                            <p class="text-slate-500 dark:text-slate-400">No pending quotations found</p>
+                        </div>
+
+                        <div class="space-y-3">
+                            <template x-for="quotation in availableQuotations" :key="quotation.quote_id">
+                                <div class="border border-slate-200 dark:border-slate-700 rounded-lg p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer transition-colors"
+                                     @click="selectQuotation(quotation)">
+                                    <div class="flex justify-between items-start">
+                                        <div class="flex-1">
+                                            <div class="flex items-center gap-2 mb-2">
+                                                <span class="font-semibold text-slate-900 dark:text-white" x-text="`Quote #${String(quotation.quote_id).padStart(4, '0')}`"></span>
+                                                <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400" x-text="quotation.status"></span>
+                                            </div>
+                                            <div class="text-sm text-slate-600 dark:text-slate-400 mb-1">
+                                                Customer: <span class="font-medium" x-text="quotation.customer_name"></span>
+                                            </div>
+                                            <div class="text-sm text-slate-600 dark:text-slate-400 mb-2">
+                                                <span x-text="`${quotation.item_count} item(s)`"></span> •
+                                                <span x-text="`Valid until: ${new Date(quotation.valid_until).toLocaleDateString()}`"></span>
+                                            </div>
+                                            <div class="text-xs text-slate-500 dark:text-slate-500">
+                                                Created: <span x-text="new Date(quotation.quote_date).toLocaleDateString()"></span>
+                                            </div>
+                                        </div>
+                                        <div class="text-right ml-4">
+                                            <div class="font-bold text-lg text-blue-600 dark:text-blue-400" x-text="`LKR ${parseFloat(quotation.total_estimate || 0).toFixed(2)}`"></div>
+                                            <div class="text-xs text-slate-500 mt-1">Total Estimate</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="bg-slate-50 dark:bg-slate-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" @click="showQuotationModal = false"
+                            class="w-full inline-flex justify-center rounded-md border border-slate-300 dark:border-slate-600 shadow-sm px-4 py-2 bg-white dark:bg-slate-800 text-base font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 sm:ml-3 sm:w-auto sm:text-sm">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert Modal -->
+    <div x-show="showAlert"
+         x-transition:enter="ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 z-60 overflow-y-auto"
+         @click.self="closeAlert()">
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-slate-500 bg-opacity-75 transition-opacity" @click="closeAlert()"></div>
+
+            <div class="inline-block align-bottom bg-white dark:bg-slate-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full relative z-10">
+                <div class="bg-white dark:bg-slate-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div :class="{
+                            'bg-blue-100 dark:bg-blue-900/30': alertType === 'info',
+                            'bg-green-100 dark:bg-green-900/30': alertType === 'success',
+                            'bg-yellow-100 dark:bg-yellow-900/30': alertType === 'warning',
+                            'bg-red-100 dark:bg-red-900/30': alertType === 'error'
+                        }" class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full sm:mx-0 sm:h-10 sm:w-10">
+                            <i :data-lucide="alertType === 'success' ? 'check' : alertType === 'warning' ? 'alert-triangle' : alertType === 'error' ? 'x' : 'info'"
+                               :class="{
+                                   'text-blue-600 dark:text-blue-400': alertType === 'info',
+                                   'text-green-600 dark:text-green-400': alertType === 'success',
+                                   'text-yellow-600 dark:text-yellow-400': alertType === 'warning',
+                                   'text-red-600 dark:text-red-400': alertType === 'error'
+                               }" class="w-6 h-6"></i>
+                        </div>
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                            <h3 class="text-lg leading-6 font-medium text-slate-900 dark:text-white" x-text="alertTitle"></h3>
+                            <div class="mt-2">
+                                <p class="text-sm text-slate-500 dark:text-slate-400" x-html="alertMessage"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-slate-50 dark:bg-slate-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" @click="alertAction ? alertAction() : closeAlert()"
+                            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 sm:ml-3 sm:w-auto sm:text-sm">
+                        OK
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div x-show="showConfirm"
+         x-transition:enter="ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 z-60 overflow-y-auto"
+         @click.self="closeConfirm()">
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-slate-500 bg-opacity-75 transition-opacity" @click="closeConfirm()"></div>
+
+            <div class="inline-block align-bottom bg-white dark:bg-slate-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full relative z-10">
+                <div class="bg-white dark:bg-slate-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100 dark:bg-yellow-900/30 sm:mx-0 sm:h-10 sm:w-10">
+                            <i data-lucide="help-circle" class="w-6 h-6 text-yellow-600 dark:text-yellow-400"></i>
+                        </div>
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                            <h3 class="text-lg leading-6 font-medium text-slate-900 dark:text-white" x-text="confirmTitle"></h3>
+                            <div class="mt-2">
+                                <p class="text-sm text-slate-500 dark:text-slate-400" x-html="confirmMessage"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-slate-50 dark:bg-slate-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" @click="confirmAction ? confirmAction() : closeConfirm()"
+                            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 sm:ml-3 sm:w-auto sm:text-sm">
+                        Yes
+                    </button>
+                    <button type="button" @click="confirmCancelAction ? confirmCancelAction() : closeConfirm()"
+                            class="mt-3 w-full inline-flex justify-center rounded-md border border-slate-300 dark:border-slate-600 shadow-sm px-4 py-2 bg-white dark:bg-slate-800 text-base font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                        No
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -497,6 +685,26 @@ function posApp() {
             card_amount: 0,
             notes: ''
         },
+
+        // Quotation loading
+        showQuotationModal: false,
+        quotationSearch: '',
+        availableQuotations: [],
+        loadingQuotations: false,
+
+        // Alert system
+        showAlert: false,
+        alertType: 'info', // 'info', 'success', 'warning', 'error'
+        alertTitle: '',
+        alertMessage: '',
+        alertAction: null,
+
+        // Confirmation dialog
+        showConfirm: false,
+        confirmTitle: '',
+        confirmMessage: '',
+        confirmAction: null,
+        confirmCancelAction: null,
 
         // Batch Selection
         showBatchModal: false,
@@ -619,12 +827,159 @@ function posApp() {
                     this.showCustomerModal = false;
                     this.newCustomer = { name: '', contact: '', type: 'Retail' };
                 } else {
-                    alert('Failed to create customer: ' + result.error);
+                    this.showAlertDialog('error', 'Customer Creation Failed', result.error);
                 }
             } catch (error) {
                 console.error('Customer creation failed:', error);
-                alert('Failed to create customer');
+                this.showAlertDialog('error', 'Customer Creation Failed', 'An error occurred while creating the customer. Please try again.');
             }
+        },
+
+        // Quotation Management
+        async searchQuotations() {
+            this.loadingQuotations = true;
+            try {
+                const response = await fetch('/api/pos/quotations/pending', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                });
+
+                const quotations = await response.json();
+                this.availableQuotations = quotations.filter(q => {
+                    if (!this.quotationSearch) return true;
+                    const search = this.quotationSearch.toLowerCase();
+                    return q.customer.name.toLowerCase().includes(search) ||
+                           String(q.quote_id).padStart(4, '0').includes(search);
+                });
+            } catch (error) {
+                console.error('Failed to load quotations:', error);
+                this.availableQuotations = [];
+            } finally {
+                this.loadingQuotations = false;
+            }
+        },
+
+        async selectQuotation(quotation) {
+            try {
+                // Check stock for quotation items
+                const response = await fetch(`/quotations/${quotation.quote_id}/check-stock`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    this.showAlertDialog('error', 'Error Loading Quotation', data.error);
+                    return;
+                }
+
+                // Set customer
+                this.selectedCustomer = data.quotation.customer;
+                this.customerSearch = this.selectedCustomer.name;
+
+                // Clear existing cart
+                this.cartItems = [];
+
+                // Load quotation items
+                for (const item of data.items) {
+                    if (item.status === 'available') {
+                        // Add item directly
+                        const cartItem = {
+                            item_id: item.item_id,
+                            batch_id: item.original_batch_id,
+                            description: item.item.description,
+                            item_code: item.item.item_code,
+                            batch_number: item.original_batch.batch_no,
+                            quantity: item.quantity,
+                            unit_price: parseFloat(item.unit_price),
+                            discount: parseFloat(item.discount || 0),
+                            vat: parseFloat(item.vat || 0),
+                            available_stock: item.original_batch.remaining_qty,
+                            selling_price: parseFloat(item.unit_price)
+                        };
+                        this.cartItems.push(cartItem);
+                    } else {
+                        // Item is out of stock, show alternatives
+                        const message = `Item "${item.item.description}" from batch "${item.original_batch.batch_no}" is out of stock.`;
+                        if (item.alternatives && item.alternatives.length > 0) {
+                            const altMessage = `Available alternatives:<br>${item.alternatives.map(alt =>
+                                `• ${alt.batch_number} (Stock: ${alt.remaining_quantity}, Price: LKR ${alt.selling_price})`
+                            ).join('<br>')}`;
+
+                            this.showConfirmDialog(
+                                'Item Out of Stock',
+                                `${message}<br><br>${altMessage}<br><br>Would you like to use the first available alternative?`,
+                                () => {
+                                const alt = item.alternatives[0];
+                                const cartItem = {
+                                    item_id: item.item_id,
+                                    batch_id: alt.batch_id,
+                                    description: item.item.description,
+                                    item_code: item.item.item_code,
+                                    batch_number: alt.batch_number,
+                                    quantity: item.quantity,
+                                    unit_price: parseFloat(alt.selling_price),
+                                    discount: parseFloat(item.discount || 0),
+                                    vat: parseFloat(item.vat || 0),
+                                    available_stock: alt.remaining_quantity,
+                                    selling_price: parseFloat(alt.selling_price)
+                                };
+                                this.cartItems.push(cartItem);
+                                this.closeConfirm();
+                            });
+                        } else {
+                            this.showAlertDialog('warning', 'Item Out of Stock', `${message}<br><br>No alternative batches available for this item.`);
+                        }
+                    }
+                }
+
+                // Update cart summary
+                this.updateCartSummary();
+
+                // Close modal
+                this.showQuotationModal = false;
+
+                this.showAlertDialog('success', 'Quotation Loaded', `Quotation #${String(quotation.quote_id).padStart(4, '0')} loaded successfully!`);
+
+            } catch (error) {
+                console.error('Failed to load quotation:', error);
+                this.showAlertDialog('error', 'Error', 'Failed to load quotation');
+            }
+        },
+
+        // Alert System Methods
+        showAlertDialog(type, title, message, action = null) {
+            this.alertType = type;
+            this.alertTitle = title;
+            this.alertMessage = message;
+            this.alertAction = action;
+            this.showAlert = true;
+        },
+
+        closeAlert() {
+            this.showAlert = false;
+            this.alertAction = null;
+        },
+
+        showConfirmDialog(title, message, confirmAction = null, cancelAction = null) {
+            this.confirmTitle = title;
+            this.confirmMessage = message;
+            this.confirmAction = confirmAction;
+            this.confirmCancelAction = cancelAction;
+            this.showConfirm = true;
+        },
+
+        closeConfirm() {
+            this.showConfirm = false;
+            this.confirmAction = null;
+            this.confirmCancelAction = null;
         },
 
         // Cart Management
@@ -640,7 +995,7 @@ function posApp() {
 
             // Item already has batch information from search results
             if (!item.batch_id) {
-                alert('No batch information available for this item');
+                this.showAlertDialog('warning', 'No Batch Information', 'No batch information available for this item. Please select a different item.');
                 return;
             }
 
@@ -804,31 +1159,40 @@ function posApp() {
                 const result = await response.json();
 
                 if (result.success) {
-                    // Success - show receipt and reset
-                    alert(`Sale completed successfully! Sale ID: ${result.sale_id}`);
-
-                    // Reset cart and forms
-                    this.cartItems = [];
-                    this.selectedCustomer = null;
-                    this.customerSearch = '';
-                    this.payment = { method: 'cash', cash_amount: 0, card_amount: 0, notes: '' };
-                    this.showPaymentModal = false;
-                    this.updateCartSummary();
-                    this.loadDashboardData();
-
-                    // Optionally open receipt in new window
-                    if (confirm('Sale completed! Do you want to print the receipt?')) {
-                        window.open(`/pos/print/${result.sale_id}`, '_blank');
-                    }
+                    // Success - show custom confirmation dialog with receipt option
+                    this.showConfirmDialog(
+                        'Sale Completed Successfully!',
+                        `Sale ID: ${result.sale_id}<br><br>Would you like to print the receipt?`,
+                        () => {
+                            // User clicked Yes - open receipt
+                            window.open(`/pos/print/${result.sale_id}`, '_blank');
+                            this.resetAfterSale();
+                        },
+                        () => {
+                            // User clicked No - just reset
+                            this.resetAfterSale();
+                        }
+                    );
                 } else {
-                    alert('Sale failed: ' + result.error);
+                    this.showAlertDialog('error', 'Sale Failed', result.error);
                 }
             } catch (error) {
                 console.error('Sale processing failed:', error);
-                alert('Sale processing failed');
+                this.showAlertDialog('error', 'Sale Processing Failed', 'An error occurred while processing the sale. Please try again.');
             } finally {
                 this.processing = false;
             }
+        },
+
+        resetAfterSale() {
+            // Reset cart and forms
+            this.cartItems = [];
+            this.selectedCustomer = null;
+            this.customerSearch = '';
+            this.payment = { method: 'cash', cash_amount: 0, card_amount: 0, notes: '' };
+            this.showPaymentModal = false;
+            this.updateCartSummary();
+            this.loadDashboardData();
         },
 
         // Utility
