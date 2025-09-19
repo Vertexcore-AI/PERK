@@ -115,4 +115,68 @@ class ItemController extends Controller
         return redirect()->route('items.index')
             ->with('success', 'Item deleted successfully.');
     }
+
+    //item csv export
+
+    public function exportCsv()
+    {
+        $fileName = 'items_' . date('Y-m-d_H-i-s') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"$fileName\"",
+        ];
+
+        $columns = [
+            'ID',
+            'Item No',
+            'Name',
+            'Description',
+            'Category ID',
+            'Unit of Measure',
+            'Reorder Point',
+            'Barcode',
+            'Min Stock',
+            'Max Stock',
+            'Manufacturer Name',
+            'Is Serialized',
+            'Is Active',
+            'Created At',
+            'Updated At'
+        ];
+
+        $callback = function () use ($columns) {
+            $file = fopen('php://output', 'w');
+
+            // CSV header row
+            fputcsv($file, $columns);
+
+            // Fetch items
+            $items = Item::all();
+
+            foreach ($items as $item) {
+                fputcsv($file, [
+                    $item->id,
+                    $item->item_no,
+                    $item->name,
+                    $item->description,
+                    $item->category_id,
+                    $item->unit_of_measure,
+                    $item->reorder_point,
+                    $item->barcode,
+                    $item->min_stock,
+                    $item->max_stock,
+                    $item->manufacturer_name,
+                    $item->is_serialized ? 'Yes' : 'No',
+                    $item->is_active ? 'Active' : 'Inactive',
+                    $item->created_at,
+                    $item->updated_at,
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
 }

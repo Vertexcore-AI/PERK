@@ -85,68 +85,7 @@
             class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
             <i data-lucide="sun" class="w-5 h-5 text-slate-600 dark:text-slate-400 dark:hidden"></i>
             <i data-lucide="moon" class="w-5 h-5 text-slate-600 dark:text-slate-400 hidden dark:block"></i>
-        </button>
-
-        <!-- User Menu -->
-        <div x-data="{ open: false }" class="relative">
-            <button @click="open = !open"
-                class="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                <div class="w-8 h-8 bg-gradient-to-br from-primary-400 to-primary-600 rounded-lg flex items-center justify-center">
-                    <span class="text-white text-sm font-semibold">AD</span>
-                </div>
-                <div class="hidden lg:block text-left">
-                    <p class="text-sm font-medium text-slate-900 dark:text-white">Alexandra Della</p>
-                    <p class="text-xs text-slate-500 dark:text-slate-400">Administrator</p>
-                </div>
-                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 hidden lg:block"></i>
-            </button>
-
-            <!-- User Dropdown -->
-            <div x-show="open"
-                @click.away="open = false"
-                x-transition:enter="transition ease-out duration-200"
-                x-transition:enter-start="opacity-0 transform scale-95"
-                x-transition:enter-end="opacity-100 transform scale-100"
-                x-transition:leave="transition ease-in duration-75"
-                x-transition:leave-start="opacity-100 transform scale-100"
-                x-transition:leave-end="opacity-0 transform scale-95"
-                class="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 z-50">
-
-                <div class="p-4 border-b border-slate-200 dark:border-slate-700">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-gradient-to-br from-primary-400 to-primary-600 rounded-lg flex items-center justify-center">
-                            <span class="text-white font-semibold">AD</span>
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-slate-900 dark:text-white">Alexandra Della</p>
-                            <p class="text-xs text-slate-500 dark:text-slate-400">alex.della@perk.com</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="p-2">
-                    <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors">
-                        <i data-lucide="user" class="w-4 h-4 text-slate-400"></i>
-                        <span class="text-sm text-slate-700 dark:text-slate-200">Profile</span>
-                    </a>
-                    <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors">
-                        <i data-lucide="settings" class="w-4 h-4 text-slate-400"></i>
-                        <span class="text-sm text-slate-700 dark:text-slate-200">Settings</span>
-                    </a>
-                    <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors">
-                        <i data-lucide="help-circle" class="w-4 h-4 text-slate-400"></i>
-                        <span class="text-sm text-slate-700 dark:text-slate-200">Help & Support</span>
-                    </a>
-                </div>
-
-                <div class="p-2 border-t border-slate-200 dark:border-slate-700">
-                    <a href="{{ url('/logout') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-900/20 text-rose-600 dark:text-rose-400 transition-colors">
-                        <i data-lucide="log-out" class="w-4 h-4"></i>
-                        <span class="text-sm font-medium">Logout</span>
-                    </a>
-                </div>
-            </div>
-        </div>
+        </button>    
     </div>
 </header>
 

@@ -85,4 +85,42 @@ class CategoryController extends Controller
         return redirect()->route('categories.index')
             ->with('success', 'Category deleted successfully.');
     }
+
+    // Export categories to CSV
+
+    public function exportCsv()
+    {
+        $fileName = 'categories_' . date('Y-m-d_H-i-s') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"$fileName\"",
+        ];
+
+        $columns = ['ID', 'Name', 'Description', 'Created At', 'Updated At'];
+
+        $callback = function () use ($columns) {
+            $file = fopen('php://output', 'w');
+
+            // Add CSV header
+            fputcsv($file, $columns);
+
+            // Fetch all categories
+            $categories = \App\Models\Category::all();
+
+            foreach ($categories as $category) {
+                fputcsv($file, [
+                    $category->id,
+                    $category->name,
+                    $category->description,
+                    $category->created_at,
+                    $category->updated_at,
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
 }

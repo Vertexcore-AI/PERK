@@ -109,4 +109,59 @@ class BinController extends Controller
         return redirect()->route('bins.index')
             ->with('success', 'Bin deleted successfully.');
     }
+
+    //bin and store export to csv
+
+    public function exportCsv()
+    {
+        $fileName = 'bins_stores_' . date('Y-m-d_H-i-s') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"$fileName\"",
+        ];
+
+        $callback = function () {
+            $file = fopen('php://output', 'w');
+
+            // 1️⃣ BIN DATA SECTION
+            fputcsv($file, ['++++ BIN RELATED VALUES ++++']); // section header
+            fputcsv($file, ['ID', 'Store ID', 'Code', 'Name', 'Description', 'Is Active', 'Created At', 'Updated At']);
+
+            $bins = Bin::all();
+            foreach ($bins as $bin) {
+                fputcsv($file, [
+                    $bin->id,
+                    $bin->store_id,
+                    $bin->code,
+                    $bin->name,
+                    $bin->description,
+                    $bin->is_active,
+                    $bin->created_at,
+                    $bin->updated_at,
+                ]);
+            }
+
+            fputcsv($file, []); // blank line for separation
+
+            // 2️⃣ STORE DATA SECTION
+            fputcsv($file, ['++++ STORE RELATED VALUES ++++']); // section header
+            fputcsv($file, ['ID', 'Store Name', 'Store Location', 'Created At', 'Updated At']);
+
+            $stores = Store::all();
+            foreach ($stores as $store) {
+                fputcsv($file, [
+                    $store->id,
+                    $store->store_name,
+                    $store->store_location,
+                    $store->created_at,
+                    $store->updated_at,
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
 }

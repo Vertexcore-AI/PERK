@@ -5,26 +5,22 @@
         this.expanded = !this.expanded;
         localStorage.setItem('sidebar-expanded', this.expanded);
     }
-}"
-    :class="expanded ? 'w-64' : 'w-20'"
+}" :class="expanded ? 'w-64' : 'w-20'"
     class="bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-all duration-300 ease-in-out flex-shrink-0 relative z-10">
 
     <!-- Logo Section -->
     <div class="h-16 flex items-center justify-between px-4 border-b border-slate-200 dark:border-slate-800">
-        <a href="{{ url('/dashboard') }}" class="flex items-center space-x-3">
-            <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/25">
-                <span class="text-white font-bold text-lg">P</span>
-            </div>
-            <span x-show="expanded" x-transition:enter="transition ease-out duration-200"
-                x-transition:enter-start="opacity-0 transform -translate-x-2"
-                x-transition:enter-end="opacity-100 transform translate-x-0"
-                x-transition:leave="transition ease-in duration-100"
-                x-transition:leave-start="opacity-100"
-                x-transition:leave-end="opacity-0"
-                class="font-display font-bold text-xl text-slate-900 dark:text-white">
-                PERK
+        <a href="{{ url('/dashboard') }}" class="flex items-center space-x-3 p-2">
+            <!-- Logo -->
+            <img src="{{ asset('assets/images/Perk Enterprises.png') }}" alt="Perk Enterprises Logo"
+                class="w-20 h-auto object-contain flex-shrink-0">
+            <!-- Company Name -->
+            <span class="font-display font-bold text-base text-slate-900 dark:text-white 
+                 leading-tight overflow-visible">
+                Perk Enterprises Pvt Ltd
             </span>
         </a>
+
         <button @click="toggleSidebar()"
             class="lg:hidden p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
             <i data-lucide="menu" class="w-5 h-5 text-slate-600 dark:text-slate-400"></i>
@@ -35,8 +31,7 @@
     <div class="flex-1 overflow-y-auto scrollbar-thin py-4">
         <div class="px-3 space-y-1">
             <!-- Dashboard -->
-            <a href="{{ url('/dashboard') }}"
-                class="sidebar-item {{ request()->is('dashboard') ? 'active' : '' }}">
+            <a href="{{ url('/dashboard') }}" class="sidebar-item {{ request()->is('dashboard') ? 'active' : '' }}">
                 <i data-lucide="layout-dashboard" class="w-5 h-5 flex-shrink-0"></i>
                 <span x-show="expanded" x-transition class="flex-1">Dashboard</span>
                 <span x-show="expanded && request()->is('dashboard')"
@@ -51,13 +46,13 @@
             </div>
 
             <!-- Inventory Management -->
-            <div x-data="{ open: {{ request()->is('grns*') || request()->is('inventory*') || request()->is('items*') || request()->is('batches*') ? 'true' : 'false' }} }">
+            <div
+                x-data="{ open: {{ request()->is('grns*') || request()->is('inventory*') || request()->is('items*') || request()->is('batches*') ? 'true' : 'false' }} }">
                 <button @click="open = !open"
                     class="sidebar-item w-full {{ request()->is('grns*') || request()->is('inventory*') || request()->is('items*') || request()->is('batches*') ? 'text-primary-600 dark:text-primary-400' : '' }}">
                     <i data-lucide="package" class="w-5 h-5 flex-shrink-0"></i>
                     <span x-show="expanded" class="flex-1 text-left">Inventory</span>
-                    <i x-show="expanded" data-lucide="chevron-down"
-                        :class="open ? 'rotate-180' : ''"
+                    <i x-show="expanded" data-lucide="chevron-down" :class="open ? 'rotate-180' : ''"
                         class="w-4 h-4 transition-transform duration-200"></i>
                 </button>
                 <div x-show="open && expanded" x-collapse class="mt-1 space-y-1">
@@ -100,13 +95,13 @@
             </div>
 
             <!-- Sales & POS -->
-            <div x-data="{ open: {{ request()->is('pos*') || request()->is('sales*') || request()->is('returns*') ? 'true' : 'false' }} }">
+            <div
+                x-data="{ open: {{ request()->is('pos*') || request()->is('sales*') || request()->is('returns*') ? 'true' : 'false' }} }">
                 <button @click="open = !open"
                     class="sidebar-item w-full {{ request()->is('pos*') || request()->is('sales*') || request()->is('returns*') ? 'text-primary-600 dark:text-primary-400' : '' }}">
                     <i data-lucide="shopping-cart" class="w-5 h-5 flex-shrink-0"></i>
                     <span x-show="expanded" class="flex-1 text-left">Sales & POS</span>
-                    <i x-show="expanded" data-lucide="chevron-down"
-                        :class="open ? 'rotate-180' : ''"
+                    <i x-show="expanded" data-lucide="chevron-down" :class="open ? 'rotate-180' : ''"
                         class="w-4 h-4 transition-transform duration-200"></i>
                 </button>
                 <div x-show="open && expanded" x-collapse class="mt-1 space-y-1">
@@ -133,8 +128,7 @@
                     class="sidebar-item w-full {{ request()->is('customers*') ? 'text-primary-600 dark:text-primary-400' : '' }}">
                     <i data-lucide="users" class="w-5 h-5 flex-shrink-0"></i>
                     <span x-show="expanded" class="flex-1 text-left">Customers</span>
-                    <i x-show="expanded" data-lucide="chevron-down"
-                        :class="open ? 'rotate-180' : ''"
+                    <i x-show="expanded" data-lucide="chevron-down" :class="open ? 'rotate-180' : ''"
                         class="w-4 h-4 transition-transform duration-200"></i>
                 </button>
                 <div x-show="open && expanded" x-collapse class="mt-1 space-y-1">
@@ -155,8 +149,7 @@
                     class="sidebar-item w-full {{ request()->is('quotations*') || request()->is('invoices*') ? 'text-primary-600 dark:text-primary-400' : '' }}">
                     <i data-lucide="file-text" class="w-5 h-5 flex-shrink-0"></i>
                     <span x-show="expanded" class="flex-1 text-left">Quotations</span>
-                    <i x-show="expanded" data-lucide="chevron-down"
-                        :class="open ? 'rotate-180' : ''"
+                    <i x-show="expanded" data-lucide="chevron-down" :class="open ? 'rotate-180' : ''"
                         class="w-4 h-4 transition-transform duration-200"></i>
                 </button>
                 <div x-show="open && expanded" x-collapse class="mt-1 space-y-1">
@@ -174,37 +167,7 @@
                     </a>
                 </div>
             </div>
-
-            <!-- Reports -->
-            <div x-data="{ open: {{ request()->is('reports*') ? 'true' : 'false' }} }">
-                <button @click="open = !open"
-                    class="sidebar-item w-full {{ request()->is('reports*') ? 'text-primary-600 dark:text-primary-400' : '' }}">
-                    <i data-lucide="bar-chart-3" class="w-5 h-5 flex-shrink-0"></i>
-                    <span x-show="expanded" class="flex-1 text-left">Reports</span>
-                    <i x-show="expanded" data-lucide="chevron-down"
-                        :class="open ? 'rotate-180' : ''"
-                        class="w-4 h-4 transition-transform duration-200"></i>
-                </button>
-                <div x-show="open && expanded" x-collapse class="mt-1 space-y-1">
-                    <a href="{{ url('/reports/stock') }}"
-                        class="sidebar-item pl-12 {{ request()->is('reports/stock') ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400' : '' }}">
-                        Stock Reports
-                    </a>
-                    <a href="{{ url('/reports/sales') }}"
-                        class="sidebar-item pl-12 {{ request()->is('reports/sales') ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400' : '' }}">
-                        Sales Analytics
-                    </a>
-                    <a href="{{ url('/reports/financial') }}"
-                        class="sidebar-item pl-12 {{ request()->is('reports/financial') ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400' : '' }}">
-                        Financial Reports
-                    </a>
-                    <a href="{{ url('/reports/vendors') }}"
-                        class="sidebar-item pl-12 {{ request()->is('reports/vendors') ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400' : '' }}">
-                        Vendor Reports
-                    </a>
-                </div>
-            </div>
-
+           
             <!-- Settings Section -->
             <div x-show="expanded" class="pt-6 pb-2">
                 <span class="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider px-3">
@@ -213,13 +176,13 @@
             </div>
 
             <!-- Configuration -->
-            <div x-data="{ open: {{ request()->is('vendors*') || request()->is('categories*') || request()->is('stores*') ? 'true' : 'false' }} }">
+            <div
+                x-data="{ open: {{ request()->is('vendors*') || request()->is('categories*') || request()->is('stores*') ? 'true' : 'false' }} }">
                 <button @click="open = !open"
                     class="sidebar-item w-full {{ request()->is('vendors*') || request()->is('categories*') || request()->is('stores*') ? 'text-primary-600 dark:text-primary-400' : '' }}">
                     <i data-lucide="settings" class="w-5 h-5 flex-shrink-0"></i>
                     <span x-show="expanded" class="flex-1 text-left">Configuration</span>
-                    <i x-show="expanded" data-lucide="chevron-down"
-                        :class="open ? 'rotate-180' : ''"
+                    <i x-show="expanded" data-lucide="chevron-down" :class="open ? 'rotate-180' : ''"
                         class="w-4 h-4 transition-transform duration-200"></i>
                 </button>
                 <div x-show="open && expanded" x-collapse class="mt-1 space-y-1">
@@ -244,8 +207,7 @@
     <div class="absolute -right-3 top-20 hidden lg:block">
         <button @click="toggleSidebar()"
             class="w-6 h-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full shadow-md flex items-center justify-center hover:scale-110 transition-transform">
-            <i data-lucide="chevron-left"
-                :class="!expanded && 'rotate-180'"
+            <i data-lucide="chevron-left" :class="!expanded && 'rotate-180'"
                 class="w-3 h-3 text-slate-600 dark:text-slate-400 transition-transform duration-200"></i>
         </button>
     </div>
