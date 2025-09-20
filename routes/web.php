@@ -5,6 +5,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\BinController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\GRNController;
 use App\Http\Controllers\InventoryController;
@@ -14,13 +15,9 @@ use App\Http\Controllers\POSController;
 use App\Http\Controllers\QuotationController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
-Route::get('/dashboard', function () {
-    return view('pages.dashboard.index');
-})->name('dashboard');
+//Dashboard Routes
+Route::get('/', [DashboardController::class, 'index']);
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 // Resource routes for Phase 1 entities
 Route::resource('vendors', VendorController::class);

@@ -17,7 +17,7 @@
             <!-- Company Name -->
             <span class="font-display font-bold text-base text-slate-900 dark:text-white 
                  leading-tight overflow-visible">
-                Perk Enterprises Pvt Ltd
+                Perk Enterprises (Pvt) Ltd
             </span>
         </a>
 

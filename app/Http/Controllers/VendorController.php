@@ -64,39 +64,39 @@ class VendorController extends Controller
     }
 
     //vendor export function
-    public function exportCsv()
-    {
-        $fileName = 'vendors_' . date('Y-m-d_H-i-s') . '.csv';
+        public function exportCsv()
+        {
+            $fileName = 'vendors_' . date('Y-m-d_H-i-s') . '.csv';
 
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => "attachment; filename=\"$fileName\"",
-        ];
+            $headers = [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => "attachment; filename=\"$fileName\"",
+            ];
 
-        $columns = ['ID', 'Name', 'Contact', 'Address', 'Date Added'];
+            $columns = ['ID', 'Name', 'Contact', 'Address', 'Date Added'];
 
-        $callback = function () use ($columns) {
-            $file = fopen('php://output', 'w');
+            $callback = function () use ($columns) {
+                $file = fopen('php://output', 'w');
 
-            // Add CSV header
-            fputcsv($file, $columns);
+                // Add CSV header
+                fputcsv($file, $columns);
 
-            // Fetch all vendors
-            $vendors = Vendor::all();
+                // Fetch all vendors
+                $vendors = Vendor::all();
 
-            foreach ($vendors as $vendor) {
-                fputcsv($file, [
-                    $vendor->id,
-                    $vendor->name,
-                    $vendor->contact,
-                    $vendor->address,
-                    $vendor->date_add,
-                ]);
-            }
+                foreach ($vendors as $vendor) {
+                    fputcsv($file, [
+                        $vendor->id,
+                        $vendor->name,
+                        $vendor->contact,
+                        $vendor->address,
+                        $vendor->date_add,
+                    ]);
+                }
 
-            fclose($file);
-        };
+                fclose($file);
+            };
 
-        return response()->stream($callback, 200, $headers);
-    }
+            return response()->stream($callback, 200, $headers);
+        }
 }

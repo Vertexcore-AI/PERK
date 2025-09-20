@@ -19,7 +19,7 @@
         <i data-lucide="plus" class="w-5 h-5 mr-2"></i>
         Add New Category
     </a>
-    <a href="{{ route('categorycsv.exprot') }}" class="btn-secondary">
+    <a href="#" class="btn-secondary">
         <i data-lucide="download" class="w-5 h-5 mr-2"></i>
         Export
     </a>
