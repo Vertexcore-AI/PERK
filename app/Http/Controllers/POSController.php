@@ -8,6 +8,7 @@ use App\Models\Batch;
 use App\Services\SalesService;
 use App\Services\CustomerService;
 use App\Services\InventoryService;
+use App\Services\QuotationService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\View\View;
@@ -18,7 +19,8 @@ class POSController extends Controller
     public function __construct(
         private SalesService $salesService,
         private CustomerService $customerService,
-        private InventoryService $inventoryService
+        private InventoryService $inventoryService,
+        private QuotationService $quotationService
     ) {}
 
     /**
@@ -299,5 +301,109 @@ class POSController extends Controller
         ])->findOrFail($saleId);
 
         return view('pos.print-receipt', compact('sale'));
+    }
+
+    /**
+     * Get pending quotations for POS loading (AJAX)
+     */
+    public function getPendingQuotations(): JsonResponse
+    {
+        $quotations = $this->quotationService->getPendingQuotations();
+
+        $formattedQuotations = $quotations->map(function ($quotation) {
+            return [
+                'quote_id' => $quotation->quote_id,
+                'customer_name' => $quotation->customer->name,
+                'quote_date' => $quotation->quote_date->format('Y-m-d'),
+                'valid_until' => $quotation->valid_until->format('Y-m-d'),
+                'total_estimate' => $quotation->total_estimate,
+                'item_count' => $quotation->quoteItems->count(),
+                'days_left' => now()->diffInDays($quotation->valid_until, false)
+            ];
+        });
+
+        return response()->json($formattedQuotations);
+    }
+
+    /**
+     * Load quotation items for POS with stock check (AJAX)
+     */
+    public function loadQuotation(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'quote_id' => 'required|exists:quotations,quote_id'
+        ]);
+
+        try {
+            $data = $this->quotationService->loadQuotationForPOS($validated['quote_id']);
+
+            return response()->json([
+                'success' => true,
+                'quotation' => [
+                    'quote_id' => $data['quotation']->quote_id,
+                    'customer' => $data['quotation']->customer,
+                    'total_estimate' => $data['quotation']->total_estimate
+                ],
+                'items' => $data['items']
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 400);
+        }
+    }
+
+    /**
+     * Get alternative batches for an item when original is out of stock (AJAX)
+     */
+    public function getAlternativeBatches(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'item_id' => 'required|exists:items,item_id',
+            'quantity' => 'required|integer|min:1'
+        ]);
+
+        $alternatives = $this->quotationService->getAlternativeBatches(
+            $validated['item_id'],
+            $validated['quantity']
+        );
+
+        return response()->json($alternatives);
+    }
+
+    /**
+     * Convert quotation to POS sale (AJAX)
+     */
+    public function convertQuotationToSale(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'quote_id' => 'required|exists:quotations,quote_id',
+            'items' => 'required|array|min:1',
+            'items.*.item_id' => 'required|exists:items,item_id',
+            'items.*.batch_id' => 'required|exists:batches,batch_id',
+            'items.*.quantity' => 'required|integer|min:1',
+            'items.*.unit_price' => 'required|numeric|min:0',
+            'items.*.discount' => 'nullable|numeric|min:0|max:100',
+            'items.*.vat' => 'nullable|numeric|min:0|max:100'
+        ]);
+
+        try {
+            $sale = $this->quotationService->convertToSale($validated['quote_id'], $validated['items']);
+
+            return response()->json([
+                'success' => true,
+                'sale_id' => $sale->sale_id,
+                'total_amount' => $sale->total_amount,
+                'message' => 'Quotation converted to sale successfully!'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 400);
+        }
     }
 }

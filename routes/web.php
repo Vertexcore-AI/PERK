@@ -11,6 +11,7 @@ use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\VendorItemMappingController;
 use App\Http\Controllers\SalesController;
 use App\Http\Controllers\POSController;
+use App\Http\Controllers\QuotationController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -91,4 +92,16 @@ Route::prefix('api/pos')->name('api.pos.')->group(function () {
     Route::post('/search-customers', [POSController::class, 'searchCustomers'])->name('search-customers');
     Route::post('/quick-create-customer', [POSController::class, 'quickCreateCustomer'])->name('quick-create-customer');
     Route::post('/process-sale', [POSController::class, 'processSale'])->name('process-sale');
+
+    // Quotation-related POS routes
+    Route::get('/quotations/pending', [POSController::class, 'getPendingQuotations'])->name('quotations.pending');
+    Route::post('/quotations/load', [POSController::class, 'loadQuotation'])->name('quotations.load');
+    Route::get('/alternative-batches', [POSController::class, 'getAlternativeBatches'])->name('alternative-batches');
+    Route::post('/quotations/convert-to-sale', [POSController::class, 'convertQuotationToSale'])->name('quotations.convert');
 });
+
+// Phase 4: Quotation Management routes
+Route::resource('quotations', QuotationController::class);
+Route::post('quotations/{quotation}/duplicate', [QuotationController::class, 'duplicate'])->name('quotations.duplicate');
+Route::get('quotations/{quotation}/print', [QuotationController::class, 'print'])->name('quotations.print');
+Route::get('quotations/{quotation}/check-stock', [QuotationController::class, 'checkStock'])->name('quotations.check-stock');

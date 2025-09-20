@@ -122,6 +122,30 @@
                 </div>
             </div>
 
+            <!-- Quotations -->
+            <div x-data="{ open: {{ request()->is('quotations*') ? 'true' : 'false' }} }">
+                <button @click="open = !open"
+                    class="sidebar-item w-full {{ request()->is('quotations*') ? 'text-primary-600 dark:text-primary-400' : '' }}">
+                    <i data-lucide="file-text" class="w-5 h-5 flex-shrink-0"></i>
+                    <span x-show="expanded" class="flex-1 text-left">Quotations</span>
+                    <i x-show="expanded" data-lucide="chevron-down"
+                        :class="open ? 'rotate-180' : ''"
+                        class="w-4 h-4 transition-transform duration-200"></i>
+                </button>
+                <div x-show="open && expanded" x-collapse class="mt-1 space-y-1">
+                    <a href="{{ route('quotations.index') }}"
+                        class="sidebar-item pl-12 {{ request()->is('quotations') ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400' : '' }}">
+                        <i data-lucide="list" class="w-4 h-4 mr-2"></i>
+                        All Quotations
+                    </a>
+                    <a href="{{ route('quotations.create') }}"
+                        class="sidebar-item pl-12 {{ request()->is('quotations/create') ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400' : '' }}">
+                        <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
+                        Create Quotation
+                    </a>
+                </div>
+            </div>
+
             <!-- Customers -->
             <div x-data="{ open: {{ request()->is('customers*') ? 'true' : 'false' }} }">
                 <button @click="open = !open"
