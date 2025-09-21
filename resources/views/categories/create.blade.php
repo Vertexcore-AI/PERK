@@ -82,7 +82,7 @@
                             :value="old('name')"
                             placeholder="e.g., Engine Parts"
                             required
-                            icon="tag"
+                           
                             :error="$errors->first('name')"
                         />
                     </div>
@@ -96,14 +96,14 @@
                             placeholder="Enter category description"
                             rows="3"
                             :error="$errors->first('description')"
-                            help="Optional: Brief description of what this category contains"
+                          
                         />
                     </div>
 
                     <!-- Action Buttons -->
                     <div class="flex items-center gap-4 pt-6 animate-in" style="animation-delay: 0.4s">
                         <button type="submit" class="btn-primary">
-                            <i data-lucide="save" class="w-5 h-5 mr-2"></i>
+
                             Create Category
                         </button>
                         <a href="{{ route('categories.index') }}" class="btn-ghost">

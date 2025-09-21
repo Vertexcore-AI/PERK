@@ -18,10 +18,6 @@
             <i data-lucide="plus" class="w-5 h-5 mr-2"></i>
             Add New Customer
         </a>
-        <button type="button" class="btn-secondary">
-            <i data-lucide="download" class="w-5 h-5 mr-2"></i>
-            Export
-        </button>
     </div>
 @endsection
 
@@ -47,6 +43,53 @@
             </button>
         </div>
     @endif
+
+    <!-- Customer Statistics -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+        <div class="card p-6">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center">
+                    <i data-lucide="user" class="w-6 h-6 text-green-600 dark:text-green-400"></i>
+                </div>
+                <span class="badge badge-success">Retail</span>
+            </div>
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white">{{ $retailCount ?? 0 }}</h4>
+            <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Retail Customers</p>
+        </div>
+
+        <div class="card p-6">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
+                    <i data-lucide="shield" class="w-6 h-6 text-blue-600 dark:text-blue-400"></i>
+                </div>
+                <span class="badge badge-info">Insurance</span>
+            </div>
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white">{{ $insuranceCount ?? 0 }}</h4>
+            <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Insurance Customers</p>
+        </div>
+
+        <div class="card p-6">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center">
+                    <i data-lucide="building" class="w-6 h-6 text-purple-600 dark:text-purple-400"></i>
+                </div>
+                <span class="badge badge-warning">Wholesale</span>
+            </div>
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white">{{ $wholesaleCount ?? 0 }}</h4>
+            <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Wholesale Customers</p>
+        </div>
+
+        <div class="card p-6">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center">
+                    <i data-lucide="dollar-sign" class="w-6 h-6 text-emerald-600 dark:text-emerald-400"></i>
+                </div>
+                <span class="badge badge-success">Revenue</span>
+            </div>
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white">${{ number_format($totalRevenue ?? 0, 0) }}</h4>
+            <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Total Revenue</p>
+        </div>
+    </div>
 
     <!-- Customers Table Card -->
     <div class="card animate-in" style="animation-delay: 0.1s">
@@ -217,53 +260,6 @@
                 </div>
             </div>
         @endif
-    </div>
-
-    <!-- Customer Statistics -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mt-6">
-        <div class="card p-6">
-            <div class="flex items-center justify-between mb-4">
-                <div class="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center">
-                    <i data-lucide="user" class="w-6 h-6 text-green-600 dark:text-green-400"></i>
-                </div>
-                <span class="badge badge-success">Retail</span>
-            </div>
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white">{{ $retailCount ?? 0 }}</h4>
-            <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Retail Customers</p>
-        </div>
-
-        <div class="card p-6">
-            <div class="flex items-center justify-between mb-4">
-                <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
-                    <i data-lucide="shield" class="w-6 h-6 text-blue-600 dark:text-blue-400"></i>
-                </div>
-                <span class="badge badge-info">Insurance</span>
-            </div>
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white">{{ $insuranceCount ?? 0 }}</h4>
-            <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Insurance Customers</p>
-        </div>
-
-        <div class="card p-6">
-            <div class="flex items-center justify-between mb-4">
-                <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center">
-                    <i data-lucide="building" class="w-6 h-6 text-purple-600 dark:text-purple-400"></i>
-                </div>
-                <span class="badge badge-warning">Wholesale</span>
-            </div>
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white">{{ $wholesaleCount ?? 0 }}</h4>
-            <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Wholesale Customers</p>
-        </div>
-
-        <div class="card p-6">
-            <div class="flex items-center justify-between mb-4">
-                <div class="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center">
-                    <i data-lucide="dollar-sign" class="w-6 h-6 text-emerald-600 dark:text-emerald-400"></i>
-                </div>
-                <span class="badge badge-success">Revenue</span>
-            </div>
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white">${{ number_format($totalRevenue ?? 0, 0) }}</h4>
-            <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Total Revenue</p>
-        </div>
     </div>
 @endsection
 

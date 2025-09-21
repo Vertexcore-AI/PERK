@@ -185,10 +185,6 @@
                             Showing {{ count($lowStockItems) }} low stock items
                         </div>
                         <div class="flex items-center gap-3">
-                            <button onclick="exportLowStockReport()" class="btn-secondary">
-                                <i data-lucide="download" class="w-4 h-4"></i>
-                                Export Report
-                            </button>
                             <a href="{{ route('grns.create') }}" class="btn-primary">
                                 <i data-lucide="plus" class="w-4 h-4"></i>
                                 Create GRN

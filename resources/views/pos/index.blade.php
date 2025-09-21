@@ -19,9 +19,9 @@
                     <div class="text-sm text-primary-600 dark:text-primary-400">Today's Sales</div>
                     <div class="font-bold text-primary-700 dark:text-primary-300" x-text="formatCurrency(todayStats.sales_amount)"></div>
                 </div>
-                <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg px-4 py-2">
-                    <div class="text-sm text-emerald-600 dark:text-emerald-400">Transactions</div>
-                    <div class="font-bold text-emerald-700 dark:text-emerald-300" x-text="todayStats.sales_count"></div>
+                <div class="bg-secondary-50 dark:bg-secondary-900/20 rounded-lg px-4 py-2">
+                    <div class="text-sm text-secondary-600 dark:text-secondary-400">Transactions</div>
+                    <div class="font-bold text-secondary-700 dark:text-secondary-300" x-text="todayStats.sales_count"></div>
                 </div>
             </div>
         </div>

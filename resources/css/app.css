@@ -9,23 +9,59 @@
         'Segoe UI Symbol', 'Noto Color Emoji';
     --font-display: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
 
-    --color-primary-50: #eef2ff;
-    --color-primary-100: #e0e7ff;
-    --color-primary-200: #c7d2fe;
-    --color-primary-300: #a5b4fc;
-    --color-primary-400: #818cf8;
-    --color-primary-500: #6366f1;
-    --color-primary-600: #4f46e5;
-    --color-primary-700: #4338ca;
-    --color-primary-800: #3730a3;
-    --color-primary-900: #312e81;
-    --color-primary-950: #1e1b4b;
+    --color-primary-50: #fef1f5;
+    --color-primary-100: #fde3eb;
+    --color-primary-200: #fcc8d7;
+    --color-primary-300: #fa9db4;
+    --color-primary-400: #f6638a;
+    --color-primary-500: #d81159;
+    --color-primary-600: #c20e4d;
+    --color-primary-700: #a20c41;
+    --color-primary-800: #8f2d56;
+    --color-primary-900: #7a2849;
+    --color-primary-950: #4a1227;
+
+    --color-secondary-50: #ebfaf9;
+    --color-secondary-100: #cef1f0;
+    --color-secondary-200: #a1e2e2;
+    --color-secondary-300: #66cccd;
+    --color-secondary-400: #34aeb0;
+    --color-secondary-500: #218380;
+    --color-secondary-600: #1b6b6a;
+    --color-secondary-700: #195857;
+    --color-secondary-800: #194748;
+    --color-secondary-900: #183c3d;
+    --color-secondary-950: #092324;
+
+    --color-accent-50: #eefbfc;
+    --color-accent-100: #d5f3f7;
+    --color-accent-200: #b0e7ee;
+    --color-accent-300: #73d2de;
+    --color-accent-400: #39b5c7;
+    --color-accent-500: #1e98ac;
+    --color-accent-600: #1b7a91;
+    --color-accent-700: #1b6376;
+    --color-accent-800: #1d5162;
+    --color-accent-900: #1c4453;
+    --color-accent-950: #0b2a37;
+
+    --color-highlight-50: #fffbeb;
+    --color-highlight-100: #fff4c7;
+    --color-highlight-200: #ffe88a;
+    --color-highlight-300: #ffda4d;
+    --color-highlight-400: #ffbc42;
+    --color-highlight-500: #f59e0b;
+    --color-highlight-600: #d97706;
+    --color-highlight-700: #b45309;
+    --color-highlight-800: #92400e;
+    --color-highlight-900: #78350f;
+    --color-highlight-950: #451a03;
 
     --shadow-soft: 0 2px 8px -2px rgba(0, 0, 0, 0.1);
     --shadow-medium: 0 4px 16px -4px rgba(0, 0, 0, 0.1);
     --shadow-large: 0 8px 32px -8px rgba(0, 0, 0, 0.1);
-    --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.3);
-    --shadow-glow-lg: 0 0 40px rgba(99, 102, 241, 0.4);
+    --shadow-glow: 0 0 20px rgba(216, 17, 89, 0.15);
+    --shadow-glow-lg: 0 0 40px rgba(216, 17, 89, 0.2);
 }
 
 /* Base Styles */
@@ -48,25 +84,48 @@
     /* Modern Button Styles */
     .btn-primary {
         @apply relative inline-flex items-center justify-center px-6 py-2.5
-               bg-gradient-to-r from-primary-600 to-primary-700
+               bg-primary-500/90 backdrop-blur-sm
                text-white font-medium rounded-xl
-               shadow-lg shadow-primary-500/25
+               shadow-sm shadow-primary-500/10
                transition-all duration-200 ease-out
-               hover:shadow-xl hover:shadow-primary-500/30 hover:scale-[1.02]
+               hover:bg-primary-600/90 hover:shadow-md hover:shadow-primary-500/15
                active:scale-[0.98]
-               focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+               focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:ring-offset-2;
     }
 
     .btn-secondary {
         @apply inline-flex items-center justify-center px-6 py-2.5
-               bg-white dark:bg-slate-800
-               text-slate-700 dark:text-slate-200 font-medium
-               border border-slate-200 dark:border-slate-700 rounded-xl
+               bg-secondary-500/90 backdrop-blur-sm
+               text-white font-medium rounded-xl
+               shadow-sm shadow-secondary-500/10
                transition-all duration-200 ease-out
-               hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-slate-300
+               hover:bg-secondary-600/90 hover:shadow-md hover:shadow-secondary-500/15
+               active:scale-[0.98]
+               focus:outline-none focus:ring-2 focus:ring-secondary-500/50 focus:ring-offset-2;
+    }
+
+    .btn-outline-secondary {
+        @apply inline-flex items-center justify-center px-6 py-2.5
+               bg-white dark:bg-slate-800
+               text-secondary-700 dark:text-secondary-300 font-medium
+               border border-secondary-200 dark:border-secondary-700 rounded-xl
+               transition-all duration-200 ease-out
+               hover:bg-secondary-50 dark:hover:bg-secondary-900/20 hover:border-secondary-300
                hover:shadow-md hover:scale-[1.02]
                active:scale-[0.98]
-               focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2;
+               focus:outline-none focus:ring-2 focus:ring-secondary-500 focus:ring-offset-2;
+    }
+
+    .btn-highlight {
+        @apply inline-flex items-center justify-center px-6 py-2.5
+               bg-highlight-400/20 backdrop-blur-sm
+               text-highlight-700 dark:text-highlight-400 font-medium rounded-xl
+               border border-highlight-400/30
+               shadow-sm
+               transition-all duration-200 ease-out
+               hover:bg-highlight-400/30 hover:border-highlight-400/40 hover:shadow-md
+               active:scale-[0.98]
+               focus:outline-none focus:ring-2 focus:ring-highlight-500/30 focus:ring-offset-2;
     }
 
     .btn-ghost {
@@ -80,13 +139,13 @@
 
     .btn-danger {
         @apply inline-flex items-center justify-center px-6 py-2.5
-               bg-gradient-to-r from-rose-500 to-rose-600
+               bg-rose-500/90 backdrop-blur-sm
                text-white font-medium rounded-xl
-               shadow-lg shadow-rose-500/25
+               shadow-sm shadow-rose-500/10
                transition-all duration-200 ease-out
-               hover:shadow-xl hover:shadow-rose-500/30 hover:scale-[1.02]
+               hover:bg-rose-600/90 hover:shadow-md hover:shadow-rose-500/15
                active:scale-[0.98]
-               focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2;
+               focus:outline-none focus:ring-2 focus:ring-rose-500/50 focus:ring-offset-2;
     }
 
     .btn-icon {
@@ -99,9 +158,9 @@
 
     /* Card Styles */
     .card {
-        @apply bg-white dark:bg-slate-800/50 rounded-2xl
-               border border-slate-200/50 dark:border-slate-700/50
-               shadow-soft backdrop-blur-sm;
+        @apply bg-white/95 dark:bg-slate-800/50 rounded-2xl
+               border border-slate-200/30 dark:border-slate-700/30
+               shadow-sm backdrop-blur-md;
     }
 
     .card-glass {
@@ -149,6 +208,22 @@
         @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
     }
 
+    .badge-primary {
+        @apply bg-primary-100 text-primary-800 dark:bg-primary-900/30 dark:text-primary-400;
+    }
+
+    .badge-secondary {
+        @apply bg-secondary-100 text-secondary-800 dark:bg-secondary-900/30 dark:text-secondary-400;
+    }
+
+    .badge-accent {
+        @apply bg-accent-100 text-accent-800 dark:bg-accent-900/30 dark:text-accent-400;
+    }
+
+    .badge-highlight {
+        @apply bg-highlight-100 text-highlight-800 dark:bg-highlight-900/30 dark:text-highlight-400;
+    }
+
     .badge-success {
         @apply bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400;
     }
@@ -168,6 +243,30 @@
     /* Alert Styles */
     .alert {
         @apply p-4 rounded-xl border backdrop-blur-sm;
+    }
+
+    .alert-primary {
+        @apply bg-primary-50/80 dark:bg-primary-900/20
+               border-primary-200 dark:border-primary-800
+               text-primary-800 dark:text-primary-400;
+    }
+
+    .alert-secondary {
+        @apply bg-secondary-50/80 dark:bg-secondary-900/20
+               border-secondary-200 dark:border-secondary-800
+               text-secondary-800 dark:text-secondary-400;
+    }
+
+    .alert-accent {
+        @apply bg-accent-50/80 dark:bg-accent-900/20
+               border-accent-200 dark:border-accent-800
+               text-accent-800 dark:text-accent-400;
+    }
+
+    .alert-highlight {
+        @apply bg-highlight-50/80 dark:bg-highlight-900/20
+               border-highlight-200 dark:border-highlight-800
+               text-highlight-800 dark:text-highlight-400;
     }
 
     .alert-success {
@@ -215,9 +314,9 @@
     }
 
     .sidebar-item.active {
-        @apply bg-gradient-to-r from-primary-500/10 to-primary-600/10
+        @apply bg-primary-500/5
                text-primary-600 dark:text-primary-400
-               border-l-2 border-primary-500;
+               border-l-2 border-primary-500/50;
     }
 
     /* Smooth transitions */

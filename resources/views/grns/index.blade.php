@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Goods Received Notes')
+@section('title', 'GRN Management')
 
 @section('page-title', 'GRN Management')
 
@@ -9,7 +9,7 @@
         <a href="{{ url('/dashboard') }}" class="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300">Dashboard</a>
         <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-400"></i>
     </li>
-    <li class="text-slate-600 dark:text-slate-300">GRNs</li>
+    <li class="text-slate-600 dark:text-slate-300">GRN Management</li>
 @endsection
 
 @section('page-actions')
@@ -18,31 +18,10 @@
             <i data-lucide="plus" class="w-5 h-5 mr-2"></i>
             New GRN Entry
         </a>
-        <button type="button" class="btn-secondary">
-            <i data-lucide="download" class="w-5 h-5 mr-2"></i>
-            Export
-        </button>
     </div>
 @endsection
 
 @section('content')
-    <!-- Page Header with Actions -->
-    <div class="flex items-center justify-between mb-6">
-        <div>
-            <h1 class="text-2xl font-bold text-slate-900 dark:text-white">GRN Management</h1>
-            <p class="text-slate-600 dark:text-slate-400 mt-1">Manage goods received notes and track inventory</p>
-        </div>
-        <div class="flex items-center gap-3">
-            <a href="{{ route('grns.create') }}" class="btn-primary">
-                <i data-lucide="plus" class="w-5 h-5 mr-2"></i>
-                New GRN Entry
-            </a>
-            <button type="button" class="btn-secondary">
-                <i data-lucide="download" class="w-5 h-5 mr-2"></i>
-                Export
-            </button>
-        </div>
-    </div>
 
     @if(session('success'))
         <div x-data="{ show: true }"

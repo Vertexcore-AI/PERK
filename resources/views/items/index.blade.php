@@ -18,10 +18,6 @@
             <i data-lucide="plus" class="w-5 h-5 mr-2"></i>
             Add New Item
         </a>
-        <button type="button" class="btn-secondary">
-            <i data-lucide="download" class="w-5 h-5 mr-2"></i>
-            Export
-        </button>
     </div>
 @endsection
 

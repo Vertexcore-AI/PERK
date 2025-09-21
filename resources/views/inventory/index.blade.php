@@ -15,12 +15,12 @@
             </div>
             <div class="flex items-center gap-3">
                 <a href="{{ route('inventory.stock-by-item') }}"
-                   class="btn-secondary">
+                   class="bg-secondary-600 hover:bg-secondary-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
                     <i data-lucide="package" class="w-4 h-4"></i>
                     Stock by Item
                 </a>
                 <a href="{{ route('inventory.low-stock') }}"
-                   class="btn-secondary">
+                   class="bg-highlight-600 hover:bg-highlight-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
                     <i data-lucide="alert-triangle" class="w-4 h-4"></i>
                     Low Stock
                 </a>
@@ -36,8 +36,8 @@
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
             <div class="bg-white dark:bg-slate-800 rounded-lg p-6 border border-slate-200 dark:border-slate-700">
                 <div class="flex items-center">
-                    <div class="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                        <i data-lucide="package" class="w-6 h-6 text-blue-600 dark:text-blue-400"></i>
+                    <div class="p-2 bg-secondary-100 dark:bg-secondary-900/30 rounded-lg">
+                        <i data-lucide="package" class="w-6 h-6 text-secondary-600 dark:text-secondary-400"></i>
                     </div>
                     <div class="ml-4">
                         <p class="text-sm font-medium text-slate-600 dark:text-slate-400">Total Items</p>

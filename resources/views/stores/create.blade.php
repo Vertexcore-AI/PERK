@@ -116,7 +116,7 @@
         </div>
 
         <!-- Bins Info Card -->
-        <div class="card mt-6 animate-in" style="animation-delay: 0.2s">
+        <!-- <div class="card mt-6 animate-in" style="animation-delay: 0.2s">
             <div class="p-6 border-b border-slate-200 dark:border-slate-700">
                 <h5 class="text-lg font-semibold text-slate-900 dark:text-white">Storage Bins</h5>
                 <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">You can add storage bins after creating the store</p>
@@ -133,6 +133,6 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
     </div>
 @endsection

@@ -37,11 +37,31 @@
 
             <!-- Main Content -->
             <main class="flex-1 overflow-auto bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
-                <div class="w-full px-4 py-2">
-                    @hasSection('page-header')
-                        @yield('page-header')
-                    @endif
+                <!-- Page Header with Title, Breadcrumb and Actions -->
+                @hasSection('page-title')
+                <div class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 py-2">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+                        <!-- Left Section: Title & Breadcrumb -->
+                        <div>
+                            <h1 class="text-xl font-semibold text-slate-900 dark:text-white">@yield('page-title')</h1>
+                            @hasSection('breadcrumb')
+                                <nav class="flex items-center text-sm mt-1">
+                                    <ol class="flex items-center">
+                                        @yield('breadcrumb')
+                                    </ol>
+                                </nav>
+                            @endif
+                        </div>
 
+                        <!-- Right Section: Actions -->
+                        @hasSection('page-actions')
+                            @yield('page-actions')
+                        @endif
+                    </div>
+                </div>
+                @endif
+
+                <div class="w-full px-4 py-2">
                     <!-- Page Content with Animation -->
                     <div class="animate-in" style="animation-delay: 0.1s">
                         @yield('content')

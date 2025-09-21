@@ -96,7 +96,7 @@
                             placeholder="Phone, email, or contact person"
                             icon="phone"
                             :error="$errors->first('contact')"
-                            help="Enter phone number, email, or contact person name"
+                           
                         />
                     </div>
 
@@ -109,7 +109,7 @@
                             placeholder="Enter vendor address"
                             rows="3"
                             :error="$errors->first('address')"
-                            help="Optional: Full business address of the vendor"
+                          
                         />
                     </div>
 

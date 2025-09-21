@@ -18,10 +18,7 @@
             <i data-lucide="plus" class="w-5 h-5 mr-2"></i>
             Add New Category
         </a>
-        <button type="button" class="btn-secondary">
-            <i data-lucide="download" class="w-5 h-5 mr-2"></i>
-            Export
-        </button>
+       
     </div>
 @endsection
 
@@ -137,9 +134,7 @@
                         <tr>
                             <td colspan="6" class="text-center py-12">
                                 <div class="flex flex-col items-center justify-center">
-                                    <div class="w-20 h-20 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center mb-4">
-                                        <i data-lucide="tag" class="w-10 h-10 text-slate-400 dark:text-slate-500"></i>
-                                    </div>
+                                   
                                     <h3 class="text-lg font-medium text-slate-900 dark:text-white mb-1">No categories found</h3>
                                     <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Get started by adding your first category</p>
                                     <a href="{{ route('categories.create') }}" class="btn-primary">

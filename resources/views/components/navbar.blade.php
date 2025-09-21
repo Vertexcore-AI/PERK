@@ -7,10 +7,10 @@
     }
 }"
     :class="expanded ? 'w-64' : 'w-20'"
-    class="bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-all duration-300 ease-in-out flex-shrink-0 relative z-10">
+    class="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-r border-slate-200/50 dark:border-slate-800/50 transition-all duration-300 ease-in-out flex-shrink-0 relative z-10">
 
     <!-- Logo Section -->
-    <div class="h-16 flex items-center justify-between px-4 border-b border-slate-200 dark:border-slate-800">
+    <div class="h-16 flex items-center justify-between px-4 border-b border-slate-200/30 dark:border-slate-800/30">
         <a href="{{ url('/dashboard') }}" class="flex items-center">
             <!-- Full Logo (when expanded) -->
             <div x-show="expanded" x-transition:enter="transition ease-out duration-200"
@@ -30,12 +30,12 @@
                 x-transition:leave="transition ease-in duration-100"
                 x-transition:leave-start="opacity-100"
                 x-transition:leave-end="opacity-0"
-                class="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/25">
+                class="w-10 h-10 bg-gradient-to-br from-primary-600/80 to-primary-700/80 rounded-xl flex items-center justify-center shadow-sm backdrop-blur-sm">
                 <span class="text-white font-bold text-lg">P</span>
             </div>
         </a>
         <button @click="toggleSidebar()"
-            class="lg:hidden p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+            class="lg:hidden p-2 rounded-lg hover:bg-slate-100/80 dark:hover:bg-slate-800/80 transition-colors">
             <i data-lucide="menu" class="w-5 h-5 text-slate-600 dark:text-slate-400"></i>
         </button>
     </div>
@@ -50,13 +50,13 @@
                 <span x-show="expanded" x-transition class="flex-1">Dashboard</span>
                 @if(request()->is('dashboard'))
                 <span x-show="expanded"
-                    class="w-2 h-2 bg-primary-500 rounded-full animate-pulse"></span>
+                    class="w-2 h-2 bg-primary-600/70 rounded-full animate-pulse"></span>
                 @endif
             </a>
 
             <!-- Section Label -->
             <div x-show="expanded" class="pt-4 pb-2">
-                <span class="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider px-3">
+                <span class="text-xs font-semibold text-slate-500/80 dark:text-slate-400/80 uppercase tracking-wider px-3">
                     Auto Parts Management
                 </span>
             </div>
@@ -85,7 +85,7 @@
             <!-- Inventory Management -->
             <div x-data="{ open: {{ request()->is('grns*') || request()->is('inventory*') || request()->is('items*') || request()->is('batches*') ? 'true' : 'false' }} }">
                 <button @click="open = !open"
-                    class="sidebar-item w-full {{ request()->is('grns*') || request()->is('inventory*') || request()->is('items*') || request()->is('batches*') ? 'text-primary-600 dark:text-primary-400' : '' }}">
+                    class="sidebar-item w-full {{ request()->is('grns*') || request()->is('inventory*') || request()->is('items*') || request()->is('batches*') ? 'text-primary-700/80 dark:text-primary-400/80' : '' }}">
                     <i data-lucide="package" class="w-5 h-5 flex-shrink-0"></i>
                     <span x-show="expanded" class="flex-1 text-left">Inventory</span>
                     <i x-show="expanded" data-lucide="chevron-down"
@@ -94,15 +94,15 @@
                 </button>
                 <div x-show="open && expanded" x-collapse class="mt-1 space-y-1">
                     <a href="{{ url('/grns') }}"
-                        class="sidebar-item pl-12 {{ request()->is('grns*') ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400' : '' }}">
-                        GRN Entry
+                        class="sidebar-item pl-12 {{ request()->is('grns*') ? 'bg-primary-50/50 dark:bg-primary-900/10 text-primary-700/80 dark:text-primary-400/80' : '' }}">
+                        Good Recive Notes
                     </a>
                     <a href="{{ route('inventory.mappings.index') }}"
-                        class="sidebar-item pl-12 {{ request()->is('inventory/mappings*') ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400' : '' }}">
+                        class="sidebar-item pl-12 {{ request()->is('inventory/mappings*') ? 'bg-primary-50/50 dark:bg-primary-900/10 text-primary-700/80 dark:text-primary-400/80' : '' }}">
                         Vendor Mapping
                     </a>
                     <a href="{{ url('/inventory') }}"
-                        class="sidebar-item pl-12 {{ request()->is('inventory') || request()->is('inventory/stock-*') ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400' : '' }}">
+                        class="sidebar-item pl-12 {{ request()->is('inventory') || request()->is('inventory/stock-*') ? 'bg-primary-50/50 dark:bg-primary-900/10 text-primary-700/80 dark:text-primary-400/80' : '' }}">
                         Stock Management
                     </a>
                     <!-- <a href="{{ route('inventory.stock-by-item') }}"
@@ -116,11 +116,11 @@
                         Low Stock Alert
                     </a> -->
                     <a href="{{ url('/batches') }}"
-                        class="sidebar-item pl-12 {{ request()->is('batches*') ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400' : '' }}">
+                        class="sidebar-item pl-12 {{ request()->is('batches*') ? 'bg-primary-50/50 dark:bg-primary-900/10 text-primary-700/80 dark:text-primary-400/80' : '' }}">
                         Batch Management
                     </a>
                     <a href="{{ url('/items') }}"
-                        class="sidebar-item pl-12 {{ request()->is('items*') ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400' : '' }}">
+                        class="sidebar-item pl-12 {{ request()->is('items*') ? 'bg-primary-50/50 dark:bg-primary-900/10 text-primary-700/80 dark:text-primary-400/80' : '' }}">
                         Items Registry
                     </a>
                 </div>
@@ -129,7 +129,7 @@
             <!-- Sales & POS -->
             <div x-data="{ open: {{ request()->is('pos*') || request()->is('sales*') || request()->is('returns*') ? 'true' : 'false' }} }">
                 <button @click="open = !open"
-                    class="sidebar-item w-full {{ request()->is('pos*') || request()->is('sales*') || request()->is('returns*') ? 'text-primary-600 dark:text-primary-400' : '' }}">
+                    class="sidebar-item w-full {{ request()->is('pos*') || request()->is('sales*') || request()->is('returns*') ? 'text-primary-700/80 dark:text-primary-400/80' : '' }}">
                     <i data-lucide="shopping-cart" class="w-5 h-5 flex-shrink-0"></i>
                     <span x-show="expanded" class="flex-1 text-left">Sales & POS</span>
                     <i x-show="expanded" data-lucide="chevron-down"
@@ -138,11 +138,11 @@
                 </button>
                 <div x-show="open && expanded" x-collapse class="mt-1 space-y-1">
                     <a href="{{ url('/pos') }}"
-                        class="sidebar-item pl-12 {{ request()->is('pos*') ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400' : '' }}">
+                        class="sidebar-item pl-12 {{ request()->is('pos*') ? 'bg-primary-50/50 dark:bg-primary-900/10 text-primary-700/80 dark:text-primary-400/80' : '' }}">
                         Point of Sale
                     </a>
                     <a href="{{ url('/sales') }}"
-                        class="sidebar-item pl-12 {{ request()->is('sales*') ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400' : '' }}">
+                        class="sidebar-item pl-12 {{ request()->is('sales*') ? 'bg-primary-50/50 dark:bg-primary-900/10 text-primary-700/80 dark:text-primary-400/80' : '' }}">
                         Sales History
                     </a>
                     <!-- <a href="{{ url('/returns') }}"
@@ -157,7 +157,7 @@
             <!-- Customers -->
             <div x-data="{ open: {{ request()->is('customers*') ? 'true' : 'false' }} }">
                 <button @click="open = !open"
-                    class="sidebar-item w-full {{ request()->is('customers*') ? 'text-primary-600 dark:text-primary-400' : '' }}">
+                    class="sidebar-item w-full {{ request()->is('customers*') ? 'text-primary-700/80 dark:text-primary-400/80' : '' }}">
                     <i data-lucide="users" class="w-5 h-5 flex-shrink-0"></i>
                     <span x-show="expanded" class="flex-1 text-left">Customers</span>
                     <i x-show="expanded" data-lucide="chevron-down"
@@ -166,11 +166,11 @@
                 </button>
                 <div x-show="open && expanded" x-collapse class="mt-1 space-y-1">
                     <a href="{{ url('/customers') }}"
-                        class="sidebar-item pl-12 {{ request()->is('customers') ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400' : '' }}">
+                        class="sidebar-item pl-12 {{ request()->is('customers') ? 'bg-primary-50/50 dark:bg-primary-900/10 text-primary-700/80 dark:text-primary-400/80' : '' }}">
                         Customer List
                     </a>
                     <a href="{{ url('/customers/create') }}"
-                        class="sidebar-item pl-12 {{ request()->is('customers/create') ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400' : '' }}">
+                        class="sidebar-item pl-12 {{ request()->is('customers/create') ? 'bg-primary-50/50 dark:bg-primary-900/10 text-primary-700/80 dark:text-primary-400/80' : '' }}">
                         Add Customer
                     </a>
                 </div>
@@ -179,7 +179,7 @@
             <!-- Quotations -->
             <div x-data="{ open: {{ request()->is('quotations*') || request()->is('invoices*') ? 'true' : 'false' }} }">
                 <button @click="open = !open"
-                    class="sidebar-item w-full {{ request()->is('quotations*') || request()->is('invoices*') ? 'text-primary-600 dark:text-primary-400' : '' }}">
+                    class="sidebar-item w-full {{ request()->is('quotations*') || request()->is('invoices*') ? 'text-primary-700/80 dark:text-primary-400/80' : '' }}">
                     <i data-lucide="file-text" class="w-5 h-5 flex-shrink-0"></i>
                     <span x-show="expanded" class="flex-1 text-left">Quotations</span>
                     <i x-show="expanded" data-lucide="chevron-down"
@@ -188,11 +188,11 @@
                 </button>
                 <div x-show="open && expanded" x-collapse class="mt-1 space-y-1">
                     <a href="{{ url('/quotations/create') }}"
-                        class="sidebar-item pl-12 {{ request()->is('quotations/create') ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400' : '' }}">
+                        class="sidebar-item pl-12 {{ request()->is('quotations/create') ? 'bg-primary-50/50 dark:bg-primary-900/10 text-primary-700/80 dark:text-primary-400/80' : '' }}">
                         Create Quote
                     </a>
                     <a href="{{ url('/quotations') }}"
-                        class="sidebar-item pl-12 {{ request()->is('quotations') ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400' : '' }}">
+                        class="sidebar-item pl-12 {{ request()->is('quotations') ? 'bg-primary-50/50 dark:bg-primary-900/10 text-primary-700/80 dark:text-primary-400/80' : '' }}">
                         Manage Quotes
                     </a>
                     <!-- <a href="{{ url('/invoices') }}"
@@ -203,9 +203,9 @@
             </div>
 
             <!-- Reports -->
-            <div x-data="{ open: {{ request()->is('reports*') ? 'true' : 'false' }} }">
+            <!-- <div x-data="{ open: {{ request()->is('reports*') ? 'true' : 'false' }} }">
                 <button @click="open = !open"
-                    class="sidebar-item w-full {{ request()->is('reports*') ? 'text-primary-600 dark:text-primary-400' : '' }}">
+                    class="sidebar-item w-full {{ request()->is('reports*') ? 'text-primary-700/80 dark:text-primary-400/80' : '' }}">
                     <i data-lucide="bar-chart-3" class="w-5 h-5 flex-shrink-0"></i>
                     <span x-show="expanded" class="flex-1 text-left">Reports</span>
                     <i x-show="expanded" data-lucide="chevron-down"
@@ -214,27 +214,27 @@
                 </button>
                 <div x-show="open && expanded" x-collapse class="mt-1 space-y-1">
                     <a href="{{ url('/reports/stock') }}"
-                        class="sidebar-item pl-12 {{ request()->is('reports/stock') ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400' : '' }}">
+                        class="sidebar-item pl-12 {{ request()->is('reports/stock') ? 'bg-primary-50/50 dark:bg-primary-900/10 text-primary-700/80 dark:text-primary-400/80' : '' }}">
                         Stock Reports
                     </a>
                     <a href="{{ url('/reports/sales') }}"
-                        class="sidebar-item pl-12 {{ request()->is('reports/sales') ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400' : '' }}">
+                        class="sidebar-item pl-12 {{ request()->is('reports/sales') ? 'bg-primary-50/50 dark:bg-primary-900/10 text-primary-700/80 dark:text-primary-400/80' : '' }}">
                         Sales Analytics
                     </a>
                     <a href="{{ url('/reports/financial') }}"
-                        class="sidebar-item pl-12 {{ request()->is('reports/financial') ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400' : '' }}">
+                        class="sidebar-item pl-12 {{ request()->is('reports/financial') ? 'bg-primary-50/50 dark:bg-primary-900/10 text-primary-700/80 dark:text-primary-400/80' : '' }}">
                         Financial Reports
                     </a>
                     <a href="{{ url('/reports/vendors') }}"
-                        class="sidebar-item pl-12 {{ request()->is('reports/vendors') ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400' : '' }}">
+                        class="sidebar-item pl-12 {{ request()->is('reports/vendors') ? 'bg-primary-50/50 dark:bg-primary-900/10 text-primary-700/80 dark:text-primary-400/80' : '' }}">
                         Vendor Reports
                     </a>
                 </div>
-            </div>
+            </div> -->
 
             <!-- Section Label -->
             <div x-show="expanded" class="pt-4 pb-2">
-                <span class="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider px-3">
+                <span class="text-xs font-semibold text-slate-500/80 dark:text-slate-400/80 uppercase tracking-wider px-3">
                     System Management
                 </span>
             </div>
@@ -252,7 +252,7 @@
     <!-- Sidebar Toggle Button (Desktop) -->
     <div class="absolute -right-3 top-20 hidden lg:block">
         <button @click="toggleSidebar()"
-            class="w-6 h-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full shadow-md flex items-center justify-center hover:scale-110 transition-transform">
+            class="w-6 h-6 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50 rounded-full shadow-sm flex items-center justify-center hover:scale-110 transition-transform hover:border-slate-300/70">
             <i data-lucide="chevron-left"
                 :class="!expanded && 'rotate-180'"
                 class="w-3 h-3 text-slate-600 dark:text-slate-400 transition-transform duration-200"></i>

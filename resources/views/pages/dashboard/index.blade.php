@@ -2,36 +2,6 @@
 
 @section('title', 'Dashboard')
 
-@section('page-title')
-    <div class="flex items-center gap-4">
-        <div class="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center">
-            <i data-lucide="bar-chart-3" class="w-6 h-6 text-white"></i>
-        </div>
-        <div>
-            <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Business Dashboard</h1>
-            <p class="text-slate-600 dark:text-slate-400">Real-time business metrics and performance</p>
-        </div>
-    </div>
-@endsection
-
-@section('breadcrumb')
-    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Home</a></li>
-    <li class="breadcrumb-item active">Dashboard</li>
-@endsection
-
-@section('page-actions')
-    <div class="flex items-center gap-4">
-        <button onclick="loadDashboardData()" class="btn-secondary">
-            <i data-lucide="refresh-cw" class="w-4 h-4 mr-2"></i>
-            Refresh Data
-        </button>
-        <div class="text-xs text-slate-500 dark:text-slate-400">
-            <i data-lucide="clock" class="w-3 h-3 inline mr-1"></i>
-            Auto-refresh: 30s
-        </div>
-    </div>
-@endsection
-
 @section('content')
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
         <!-- Total Daily Sales -->
@@ -46,10 +16,7 @@
                         <h3 class="text-sm font-semibold text-slate-600 dark:text-slate-400">Total Daily Sales</h3>
                     </div>
                 </div>
-                <div class="flex items-center gap-1 text-xs font-medium" id="daily-sales-change">
-                    <i data-lucide="trending-up" class="w-3 h-3"></i>
-                    <span>0%</span>
-                </div>
+             
             </div>
             <div class="mt-4">
                 <div class="flex items-center justify-between mb-2">
@@ -74,19 +41,9 @@
                         <h3 class="text-sm font-semibold text-slate-600 dark:text-slate-400">Total Inventory Value</h3>
                     </div>
                 </div>
-                <div class="flex items-center gap-1 text-xs font-medium text-blue-600 dark:text-blue-400">
-                    <i data-lucide="box" class="w-3 h-3"></i>
-                    <span id="inventory-items-count">0 items</span>
-                </div>
+                
             </div>
-            <div class="mt-4">
-                <div class="flex items-center justify-between mb-2">
-                    
-                </div>
-                <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
-                    <div class="bg-blue-500 h-2 rounded-full transition-all duration-300" id="inventory-turnover-bar" style="width: 75%"></div>
-                </div>
-            </div>
+         
         </div>
 
         <!-- Quotations Count -->
@@ -101,10 +58,7 @@
                         <h3 class="text-sm font-semibold text-slate-600 dark:text-slate-400">Active Quotations</h3>
                     </div>
                 </div>
-                <div class="flex items-center gap-1 text-xs font-medium text-amber-600 dark:text-amber-400">
-                    <i data-lucide="clock" class="w-3 h-3"></i>
-                    <span id="quotations-total">0 total</span>
-                </div>
+                
             </div>
             <div class="mt-4">
                 <div class="flex items-center justify-between mb-2">
@@ -132,10 +86,7 @@
                         <h3 class="text-sm font-semibold text-slate-600 dark:text-slate-400">Daily Profit</h3>
                     </div>
                 </div>
-                <div class="flex items-center gap-1 text-xs font-medium" id="profit-margin-display">
-                    <i data-lucide="percent" class="w-3 h-3"></i>
-                    <span id="profit-margin-text">0%</span>
-                </div>
+               
             </div>
             <div class="mt-4">
                 <div class="flex items-center justify-between mb-2">
