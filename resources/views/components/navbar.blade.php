@@ -246,6 +246,17 @@
                 <span x-show="expanded" x-transition class="flex-1">Database Backup</span>
             </a>
 
+            <!-- System Monitor -->
+            <a href="{{ url('/system-monitor') }}"
+                class="sidebar-item {{ request()->is('system-monitor*') ? 'active' : '' }}">
+                <i data-lucide="activity" class="w-5 h-5 flex-shrink-0"></i>
+                <span x-show="expanded" x-transition class="flex-1">System Monitor</span>
+                @if(request()->is('system-monitor*'))
+                <span x-show="expanded"
+                    class="w-2 h-2 bg-primary-600/70 rounded-full animate-pulse"></span>
+                @endif
+            </a>
+
         </div>
     </div>
 

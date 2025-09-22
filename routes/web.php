@@ -130,3 +130,15 @@ Route::prefix('backups')->name('backups.')->group(function () {
     Route::get('/restore-history', [BackupController::class, 'restoreHistory'])->name('restore-history');
     Route::post('/validate', [BackupController::class, 'validate'])->name('validate');
 });
+
+// System Monitor routes
+Route::prefix('system-monitor')->name('system-monitor.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\SystemMonitorController::class, 'index'])->name('index');
+    Route::get('/data', [\App\Http\Controllers\SystemMonitorController::class, 'getSystemData'])->name('data');
+    Route::get('/cpu-history', [\App\Http\Controllers\SystemMonitorController::class, 'getCpuHistory'])->name('cpu-history');
+    Route::post('/toggle-monitoring', [\App\Http\Controllers\SystemMonitorController::class, 'toggleMonitoring'])->name('toggle-monitoring');
+    Route::get('/system-info', [\App\Http\Controllers\SystemMonitorController::class, 'getSystemInfo'])->name('system-info');
+    Route::get('/version-info', [\App\Http\Controllers\SystemMonitorController::class, 'getVersionInfo'])->name('version-info');
+    Route::post('/check-updates', [\App\Http\Controllers\SystemMonitorController::class, 'checkForUpdates'])->name('check-updates');
+    Route::post('/install-update', [\App\Http\Controllers\SystemMonitorController::class, 'installUpdate'])->name('install-update');
+});
