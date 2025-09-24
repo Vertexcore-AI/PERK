@@ -8,6 +8,7 @@ use App\Models\Batch;
 use App\Models\InventoryStock;
 use App\Models\SerialItem;
 use App\Models\Item;
+use App\Models\VendorItemMapping;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Exception;
@@ -348,5 +349,89 @@ class SalesService
             'total_amount' => $sale->total_amount,
             'items_count' => $sale->saleItems()->count(),
         ]);
+    }
+
+    /**
+     * Find an available batch for an item with specified quantity
+     * Uses FIFO logic and considers vendor mappings if needed
+     */
+    public function findAvailableBatchForItem(int $itemId, int $quantity): ?Batch
+    {
+        // First, try to find batch for exact item_id
+        $batch = Batch::where('item_id', $itemId)
+            ->where('remaining_qty', '>=', $quantity)
+            ->orderBy('received_date', 'asc')
+            ->orderBy('id', 'asc')
+            ->first();
+
+        if ($batch) {
+            return $batch;
+        }
+
+        // If no direct match, try to find batches for equivalent items
+        // through vendor mappings or item code matching
+        $item = Item::find($itemId);
+        if (!$item) {
+            return null;
+        }
+
+        // Try vendor mappings first
+        $equivalentItemIds = $this->findEquivalentItemsByVendorMapping($itemId);
+        if (!empty($equivalentItemIds)) {
+            $batch = Batch::whereIn('item_id', $equivalentItemIds)
+                ->where('remaining_qty', '>=', $quantity)
+                ->orderBy('received_date', 'asc')
+                ->orderBy('id', 'asc')
+                ->first();
+
+            if ($batch) {
+                return $batch;
+            }
+        }
+
+        // Try item code matching as fallback
+        if ($item->item_no) {
+            $similarItems = Item::where('item_no', $item->item_no)
+                ->where('id', '!=', $itemId)
+                ->pluck('id');
+
+            if ($similarItems->isNotEmpty()) {
+                $batch = Batch::whereIn('item_id', $similarItems)
+                    ->where('remaining_qty', '>=', $quantity)
+                    ->orderBy('received_date', 'asc')
+                    ->orderBy('id', 'asc')
+                    ->first();
+
+                if ($batch) {
+                    return $batch;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Find equivalent items through vendor mappings
+     */
+    private function findEquivalentItemsByVendorMapping(int $itemId): array
+    {
+        // Get vendor mappings for this item
+        $vendorMappings = VendorItemMapping::where('item_id', $itemId)
+            ->get(['vendor_id', 'vendor_item_code']);
+
+        $equivalentItemIds = [];
+
+        foreach ($vendorMappings as $mapping) {
+            // Find other items with same vendor and vendor_item_code
+            $equivalentItems = VendorItemMapping::where('vendor_id', $mapping->vendor_id)
+                ->where('vendor_item_code', $mapping->vendor_item_code)
+                ->where('item_id', '!=', $itemId)
+                ->pluck('item_id');
+
+            $equivalentItemIds = array_merge($equivalentItemIds, $equivalentItems->toArray());
+        }
+
+        return array_unique($equivalentItemIds);
     }
 }

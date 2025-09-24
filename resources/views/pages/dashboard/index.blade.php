@@ -3,7 +3,7 @@
 @section('title', 'Dashboard')
 
 @section('content')
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8 relative z-10">
         <!-- Total Daily Sales -->
         <div class="card p-6">
             <div class="flex items-start justify-between mb-4">
@@ -99,7 +99,7 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 relative z-10">
         <!-- PERK Enterprises Image -->
         <div class="xl:col-span-2">
             <div class="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden">

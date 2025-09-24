@@ -3,17 +3,17 @@
 @section('title', 'Edit Quotation')
 
 @section('content')
-<div class="container-fluid px-4" x-data="quotationBuilder({{ json_encode($quotation) }})">
+<div class="container-fluid px-2" x-data="quotationBuilder({{ json_encode($quotation) }})">
     <!-- Header -->
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex justify-between items-center mb-4">
         <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Edit Quotation #{{ str_pad($quotation->quote_id, 4, '0', STR_PAD_LEFT) }}</h1>
+            <h1 class="text-xl font-bold text-gray-900 dark:text-white">Edit Quotation #{{ str_pad($quotation->quote_id, 4, '0', STR_PAD_LEFT) }}</h1>
             <p class="text-sm text-gray-600 dark:text-gray-400">Update quotation details</p>
         </div>
-        <div class="flex gap-3">
+        <div class="flex gap-2">
             <a href="{{ route('quotations.show', $quotation->quote_id) }}" class="btn btn-secondary">
-                <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
-                Back to Quotation
+                <i data-lucide="arrow-left" class="w-4 h-4 mr-1"></i>
+                Back
             </a>
         </div>
     </div>
@@ -23,14 +23,14 @@
         @csrf
         @method('PUT')
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-3">
             <!-- Main Form -->
-            <div class="lg:col-span-2 space-y-6">
+            <div class="lg:col-span-3 space-y-3">
                 <!-- Customer Selection -->
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Customer Information</h3>
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-3">
+                    <h3 class="text-base font-medium text-gray-900 dark:text-white mb-3">Customer Information</h3>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                         <div>
                             <label for="customer_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 Customer <span class="text-red-500">*</span>
@@ -49,8 +49,18 @@
                         </div>
 
                         <div>
+                            <label for="manual_customer_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                Custom Name
+                            </label>
+                            <input type="text" id="manual_customer_name" name="manual_customer_name"
+                                   value="{{ old('manual_customer_name', $quotation->manual_customer_name) }}"
+                                   class="form-input"
+                                   placeholder="Custom name">
+                        </div>
+
+                        <div>
                             <label for="validity_days" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                Valid for (days)
+                                Valid Days
                             </label>
                             <input
                                 type="number"
@@ -62,43 +72,72 @@
                                 value="{{ \Carbon\Carbon::parse($quotation->valid_until)->diffInDays(\Carbon\Carbon::parse($quotation->quote_date)) }}"
                                 class="form-input"
                             >
-                            <p class="text-xs text-gray-500 mt-1">Default: 30 days</p>
                             @error('validity_days')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label for="manual_customer_address" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                Custom Address
+                            </label>
+                            <textarea id="manual_customer_address" name="manual_customer_address"
+                                      rows="2"
+                                      class="form-textarea"
+                                      placeholder="Custom address">{{ old('manual_customer_address', $quotation->manual_customer_address) }}</textarea>
+                        </div>
+
+                        <div>
+                            <label for="car_model" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                Car Model
+                            </label>
+                            <input type="text" id="car_model" name="car_model"
+                                   value="{{ old('car_model', $quotation->car_model) }}"
+                                   class="form-input"
+                                   placeholder="Honda Civic">
+                        </div>
+
+                        <div>
+                            <label for="car_registration_number" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                Registration
+                            </label>
+                            <input type="text" id="car_registration_number" name="car_registration_number"
+                                   value="{{ old('car_registration_number', $quotation->car_registration_number) }}"
+                                   class="form-input"
+                                   placeholder="ABC-1234">
                         </div>
                     </div>
                 </div>
 
                 <!-- Items Section -->
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-medium text-gray-900 dark:text-white">Quotation Items</h3>
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-3">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-base font-medium text-gray-900 dark:text-white">Quotation Items</h3>
                         <button type="button" @click="showItemModal = true" class="btn btn-primary focus:outline-none">
-                            <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
+                            <i data-lucide="plus" class="w-4 h-4 mr-1"></i>
                             Add Item
                         </button>
                     </div>
 
                     <!-- Items Table -->
                     <div class="overflow-x-auto">
-                        <table class="w-full table-auto">
+                        <table class="w-full min-w-full">
                             <thead>
                                 <tr class="border-b border-gray-200 dark:border-gray-700">
-                                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-700 dark:text-gray-300">Item</th>
-                                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-700 dark:text-gray-300">Batch</th>
-                                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-700 dark:text-gray-300">Qty</th>
-                                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-700 dark:text-gray-300">Unit Price</th>
-                                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-700 dark:text-gray-300">Discount %</th>
-                                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-700 dark:text-gray-300">VAT %</th>
-                                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-700 dark:text-gray-300">Total</th>
-                                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-700 dark:text-gray-300">Action</th>
+                                    <th class="text-left py-2 px-2 text-xs font-medium text-gray-700 dark:text-gray-300">Item</th>
+                                    <th class="text-left py-2 px-2 text-xs font-medium text-gray-700 dark:text-gray-300">Batch</th>
+                                    <th class="text-left py-2 px-2 text-xs font-medium text-gray-700 dark:text-gray-300">Qty</th>
+                                    <th class="text-left py-2 px-2 text-xs font-medium text-gray-700 dark:text-gray-300">Price</th>
+                                    <th class="text-left py-2 px-2 text-xs font-medium text-gray-700 dark:text-gray-300">Disc%</th>
+                                    <th class="text-left py-2 px-2 text-xs font-medium text-gray-700 dark:text-gray-300">VAT%</th>
+                                    <th class="text-left py-2 px-2 text-xs font-medium text-gray-700 dark:text-gray-300">Total</th>
+                                    <th class="text-left py-2 px-2 text-xs font-medium text-gray-700 dark:text-gray-300">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <template x-if="items.length === 0">
                                     <tr>
-                                        <td colspan="8" class="text-center py-8 text-gray-500 dark:text-gray-400">
+                                        <td colspan="8" class="text-center py-6 text-gray-500 dark:text-gray-400">
                                             No items added yet. Click "Add Item" to start.
                                         </td>
                                     </tr>
@@ -106,39 +145,39 @@
 
                                 <template x-for="(item, index) in items" :key="index">
                                     <tr class="border-b border-gray-100 dark:border-gray-700">
-                                        <td class="py-3 px-4">
-                                            <div class="font-medium text-gray-900 dark:text-white" x-text="item.item_description"></div>
-                                            <div class="text-sm text-gray-500" x-text="item.item_code"></div>
+                                        <td class="py-2 px-2">
+                                            <div class="font-medium text-gray-900 dark:text-white text-sm" x-text="item.item_description"></div>
+                                            <div class="text-xs text-gray-500" x-text="item.item_code"></div>
                                         </td>
-                                        <td class="py-3 px-4">
+                                        <td class="py-2 px-2">
                                             <div class="text-sm text-gray-900 dark:text-white" x-text="item.batch_number"></div>
                                             <div class="text-xs text-gray-500">Stock: <span x-text="item.available_stock"></span></div>
                                         </td>
-                                        <td class="py-3 px-4">
+                                        <td class="py-2 px-2">
                                             <input
                                                 type="number"
                                                 x-model.number="item.quantity"
                                                 :name="`items[${index}][quantity]`"
                                                 min="1"
                                                 :max="item.available_stock"
-                                                class="w-20 px-2 py-1 border border-gray-300 dark:border-gray-600 rounded text-sm"
+                                                class="w-16 px-1 py-1 border border-gray-300 dark:border-gray-600 rounded text-xs"
                                                 @input="updateItemTotal(item)"
                                             >
                                             <input type="hidden" :name="`items[${index}][item_id]`" :value="item.item_id">
                                             <input type="hidden" :name="`items[${index}][batch_id]`" :value="item.batch_id">
                                         </td>
-                                        <td class="py-3 px-4">
+                                        <td class="py-2 px-2">
                                             <input
                                                 type="number"
                                                 x-model.number="item.unit_price"
                                                 :name="`items[${index}][unit_price]`"
                                                 min="0"
                                                 step="0.01"
-                                                class="w-24 px-2 py-1 border border-gray-300 dark:border-gray-600 rounded text-sm"
+                                                class="w-20 px-1 py-1 border border-gray-300 dark:border-gray-600 rounded text-xs"
                                                 @input="updateItemTotal(item)"
                                             >
                                         </td>
-                                        <td class="py-3 px-4">
+                                        <td class="py-2 px-2">
                                             <input
                                                 type="number"
                                                 x-model.number="item.discount"
@@ -146,11 +185,11 @@
                                                 min="0"
                                                 max="100"
                                                 step="0.01"
-                                                class="w-20 px-2 py-1 border border-gray-300 dark:border-gray-600 rounded text-sm"
+                                                class="w-16 px-1 py-1 border border-gray-300 dark:border-gray-600 rounded text-xs"
                                                 @input="updateItemTotal(item)"
                                             >
                                         </td>
-                                        <td class="py-3 px-4">
+                                        <td class="py-2 px-2">
                                             <input
                                                 type="number"
                                                 x-model.number="item.vat"
@@ -158,14 +197,16 @@
                                                 min="0"
                                                 max="100"
                                                 step="0.01"
-                                                class="w-20 px-2 py-1 border border-gray-300 dark:border-gray-600 rounded text-sm"
+                                                class="w-16 px-1 py-1 border border-gray-300 dark:border-gray-600 rounded text-xs"
                                                 @input="updateItemTotal(item)"
                                             >
                                         </td>
-                                        <td class="py-3 px-4 font-medium" x-text="`LKR ${item.total.toFixed(2)}`"></td>
-                                        <td class="py-3 px-4">
-                                            <button type="button" @click="removeItem(index)" class="text-red-600 hover:text-red-800">
-                                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                        <td class="py-2 px-2 font-medium text-sm" x-text="`${item.total.toFixed(2)}`"></td>
+                                        <td class="py-2 px-2">
+                                            <button type="button" @click="removeItem(index)" class="inline-flex items-center justify-center px-1 py-1 text-red-600 hover:text-red-800 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors duration-200" title="Remove item">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                </svg>
                                             </button>
                                         </td>
                                     </tr>
@@ -178,47 +219,47 @@
 
             <!-- Summary Sidebar -->
             <div class="lg:col-span-1">
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 sticky top-4">
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Quotation Summary</h3>
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-3 sticky top-4">
+                    <h3 class="text-base font-medium text-gray-900 dark:text-white mb-3">Summary</h3>
 
-                    <div class="space-y-3">
+                    <div class="space-y-2">
                         <div class="flex justify-between text-sm">
                             <span class="text-gray-600 dark:text-gray-400">Items:</span>
                             <span class="font-medium" x-text="items.length"></span>
                         </div>
                         <div class="flex justify-between text-sm">
                             <span class="text-gray-600 dark:text-gray-400">Subtotal:</span>
-                            <span class="font-medium" x-text="`LKR ${subtotal.toFixed(2)}`"></span>
+                            <span class="font-medium" x-text="`${subtotal.toFixed(2)}`"></span>
                         </div>
                         <div class="flex justify-between text-sm">
-                            <span class="text-gray-600 dark:text-gray-400">Total Discount:</span>
-                            <span class="font-medium" x-text="`LKR ${totalDiscount.toFixed(2)}`"></span>
+                            <span class="text-gray-600 dark:text-gray-400">Discount:</span>
+                            <span class="font-medium" x-text="`${totalDiscount.toFixed(2)}`"></span>
                         </div>
                         <div class="flex justify-between text-sm">
-                            <span class="text-gray-600 dark:text-gray-400">Total VAT:</span>
-                            <span class="font-medium" x-text="`LKR ${totalVat.toFixed(2)}`"></span>
+                            <span class="text-gray-600 dark:text-gray-400">VAT:</span>
+                            <span class="font-medium" x-text="`${totalVat.toFixed(2)}`"></span>
                         </div>
                         <hr class="border-gray-200 dark:border-gray-700">
-                        <div class="flex justify-between text-lg font-medium">
-                            <span class="text-gray-900 dark:text-white">Total Estimate:</span>
-                            <span class="text-blue-600 dark:text-blue-400" x-text="`LKR ${totalEstimate.toFixed(2)}`"></span>
+                        <div class="flex justify-between text-base font-medium">
+                            <span class="text-gray-900 dark:text-white">Total:</span>
+                            <span class="text-blue-600 dark:text-blue-400" x-text="`${totalEstimate.toFixed(2)}`"></span>
                         </div>
-                        <div class="text-xs text-gray-500 mt-2">
-                            Valid until: <span x-text="validUntilDate"></span>
+                        <div class="text-xs text-gray-500 mt-1">
+                            Valid: <span x-text="validUntilDate"></span>
                         </div>
                     </div>
 
-                    <div class="flex flex-col gap-3 mt-6">
+                    <div class="flex flex-col gap-2 mt-4">
                         <button
                             type="submit"
                             :disabled="items.length === 0 || !selectedCustomer"
                             :class="(items.length === 0 || !selectedCustomer) ? 'btn btn-primary opacity-50 cursor-not-allowed' : 'btn btn-primary'"
                         >
-                            <i data-lucide="save" class="w-4 h-4 mr-2"></i>
-                            Update Quotation
+                            <i data-lucide="save" class="w-4 h-4 mr-1"></i>
+                            Update
                         </button>
                         <a href="{{ route('quotations.show', $quotation->quote_id) }}" class="btn btn-secondary">
-                            <i data-lucide="x" class="w-4 h-4 mr-2"></i>
+                            <i data-lucide="x" class="w-4 h-4 mr-1"></i>
                             Cancel
                         </a>
                     </div>
@@ -229,7 +270,7 @@
 
     <!-- Item Selection Modal -->
     <div x-show="showItemModal" x-cloak class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" @click.self="showItemModal = false">
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg max-w-2xl w-full mx-4 max-h-[85vh] overflow-hidden">
             <!-- Modal Header -->
             <div class="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-700">
                 <h3 class="text-lg font-medium text-gray-900 dark:text-white">Select Item & Batch</h3>
@@ -297,8 +338,8 @@ function quotationBuilder(existingQuotation = null) {
             batch_id: item.batch_id,
             item_description: item.item.description,
             item_code: item.item.item_code,
-            batch_number: item.batch.batch_no,
-            available_stock: item.batch.remaining_qty,
+            batch_number: item.batch ? item.batch.batch_no : 'No Stock',
+            available_stock: item.batch ? item.batch.remaining_qty : 0,
             quantity: item.quantity,
             unit_price: parseFloat(item.unit_price),
             discount: parseFloat(item.discount || 0),

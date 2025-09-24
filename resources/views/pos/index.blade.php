@@ -939,7 +939,7 @@ function posApp() {
                 this.availableQuotations = quotations.filter(q => {
                     if (!this.quotationSearch) return true;
                     const search = this.quotationSearch.toLowerCase();
-                    return q.customer.name.toLowerCase().includes(search) ||
+                    return q.customer_name.toLowerCase().includes(search) ||
                            String(q.quote_id).padStart(4, '0').includes(search);
                 });
             } catch (error) {
@@ -952,25 +952,26 @@ function posApp() {
 
         async selectQuotation(quotation) {
             try {
-                // Check stock for quotation items
-                const response = await fetch(`/quotations/${quotation.quote_id}/check-stock`, {
-                    method: 'GET',
+                // Load quotation items with stock check
+                const response = await fetch('/api/pos/quotations/load', {
+                    method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    }
+                    },
+                    body: JSON.stringify({ quote_id: quotation.quote_id })
                 });
 
                 const data = await response.json();
 
-                if (data.error) {
-                    this.showAlertDialog('error', 'Error Loading Quotation', data.error);
+                if (!data.success) {
+                    this.showAlertDialog('error', 'Error Loading Quotation', data.error || 'Failed to load quotation');
                     return;
                 }
 
                 // Set customer
                 this.selectedCustomer = data.quotation.customer;
-                this.customerSearch = this.selectedCustomer.name;
+                this.customerSearch = data.quotation.customer.name;
 
                 // Clear existing cart
                 this.cartItems = [];
@@ -993,6 +994,38 @@ function posApp() {
                             selling_price: parseFloat(item.unit_price)
                         };
                         this.cartItems.push(cartItem);
+                    } else if (item.status === 'no_batch') {
+                        // Item was added without stock, show alternatives
+                        const message = `Item "${item.item.description}" was quoted without stock.`;
+                        if (item.alternatives && item.alternatives.length > 0) {
+                            const altMessage = `Available batches:<br>${item.alternatives.map(alt =>
+                                `• ${alt.batch_number} (Stock: ${alt.remaining_quantity}, Price: LKR ${alt.selling_price})`
+                            ).join('<br>')}`;
+
+                            this.showConfirmDialog(
+                                'Select Batch for Item',
+                                `${message}<br><br>${altMessage}<br><br>Would you like to use the first available batch?`,
+                                () => {
+                                const alt = item.alternatives[0];
+                                const cartItem = {
+                                    item_id: item.item_id,
+                                    batch_id: alt.batch_id,
+                                    description: item.item.description,
+                                    item_code: item.item.item_code,
+                                    batch_number: alt.batch_number,
+                                    quantity: item.quantity,
+                                    unit_price: parseFloat(item.unit_price),
+                                    discount: parseFloat(item.discount || 0),
+                                    vat: parseFloat(item.vat || 0),
+                                    available_stock: alt.remaining_quantity,
+                                    selling_price: parseFloat(item.unit_price)
+                                };
+                                this.cartItems.push(cartItem);
+                                this.closeConfirm();
+                            });
+                        } else {
+                            this.showAlertDialog('warning', 'No Stock Available', `${message}<br><br>No batches available for this item. Cannot proceed with sale.`);
+                        }
                     } else {
                         // Item is out of stock, show alternatives
                         const message = `Item "${item.item.description}" from batch "${item.original_batch.batch_no}" is out of stock.`;
@@ -1264,7 +1297,9 @@ function posApp() {
 
             try {
                 const saleData = {
-                    customer_id: this.selectedCustomer.id,
+                    customer_id: this.selectedCustomer?.id || null,
+                    customer_name: this.selectedCustomer?.name || null,
+                    customer_address: this.selectedCustomer?.address || null,
                     payment_method: this.payment.method,
                     cash_amount: this.payment.cash_amount || 0,
                     card_amount: this.payment.card_amount || 0,

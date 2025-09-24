@@ -55,10 +55,10 @@ class GRNService
 
                 // Calculate costs
                 $costs = $this->calculateCosts(
-                    $itemData['unit_price'],
+                    $itemData['unit_cost'],
                     $itemData['discount'] ?? 0,
                     $itemData['vat'] ?? 0,
-                    $itemData['received_qty']
+                    $itemData['quantity'] ?? 1
                 );
 
                 // Create batch with enhanced pricing data including selling price
@@ -66,15 +66,23 @@ class GRNService
                     $item->id,
                     $grnData['vendor_id'],
                     [
-                        'unit_price' => $itemData['unit_price'],
+                        'unit_price' => $itemData['unit_cost'], // BatchService still expects 'unit_price' parameter
                         'selling_price' => $itemData['selling_price'] ?? null, // Get selling price from GRN input
                         'discount' => $itemData['discount'] ?? 0,
                         'vat' => $itemData['vat'] ?? 0,
                         'expiry_date' => $itemData['expiry_date'] ?? null,
                         'notes' => $itemData['notes'] ?? null,
                     ],
-                    $itemData['received_qty']
+                    $itemData['quantity'] ?? 1 // Use the actual quantity from GRN
                 );
+
+                // Calculate selling price using the correct formula if not provided
+                $sellingPrice = $itemData['selling_price'];
+                if (!$sellingPrice) {
+                    $vatAmount = $itemData['unit_cost'] * (($itemData['vat'] ?? 0) / 100);
+                    $discountAmount = $itemData['unit_cost'] * (($itemData['discount'] ?? 0) / 100);
+                    $sellingPrice = $itemData['unit_cost'] + $vatAmount - $discountAmount;
+                }
 
                 // Create GRN item record with selling price
                 $grnItem = GRNItem::create([
@@ -82,31 +90,24 @@ class GRNService
                     'item_id' => $item->id,
                     'batch_id' => $batch->id,
                     'vendor_item_code' => $itemData['vendor_item_code'],
-                    'received_qty' => $itemData['received_qty'],
-                    'unit_price' => $itemData['unit_price'],
-                    'selling_price' => $itemData['selling_price'] ?? ($costs['unit_cost'] * 1.3), // Default 30% markup
+                    'quantity' => $itemData['quantity'] ?? 1,
+                    'unit_cost' => $itemData['unit_cost'],
+                    'selling_price' => $sellingPrice,
                     'discount' => $itemData['discount'] ?? 0,
-                    'unit_cost' => $costs['unit_cost'],
                     'vat' => $itemData['vat'] ?? 0,
                     'total_cost' => $costs['total_cost'],
-                    'stored_qty' => $itemData['stored_qty'] ?? $itemData['received_qty'],
                     'notes' => $itemData['notes'] ?? null,
                 ]);
 
-                // Update inventory stock if stored_qty > 0
-                if ($grnItem->stored_qty > 0) {
-                    // Get default store if not provided
-                    $storeId = $itemData['store_id'] ?? \App\Models\Store::first()?->id;
-                    if (!$storeId) {
-                        throw new \Exception('No stores available for inventory update');
-                    }
-
+                // Update inventory stock (items are automatically available after GRN creation)
+                $storeId = $itemData['store_id'] ?? \App\Models\Store::first()?->id;
+                if ($storeId) {
                     $this->inventoryService->updateStock(
                         $item->id,
                         $storeId,
                         $itemData['bin_id'] ?? null,
                         $batch->id,
-                        $grnItem->stored_qty
+                        $itemData['quantity'] ?? 1 // Use the actual quantity for inventory tracking
                     );
                 }
 
@@ -161,18 +162,20 @@ class GRNService
     /**
      * Calculate costs including discount and VAT
      */
-    public function calculateCosts($unitPrice, $discount, $vat, $quantity)
+    public function calculateCosts($unitCost, $discount, $vat, $quantity = 1)
     {
-        $unitCost = $unitPrice - ($unitPrice * $discount / 100);
-        $subtotal = $unitCost * $quantity;
-        $vatAmount = $subtotal * $vat / 100;
-        $totalCost = $subtotal + $vatAmount;
+        $discountAmount = $unitCost * ($discount / 100);
+        $vatAmount = $unitCost * ($vat / 100);
+
+        // Total cost is (unit cost after discount) * quantity (what we actually paid)
+        $totalCost = ($unitCost - $discountAmount) * $quantity;
 
         return [
             'unit_cost' => $unitCost,
-            'subtotal' => $subtotal,
+            'discount_amount' => $discountAmount,
             'vat_amount' => $vatAmount,
             'total_cost' => $totalCost,
+            'quantity' => $quantity,
         ];
     }
 
@@ -198,16 +201,8 @@ class GRNService
                 throw new \Exception("Vendor item code is required for item at position " . ($index + 1));
             }
 
-            if (empty($item['received_qty']) || $item['received_qty'] <= 0) {
-                throw new \Exception("Valid received quantity is required for item at position " . ($index + 1));
-            }
-
-            if (empty($item['unit_price']) || $item['unit_price'] <= 0) {
-                throw new \Exception("Valid unit price is required for item at position " . ($index + 1));
-            }
-
-            if (isset($item['stored_qty']) && $item['stored_qty'] > $item['received_qty']) {
-                throw new \Exception("Stored quantity cannot exceed received quantity for item at position " . ($index + 1));
+            if (empty($item['unit_cost']) || $item['unit_cost'] <= 0) {
+                throw new \Exception("Valid unit cost is required for item at position " . ($index + 1));
             }
         }
 

@@ -15,24 +15,19 @@ class GRNItem extends Model
         'item_id',
         'batch_id',
         'vendor_item_code',
-        'received_qty',
-        'unit_price',
+        'quantity',
+        'unit_cost',
         'selling_price',
         'discount',
-        'unit_cost',
         'vat',
         'total_cost',
-        'stored_qty',
         'notes',
     ];
 
     protected $casts = [
-        'received_qty' => 'integer',
-        'stored_qty' => 'integer',
-        'unit_price' => 'decimal:2',
+        'unit_cost' => 'decimal:2',
         'selling_price' => 'decimal:2',
         'discount' => 'decimal:2',
-        'unit_cost' => 'decimal:2',
         'vat' => 'decimal:2',
         'total_cost' => 'decimal:2',
     ];
@@ -54,8 +49,14 @@ class GRNItem extends Model
 
     public function calculateCosts()
     {
-        $this->unit_cost = $this->unit_price - ($this->unit_price * $this->discount / 100);
-        $costBeforeVat = $this->unit_cost * $this->received_qty;
-        $this->total_cost = $costBeforeVat + ($costBeforeVat * $this->vat / 100);
+        // Calculate actual amounts from percentages
+        $discountAmount = $this->unit_cost * ($this->discount / 100);
+        $vatAmount = $this->unit_cost * ($this->vat / 100);
+
+        // total_cost = (unit_cost after discount) * quantity (what we actually paid)
+        $this->total_cost = ($this->unit_cost - $discountAmount) * ($this->quantity ?? 1);
+
+        // selling_price = unit_cost + vat_amount - discount_amount (per unit)
+        $this->selling_price = $this->unit_cost + $vatAmount - $discountAmount;
     }
 }

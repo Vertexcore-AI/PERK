@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\VendorController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\StoreController;
@@ -16,9 +17,19 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\BackupController;
 use Illuminate\Support\Facades\Route;
 
+// Authentication Routes (accessible to guests)
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [AuthController::class, 'login']);
+});
+
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
+
 Route::redirect('/', '/dashboard', 301);
 
-Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+// Protected routes (require authentication)
+Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 Route::get('/dashboard-data', [DashboardController::class, 'getDashboardData'])->name('dashboard.data');
 Route::get('/dashboard-weekly', [DashboardController::class, 'getWeeklySummary'])->name('dashboard.weekly');
 
@@ -142,3 +153,5 @@ Route::prefix('system-monitor')->name('system-monitor.')->group(function () {
     Route::post('/check-updates', [\App\Http\Controllers\SystemMonitorController::class, 'checkForUpdates'])->name('check-updates');
     Route::post('/install-update', [\App\Http\Controllers\SystemMonitorController::class, 'installUpdate'])->name('install-update');
 });
+
+}); // End of auth middleware group

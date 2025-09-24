@@ -60,11 +60,19 @@
                         QUOTE TO:
                     </h3>
                     <div class="space-y-1">
-                        <div class="font-semibold text-gray-900">{{ $quotation->customer->name }}</div>
+                        <div class="font-semibold text-gray-900">{{ $quotation->manual_customer_name ?: $quotation->customer->name }}</div>
                         <div class="text-sm text-gray-600">Customer Type: {{ $quotation->customer->type }}</div>
                         <div class="text-sm text-gray-600">Contact: {{ $quotation->customer->contact }}</div>
-                        @if($quotation->customer->address)
-                            <div class="text-sm text-gray-600">{{ $quotation->customer->address }}</div>
+                        <div class="text-sm text-gray-600">{{ $quotation->manual_customer_address ?: $quotation->customer->address ?: 'No address provided' }}</div>
+                        @if($quotation->car_model || $quotation->car_registration_number)
+                            <div class="mt-2 pt-2 border-t border-gray-200">
+                                @if($quotation->car_model)
+                                    <div class="text-sm text-gray-600">Vehicle: {{ $quotation->car_model }}</div>
+                                @endif
+                                @if($quotation->car_registration_number)
+                                    <div class="text-sm text-gray-600">Registration: {{ $quotation->car_registration_number }}</div>
+                                @endif
+                            </div>
                         @endif
                     </div>
                 </div>
@@ -128,9 +136,13 @@
                                 <div class="text-xs text-gray-500">{{ $item->item->item_code }}</div>
                             </td>
                             <td class="border border-gray-300 px-4 py-3">
-                                <div class="text-sm text-gray-900">{{ $item->batch->batch_no }}</div>
-                                @if($item->batch->expiry_date)
-                                    <div class="text-xs text-gray-500">Exp: {{ \Carbon\Carbon::parse($item->batch->expiry_date)->format('M Y') }}</div>
+                                @if($item->batch)
+                                    <div class="text-sm text-gray-900">{{ $item->batch->batch_no }}</div>
+                                    @if($item->batch->expiry_date)
+                                        <div class="text-xs text-gray-500">Exp: {{ \Carbon\Carbon::parse($item->batch->expiry_date)->format('M Y') }}</div>
+                                    @endif
+                                @else
+                                    <div class="text-sm text-orange-600 font-medium">No Stock</div>
                                 @endif
                             </td>
                             <td class="border border-gray-300 px-4 py-3 text-center text-sm text-gray-900">{{ number_format($item->quantity) }}</td>

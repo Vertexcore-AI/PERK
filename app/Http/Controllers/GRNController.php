@@ -32,9 +32,7 @@ class GRNController extends Controller
             ->paginate(15);
 
         $totalGRNs = GRN::count();
-        $pendingGRNs = GRN::whereHas('grnItems', function ($query) {
-            $query->whereColumn('stored_qty', '<', 'received_qty');
-        })->count();
+        $pendingGRNs = 0; // No longer tracking stored vs received quantities
         $todayGRNs = GRN::whereDate('created_at', today())->count();
         $totalValue = GRN::sum('total_amount');
 
@@ -65,12 +63,11 @@ class GRNController extends Controller
             'billing_date' => 'required|date',
             'items' => 'required|array|min:1',
             'items.*.vendor_item_code' => 'required|string',
-            'items.*.received_qty' => 'required|integer|min:1',
-            'items.*.unit_price' => 'required|numeric|min:0',
+            'items.*.quantity' => 'required|integer|min:1',
+            'items.*.unit_cost' => 'required|numeric|min:0',
             'items.*.selling_price' => 'nullable|numeric|min:0',
             'items.*.discount' => 'nullable|numeric|min:0|max:100',
             'items.*.vat' => 'nullable|numeric|min:0|max:100',
-            'items.*.stored_qty' => 'nullable|integer|min:0',
             'items.*.store_id' => 'required|exists:stores,id',
             'items.*.bin_id' => 'nullable|exists:bins,id',
             'items.*.notes' => 'nullable|string',
@@ -146,13 +143,7 @@ class GRNController extends Controller
      */
     public function destroy(GRN $grn)
     {
-        // Check if any items have been stored
-        $hasStoredItems = $grn->grnItems()->where('stored_qty', '>', 0)->exists();
-
-        if ($hasStoredItems) {
-            return redirect()->back()
-                ->with('error', 'Cannot delete GRN with stored items. Please reverse the stock first.');
-        }
+        // GRNs can now be deleted since we no longer track stored quantities separately
 
         $grn->delete();
 
@@ -160,48 +151,6 @@ class GRNController extends Controller
             ->with('success', 'GRN deleted successfully.');
     }
 
-    /**
-     * Update stored quantity for a GRN item
-     */
-    public function updateStoredQty(Request $request, $grnId, $grnItemId)
-    {
-        $request->validate([
-            'stored_qty' => 'required|integer|min:0',
-            'store_id' => 'required|exists:stores,id',
-            'bin_id' => 'nullable|exists:bins,id',
-        ]);
-
-        try {
-            DB::transaction(function () use ($request, $grnItemId) {
-                $grnItem = GRNItem::findOrFail($grnItemId);
-                
-                if ($request->stored_qty > $grnItem->received_qty) {
-                    throw new \Exception('Stored quantity cannot exceed received quantity.');
-                }
-
-                // Update inventory stock
-                $quantityDiff = $request->stored_qty - $grnItem->stored_qty;
-                
-                if ($quantityDiff != 0) {
-                    InventoryStock::updateStock(
-                        $grnItem->item_id,
-                        $request->store_id,
-                        $request->bin_id,
-                        $grnItem->batch_id,
-                        $quantityDiff
-                    );
-                }
-
-                // Update GRN item
-                $grnItem->stored_qty = $request->stored_qty;
-                $grnItem->save();
-            });
-
-            return response()->json(['success' => true, 'message' => 'Stored quantity updated successfully.']);
-        } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
-        }
-    }
 
     /**
      * Upload and parse Excel file for GRN import
@@ -232,21 +181,25 @@ class GRNController extends Controller
 
                 // Check if we have required columns
                 if (!empty($normalizedRow['item_code']) && !empty($normalizedRow['description'])) {
-                    // Calculate default selling price if not provided (30% markup)
-                    $unitPrice = (float) ($normalizedRow['unit_price'] ?? 0);
+                    // Calculate default selling price if not provided
+                    $unitCost = (float) ($normalizedRow['unit_cost'] ?? 0);
                     $sellingPrice = (float) ($normalizedRow['selling_price'] ?? 0);
 
-                    // If no selling price provided, calculate with 30% markup
-                    if ($sellingPrice == 0 && $unitPrice > 0) {
-                        $sellingPrice = $unitPrice * 1.3;
+                    // If no selling price provided, calculate using the correct formula
+                    if ($sellingPrice == 0 && $unitCost > 0) {
+                        $vat = (float) ($normalizedRow['vat'] ?? 0);
+                        $discount = (float) ($normalizedRow['discount'] ?? 0);
+                        $vatAmount = $unitCost * ($vat / 100);
+                        $discountAmount = $unitCost * ($discount / 100);
+                        $sellingPrice = $unitCost + $vatAmount - $discountAmount;
                     }
 
                     $importData[] = [
                         'item_code' => trim($normalizedRow['item_code']),
                         'description' => trim($normalizedRow['description']),
-                        'unit_price' => $unitPrice,
+                        'quantity' => (int) ($normalizedRow['quantity'] ?? 1),
+                        'unit_cost' => $unitCost,
                         'selling_price' => round($sellingPrice, 2),
-                        'quantity' => (int) ($normalizedRow['quantity'] ?? $normalizedRow['qty'] ?? 1),
                         'vat' => (float) ($normalizedRow['vat'] ?? 0),
                         'discount' => (float) ($normalizedRow['discount'] ?? 0),
                     ];
@@ -503,12 +456,11 @@ class GRNController extends Controller
             foreach ($importData['resolved'] as $item) {
                 $grnData['items'][] = [
                     'vendor_item_code' => $item['item_code'],
-                    'received_qty' => $item['quantity'],
-                    'unit_price' => $item['unit_price'],
-                    'selling_price' => $item['selling_price'] ?? ($item['unit_price'] * 1.3), // Use imported selling price or default 30% markup
+                    'quantity' => $item['quantity'] ?? 1,
+                    'unit_cost' => $item['unit_cost'],
+                    'selling_price' => $item['selling_price'] ?? ($item['unit_cost'] + ($item['unit_cost'] * 0.3)), // Use imported selling price or default calculation
                     'discount' => $item['discount'] ?? 0,
                     'vat' => $item['vat'] ?? 0,
-                    'stored_qty' => $item['quantity'], // Auto-store all items
                     'store_id' => $request->default_store_id ?? $defaultStore->id, // Use provided store or first available
                 ];
             }
@@ -586,12 +538,14 @@ class GRNController extends Controller
             'item name' => 'description',
             'item_name' => 'description',
 
-            'unit price' => 'unit_price',
-            'unitprice' => 'unit_price',
-            'unit_price' => 'unit_price',
-            'price' => 'unit_price',
-            'cost' => 'unit_price',
-            'purchase price' => 'unit_price',
+            'unit price' => 'unit_cost',
+            'unitprice' => 'unit_cost',
+            'unit_price' => 'unit_cost',
+            'unit cost' => 'unit_cost',
+            'unit_cost' => 'unit_cost',
+            'price' => 'unit_cost',
+            'cost' => 'unit_cost',
+            'purchase price' => 'unit_cost',
 
             'selling price' => 'selling_price',
             'selling_price' => 'selling_price',

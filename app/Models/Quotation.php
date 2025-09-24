@@ -16,7 +16,11 @@ class Quotation extends Model
         'quote_date',
         'valid_until',
         'total_estimate',
-        'status'
+        'status',
+        'car_model',
+        'car_registration_number',
+        'manual_customer_name',
+        'manual_customer_address'
     ];
 
     protected $casts = [

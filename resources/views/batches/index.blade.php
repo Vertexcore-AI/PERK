@@ -197,7 +197,7 @@
                                             </div>
                                         </td>
                                         <td class="py-4 px-4">
-                                            <p class="text-slate-700 dark:text-slate-300">{{ $batch->vendor->name }}</p>
+                                            <p class="text-slate-700 dark:text-slate-300">{{ $batch->vendor->name ?? 'N/A' }}</p>
                                         </td>
                                         <td class="py-4 px-4 text-center">
                                             @if($currentStock > 0)

@@ -13,15 +13,19 @@ return new class extends Migration
     {
         Schema::create('sale_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('sale_id')->constrained('sales', 'sale_id');
-            $table->foreignId('item_id')->constrained('items');
-            $table->foreignId('batch_id')->nullable()->constrained('batches');
+            $table->foreignId('sale_id')->constrained('sales', 'sale_id')->onDelete('cascade');
+            $table->foreignId('item_id')->constrained('items')->onDelete('cascade');
+            $table->foreignId('batch_id')->nullable()->constrained('batches')->onDelete('set null');
             $table->integer('quantity');
             $table->decimal('unit_price', 10, 2);
             $table->decimal('unit_cost', 10, 2);
             $table->decimal('total', 10, 2);
             $table->decimal('discount', 5, 2)->default(0);
             $table->timestamps();
+
+            $table->index('sale_id');
+            $table->index('item_id');
+            $table->index('batch_id');
         });
     }
 

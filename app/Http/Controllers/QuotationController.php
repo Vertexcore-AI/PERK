@@ -38,9 +38,21 @@ class QuotationController extends Controller
     public function create()
     {
         $customers = Customer::orderBy('name')->get();
-        $items = Item::with(['batches' => function ($query) {
-            $query->where('remaining_qty', '>', 0);
-        }])->orderBy('description')->get();
+        // Get ALL items, including those without stock
+        $items = Item::with(['batches'])->orderBy('description')->get();
+
+        // Separate items with and without stock for frontend
+        $items = $items->map(function ($item) {
+            $availableBatches = $item->batches->filter(function ($batch) {
+                return $batch->remaining_qty > 0;
+            });
+
+            $item->has_stock = $availableBatches->count() > 0;
+            $item->available_batches = $availableBatches;
+            $item->all_batches = $item->batches;
+
+            return $item;
+        });
 
         return view('quotations.create', compact('customers', 'items'));
     }
@@ -60,11 +72,15 @@ class QuotationController extends Controller
 
         try {
             $validated = $request->validate([
-                'customer_id' => 'required|exists:customers,id',
+                'customer_id' => 'nullable|exists:customers,id',
                 'validity_days' => 'nullable|integer|min:1|max:365',
+                'car_model' => 'nullable|string|max:255',
+                'car_registration_number' => 'nullable|string|max:50',
+                'manual_customer_name' => 'required|string|max:255',
+                'manual_customer_address' => 'nullable|string|max:500',
                 'items' => 'required|array|min:1',
                 'items.*.item_id' => 'required|exists:items,id',
-                'items.*.batch_id' => 'required|exists:batches,id',
+                'items.*.batch_id' => 'nullable|exists:batches,id',
                 'items.*.quantity' => 'required|integer|min:1',
                 'items.*.unit_price' => 'required|numeric|min:0',
                 'items.*.discount' => 'nullable|numeric|min:0|max:100',
@@ -122,9 +138,21 @@ class QuotationController extends Controller
         }
 
         $customers = Customer::orderBy('name')->get();
-        $items = Item::with(['batches' => function ($query) {
-            $query->where('remaining_qty', '>', 0);
-        }])->orderBy('description')->get();
+        // Get ALL items, including those without stock
+        $items = Item::with(['batches'])->orderBy('description')->get();
+
+        // Separate items with and without stock for frontend
+        $items = $items->map(function ($item) {
+            $availableBatches = $item->batches->filter(function ($batch) {
+                return $batch->remaining_qty > 0;
+            });
+
+            $item->has_stock = $availableBatches->count() > 0;
+            $item->available_batches = $availableBatches;
+            $item->all_batches = $item->batches;
+
+            return $item;
+        });
 
         return view('quotations.edit', compact('quotation', 'customers', 'items'));
     }
@@ -144,9 +172,13 @@ class QuotationController extends Controller
         $validated = $request->validate([
             'customer_id' => 'required|exists:customers,id',
             'validity_days' => 'nullable|integer|min:1|max:365',
+            'car_model' => 'nullable|string|max:255',
+            'car_registration_number' => 'nullable|string|max:50',
+            'manual_customer_name' => 'nullable|string|max:255',
+            'manual_customer_address' => 'nullable|string|max:500',
             'items' => 'required|array|min:1',
             'items.*.item_id' => 'required|exists:items,id',
-            'items.*.batch_id' => 'required|exists:batches,id',
+            'items.*.batch_id' => 'nullable|exists:batches,id',
             'items.*.quantity' => 'required|integer|min:1',
             'items.*.unit_price' => 'required|numeric|min:0',
             'items.*.discount' => 'nullable|numeric|min:0|max:100',
@@ -161,7 +193,11 @@ class QuotationController extends Controller
                 // Update quotation
                 $quotation->update([
                     'customer_id' => $validated['customer_id'],
-                    'valid_until' => now()->addDays((int)($validated['validity_days'] ?? 30))->toDateString()
+                    'valid_until' => now()->addDays((int)($validated['validity_days'] ?? 30))->toDateString(),
+                    'car_model' => $validated['car_model'] ?? null,
+                    'car_registration_number' => $validated['car_registration_number'] ?? null,
+                    'manual_customer_name' => $validated['manual_customer_name'] ?? null,
+                    'manual_customer_address' => $validated['manual_customer_address'] ?? null
                 ]);
 
                 // Create new items

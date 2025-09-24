@@ -8,6 +8,7 @@ use App\Models\Batch;
 use App\Models\Item;
 use App\Models\Sale;
 use App\Models\SaleItem;
+use App\Models\Customer;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
@@ -28,7 +29,11 @@ class QuotationService
                 'customer_id' => $data['customer_id'],
                 'quote_date' => Carbon::now()->toDateString(),
                 'valid_until' => Carbon::now()->addDays((int)($data['validity_days'] ?? 30))->toDateString(),
-                'status' => 'Pending'
+                'status' => 'Pending',
+                'car_model' => $data['car_model'] ?? null,
+                'car_registration_number' => $data['car_registration_number'] ?? null,
+                'manual_customer_name' => $data['manual_customer_name'] ?? null,
+                'manual_customer_address' => $data['manual_customer_address'] ?? null
             ]);
 
             \Log::info('Quotation created:', ['quote_id' => $quotation->quote_id]);
@@ -44,7 +49,7 @@ class QuotationService
                 $quoteItem = QuoteItem::create([
                     'quote_id' => $quotation->quote_id,
                     'item_id' => $itemData['item_id'],
-                    'batch_id' => $itemData['batch_id'],
+                    'batch_id' => $itemData['batch_id'] ?? null,
                     'quantity' => $itemData['quantity'],
                     'unit_price' => $itemData['unit_price'],
                     'discount' => $itemData['discount'] ?? 0,
@@ -85,26 +90,46 @@ class QuotationService
         $items = [];
 
         foreach ($quotation->quoteItems as $quoteItem) {
-            $stockStatus = $this->checkBatchStock($quoteItem->batch_id, $quoteItem->quantity);
+            // Handle items without batch (no stock items)
+            if (!$quoteItem->batch_id) {
+                $itemData = [
+                    'quote_item_id' => $quoteItem->quote_item_id,
+                    'item_id' => $quoteItem->item_id,
+                    'item' => $quoteItem->item,
+                    'original_batch_id' => null,
+                    'original_batch' => null,
+                    'quantity' => $quoteItem->quantity,
+                    'unit_price' => $quoteItem->unit_price,
+                    'discount' => $quoteItem->discount,
+                    'vat' => $quoteItem->vat,
+                    'status' => 'no_batch',
+                    'alternatives' => $this->getAlternativeBatches(
+                        $quoteItem->item_id,
+                        $quoteItem->quantity
+                    )
+                ];
+            } else {
+                $stockStatus = $this->checkBatchStock($quoteItem->batch_id, $quoteItem->quantity);
 
-            $itemData = [
-                'quote_item_id' => $quoteItem->quote_item_id,
-                'item_id' => $quoteItem->item_id,
-                'item' => $quoteItem->item,
-                'original_batch_id' => $quoteItem->batch_id,
-                'original_batch' => $quoteItem->batch,
-                'quantity' => $quoteItem->quantity,
-                'unit_price' => $quoteItem->unit_price,
-                'discount' => $quoteItem->discount,
-                'vat' => $quoteItem->vat,
-                'status' => $stockStatus['available'] ? 'available' : 'out_of_stock'
-            ];
+                $itemData = [
+                    'quote_item_id' => $quoteItem->quote_item_id,
+                    'item_id' => $quoteItem->item_id,
+                    'item' => $quoteItem->item,
+                    'original_batch_id' => $quoteItem->batch_id,
+                    'original_batch' => $quoteItem->batch,
+                    'quantity' => $quoteItem->quantity,
+                    'unit_price' => $quoteItem->unit_price,
+                    'discount' => $quoteItem->discount,
+                    'vat' => $quoteItem->vat,
+                    'status' => $stockStatus['available'] ? 'available' : 'out_of_stock'
+                ];
 
-            if (!$stockStatus['available']) {
-                $itemData['alternatives'] = $this->getAlternativeBatches(
-                    $quoteItem->item_id,
-                    $quoteItem->quantity
-                );
+                if (!$stockStatus['available']) {
+                    $itemData['alternatives'] = $this->getAlternativeBatches(
+                        $quoteItem->item_id,
+                        $quoteItem->quantity
+                    );
+                }
             }
 
             $items[] = $itemData;
@@ -152,7 +177,7 @@ class QuotationService
 
             // Create sale
             $sale = Sale::create([
-                'customer_id' => $quotation->customer_id,
+                'customer_id' => $this->getOrCreateCustomerId($quotation),
                 'sale_date' => Carbon::now()->toDateString(),
                 'status' => 'Completed',
                 'total_amount' => 0
@@ -214,11 +239,18 @@ class QuotationService
 
     public function getPendingQuotations()
     {
-        return Quotation::with(['customer', 'quoteItems'])
+        return Quotation::with(['quoteItems'])
             ->where('status', 'Pending')
             ->where('valid_until', '>=', Carbon::now()->toDateString())
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($quotation) {
+                // Add customer name (either from relationship or manual)
+                $quotation->customer_name = $quotation->customer
+                    ? $quotation->customer->name
+                    : ($quotation->manual_customer_name ?? 'Unknown Customer');
+                return $quotation;
+            });
     }
 
     public function duplicateQuotation(int $quoteId): Quotation
@@ -238,7 +270,7 @@ class QuotationService
                 QuoteItem::create([
                     'quote_id' => $newQuote->quote_id,
                     'item_id' => $item->item_id,
-                    'batch_id' => $item->batch_id,
+                    'batch_id' => $item->batch_id ?? null,
                     'quantity' => $item->quantity,
                     'unit_price' => $item->unit_price,
                     'discount' => $item->discount,
@@ -249,5 +281,29 @@ class QuotationService
 
             return $newQuote->fresh(['quoteItems', 'customer']);
         });
+    }
+
+    /**
+     * Get or create customer ID from quotation
+     */
+    private function getOrCreateCustomerId(Quotation $quotation): int
+    {
+        // If quotation already has a customer_id, use it
+        if ($quotation->customer_id) {
+            return $quotation->customer_id;
+        }
+
+        // If manual customer data exists, create a customer record
+        if ($quotation->manual_customer_name) {
+            $customer = Customer::create([
+                'name' => $quotation->manual_customer_name,
+                'address' => $quotation->manual_customer_address ?? '',
+                'type' => 'Retail', // Default type for converted customers
+                'contact' => '', // Default empty contact
+            ]);
+            return $customer->id;
+        }
+
+        throw new \Exception('No customer information available for this quotation.');
     }
 }

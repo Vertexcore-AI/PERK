@@ -89,7 +89,7 @@
     }
 
     .customer-details {
-        width: 100%;
+        width: 110%;
         display: table;
         table-layout: fixed;
     }
@@ -334,37 +334,47 @@
             <div class="customer-details">
                 <div class="detail-column">
                     <div class="detail-row">
-                        <span class="detail-label">Quotation N0: </span><span class="detail-value">#{{ str_pad($quotation->quote_id, 4, '0', STR_PAD_LEFT) }}</span>
+                        <span class="detail-label">Quotation No: </span><span class="detail-value">#{{ str_pad($quotation->quote_id, 4, '0', STR_PAD_LEFT) }}</span>
                     </div>
                     <div class="detail-row">
                         <span class="detail-label">Customer Name:</span>
-                        <span class="detail-value">{{ $quotation->customer->name }}</span>
+                        <span class="detail-value">{{ $quotation->manual_customer_name ?: ($quotation->customer ? $quotation->customer->name : 'N/A') }}</span>
                     </div>
-                    @if($quotation->customer->company)
+                    @if($quotation->customer && $quotation->customer->company)
                     <div class="detail-row">
                         <span class="detail-label">Company:</span>
                         <span class="detail-value">{{ $quotation->customer->company }}</span>
                     </div>
                     @endif
+                     @if($quotation->car_model)
+                    <div class="detail-row">
+                        <span class="detail-label">Vehicle Model:</span>
+                        <span class="detail-value">{{ $quotation->car_model }}</span>
+                    </div>
+                    @endif
                 </div>
 
                 <div class="detail-column">
-                    @if($quotation->customer->email)
+                    <div class="detail-row">
+                        <span class="detail-label">Address:</span>
+                        <span class="detail-value">{{ $quotation->manual_customer_address ?: ($quotation->customer ? $quotation->customer->address : '') ?: 'N/A' }}</span>
+                    </div>
+                    @if($quotation->customer && $quotation->customer->email)
                     <div class="detail-row">
                         <span class="detail-label">Email:</span>
                         <span class="detail-value">{{ $quotation->customer->email }}</span>
-                    </div>
-                    @endif
-                    @if($quotation->customer->address)
-                    <div class="detail-row">
-                        <span class="detail-label">Address:</span>
-                        <span class="detail-value">{{ $quotation->customer->address }}</span>
                     </div>
                     @endif
                     <div class="detail-row">
                         <span class="detail-label">Quote Date:</span>
                         <span class="detail-value">{{ $quotation->quote_date->format('F d, Y') }}</span>
                     </div>
+                        @if($quotation->car_registration_number)
+                    <div class="detail-row">
+                        <span class="detail-label">Registration No:</span>
+                        <span class="detail-value">{{ $quotation->car_registration_number }}</span>
+                    </div>
+                    @endif
                 </div>
 
                 <div class="detail-column">
@@ -376,6 +386,8 @@
                         <span class="detail-label">Total Items:</span>
                         <span class="detail-value">{{ $quotation->quoteItems->count() }}</span>
                     </div>
+                   
+                
                 </div>
             </div>
         </div>
@@ -387,12 +399,11 @@
                 <thead>
                     <tr>
                         <th style="width: 5%;">#</th>
-                        <th style="width: 35%;">Item Description</th>
-                        <th style="width: 15%;">Batch Details</th>
+                        <th style="width: 45%;">Item Description</th>
                         <th style="width: 10%;" class="text-center">Qty</th>
                         <th style="width: 15%;" class="text-right">Unit Price (LKR)</th>
                         <th style="width: 10%;" class="text-right">Discount</th>
-                        <th style="width: 10%;" class="text-right">Total (LKR)</th>
+                        <th style="width: 15%;" class="text-right">Total (LKR)</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -400,15 +411,8 @@
                     <tr>
                         <td>{{ $index + 1 }}</td>
                         <td>
-                            <div class="item-name">{{ $item->item->description }}</div>
-                            <div class="item-code">Code: {{ $item->item->item_code }}</div>
-                        </td>
-                        <td>
-                            <div class="batch-info">{{ $item->batch->batch_no }}</div>
-                            @if($item->batch->expiry_date)
-                            <div class="batch-info">Exp:
-                                {{ \Carbon\Carbon::parse($item->batch->expiry_date)->format('M Y') }}</div>
-                            @endif
+                            <div class="item-name">{{ $item->item->name }}</div>
+                            <div class="item-code">Code: {{ $item->item->item_no }}</div>
                         </td>
                         <td class="text-center">{{ number_format($item->quantity) }}</td>
                         <td class="text-right"> {{ number_format($item->unit_price, 2) }}</td>
@@ -432,22 +436,22 @@
                     });
                     @endphp
                     <tr>
-                        <td colspan="6" class="text-right summary-label">Subtotal:</td>
+                        <td colspan="5" class="text-right summary-label">Subtotal:</td>
                         <td class="text-right summary-value"> {{ number_format($subtotal, 2) }}</td>
                     </tr>
                     <tr>
-                        <td colspan="6" class="text-right summary-label">Total Discount:</td>
+                        <td colspan="5" class="text-right summary-label">Total Discount:</td>
                         <td class="text-right summary-value"> {{ number_format($totalDiscount, 2) }}</td>
                     </tr>
                     <tr>
-                        <td colspan="6" class="text-right summary-label">Total VAT:</td>
+                        <td colspan="5" class="text-right summary-label">Total VAT:</td>
                         <td class="text-right summary-value"> {{ number_format($totalVat, 2) }}</td>
                     </tr>
                     <tr class="summary-divider">
-                        <td colspan="7"></td>
+                        <td colspan="6"></td>
                     </tr>
                     <tr class="total-row">
-                        <td colspan="6" class="text-right summary-label">GRAND TOTAL (LKR):</td>
+                        <td colspan="5" class="text-right summary-label">GRAND TOTAL (LKR):</td>
                         <td class="text-right summary-value">{{ number_format($quotation->total_estimate, 2) }}</td>
                     </tr>
                 </tfoot>

@@ -7,7 +7,7 @@
                 "npx",
                 "-y",
                 "@modelcontextprotocol/server-filesystem",
-                "C:\\Users\\User\\Desktop\\PERK\\PERK"
+                "C:\\Users\\User\\Desktop\\PERK\\EX\\PERK"
             ]
         },
         "browsermcp": {

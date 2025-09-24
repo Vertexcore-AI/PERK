@@ -242,10 +242,10 @@
                                             <i data-lucide="file-spreadsheet" class="w-4 h-4 mr-2"></i>
                                             Import Excel
                                         </button>
-                                        <button type="button" id="import-pdf" class="btn-secondary">
+                                        <!-- <button type="button" id="import-pdf" class="btn-secondary">
                                             <i data-lucide="file-text" class="w-4 h-4 mr-2"></i>
                                             Import PDF
-                                        </button>
+                                        </button> -->
                                         <button type="button" id="add-item" class="btn-primary">
                                             <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
                                             Add Item
@@ -403,7 +403,7 @@
                         </div>
                     </div>
 
-                    <div class="flex items-center justify-between mb-6">
+                    <!-- <div class="flex items-center justify-between mb-6">
                         <div class="flex items-center gap-2">
                             <i data-lucide="info" class="w-4 h-4 text-blue-500"></i>
                             <span class="text-sm text-slate-600 dark:text-slate-400">Need a template?</span>
@@ -411,8 +411,8 @@
                         <a href="{{ route('grns.download-template') }}" class="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 text-sm font-medium">
                             Download Template
                         </a>
-                    </div>
-
+                    </div> -->
+<!-- 
                     <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4">
                         <div class="flex items-start gap-3">
                             <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600 dark:text-amber-400 mt-0.5"></i>
@@ -428,7 +428,7 @@
                                 </ul>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
 
                     <div class="flex justify-end gap-3 mt-6">
                         <button id="cancel-import" class="btn-secondary">Cancel</button>
@@ -588,43 +588,31 @@
                     </div>
                 </div>
 
-                <!-- Quantities & Pricing -->
+                <!-- Quantity & Pricing -->
                 <div class="space-y-4">
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                                Received Qty <span class="text-rose-500">*</span>
-                            </label>
-                            <input type="number"
-                                name="items[INDEX][received_qty]"
-                                class="received-qty w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                                placeholder="0"
-                                min="0"
-                                step="0.01"
-                                required>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                                Stored Qty
-                            </label>
-                            <input type="number"
-                                name="items[INDEX][stored_qty]"
-                                class="stored-qty w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                                placeholder="0"
-                                min="0"
-                                step="0.01">
-                        </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                            Quantity <span class="text-rose-500">*</span>
+                        </label>
+                        <input type="number"
+                            name="items[INDEX][quantity]"
+                            class="quantity w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                            placeholder="1"
+                            min="1"
+                            step="1"
+                            value="1"
+                            required>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                                Unit Price <span class="text-rose-500">*</span>
+                                Unit Cost <span class="text-rose-500">*</span>
                             </label>
                             <div class="relative">
                                 <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500">$</span>
                                 <input type="number"
-                                    name="items[INDEX][unit_price]"
-                                    class="unit-price w-full pl-8 pr-3 py-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                    name="items[INDEX][unit_cost]"
+                                    class="unit-cost w-full pl-8 pr-3 py-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                                     placeholder="0.00"
                                     min="0"
                                     step="0.01"
@@ -982,7 +970,7 @@
             });
 
             // Add calculation listeners
-            const inputs = itemDiv.querySelectorAll('.received-qty, .unit-price, .selling-price, .discount, .vat');
+            const inputs = itemDiv.querySelectorAll('.quantity, .unit-cost, .selling-price, .discount, .vat');
             inputs.forEach(input => {
                 input.addEventListener('input', function() {
                     calculateItemTotal(itemDiv);
@@ -990,25 +978,44 @@
                 });
             });
 
-            // Auto-suggest selling price based on unit price with 30% markup
-            itemDiv.querySelector('.unit-price').addEventListener('input', function() {
+            // Auto-calculate selling price based on unit_cost + vat - discount
+            function updateSellingPrice() {
                 const sellingPriceInput = itemDiv.querySelector('.selling-price');
-                if (!sellingPriceInput.value || sellingPriceInput.value == 0) {
-                    const unitPrice = parseFloat(this.value) || 0;
-                    const suggestedPrice = unitPrice * 1.3; // 30% markup
-                    sellingPriceInput.value = suggestedPrice.toFixed(2);
-                    calculateItemTotal(itemDiv);
-                    updateTotals();
+                const sellingPriceDisplay = itemDiv.querySelector('.selling-price-display');
+                const unitCost = parseFloat(itemDiv.querySelector('.unit-cost').value) || 0;
+                const vat = parseFloat(itemDiv.querySelector('.vat').value) || 0;
+                const discount = parseFloat(itemDiv.querySelector('.discount').value) || 0;
+
+                // Always calculate the selling price
+                const vatAmount = unitCost * (vat / 100);
+                const discountAmount = unitCost * (discount / 100);
+                const calculatedPrice = unitCost + vatAmount - discountAmount;
+
+                // Update both input field and display
+                sellingPriceInput.value = calculatedPrice.toFixed(2);
+                if (sellingPriceDisplay) {
+                    sellingPriceDisplay.textContent = calculatedPrice.toFixed(2);
                 }
+
+                calculateItemTotal(itemDiv);
+                updateTotals();
+            }
+
+            itemDiv.querySelector('.unit-cost').addEventListener('input', updateSellingPrice);
+            itemDiv.querySelector('.vat').addEventListener('input', updateSellingPrice);
+            itemDiv.querySelector('.discount').addEventListener('input', updateSellingPrice);
+
+            // Also update display when selling price is manually changed
+            itemDiv.querySelector('.selling-price').addEventListener('input', function() {
+                const sellingPriceDisplay = itemDiv.querySelector('.selling-price-display');
+                const sellingPrice = parseFloat(this.value) || 0;
+                if (sellingPriceDisplay) {
+                    sellingPriceDisplay.textContent = sellingPrice.toFixed(2);
+                }
+                calculateItemTotal(itemDiv);
+                updateTotals();
             });
 
-            // Copy received qty to stored qty by default
-            itemDiv.querySelector('.received-qty').addEventListener('input', function() {
-                const storedQty = itemDiv.querySelector('.stored-qty');
-                if (!storedQty.value) {
-                    storedQty.value = this.value;
-                }
-            });
 
             // Vendor item code lookup (if needed)
             itemDiv.querySelector('.vendor-item-code').addEventListener('blur', function() {
@@ -1018,6 +1025,10 @@
 
             itemsContainer.appendChild(itemDiv);
             itemIndex++;
+
+            // Initialize calculation for the new item
+            updateSellingPrice();
+
             updateTotals();
 
             // Re-initialize Lucide icons for new elements
@@ -1027,56 +1038,50 @@
         }
 
         function calculateItemTotal(itemDiv) {
-            const qty = parseFloat(itemDiv.querySelector('.received-qty').value) || 0;
-            const price = parseFloat(itemDiv.querySelector('.unit-price').value) || 0;
+            const quantity = parseInt(itemDiv.querySelector('.quantity').value) || 1;
+            const unitCost = parseFloat(itemDiv.querySelector('.unit-cost').value) || 0;
             const sellingPrice = parseFloat(itemDiv.querySelector('.selling-price').value) || 0;
             const discount = parseFloat(itemDiv.querySelector('.discount').value) || 0;
             const vat = parseFloat(itemDiv.querySelector('.vat').value) || 0;
 
-            // Calculate unit cost after discount
-            const unitCost = price - (price * discount / 100);
+            // Calculate total cost (unit cost * quantity)
+            const total = unitCost * quantity;
 
-            const subtotal = qty * price;
-            const discountAmount = subtotal * (discount / 100);
-            const afterDiscount = subtotal - discountAmount;
-            const vatAmount = afterDiscount * (vat / 100);
-            const total = afterDiscount + vatAmount;
+            // Update display elements if they exist
+            const unitCostDisplay = itemDiv.querySelector('.unit-cost-display');
+            const sellingPriceDisplay = itemDiv.querySelector('.selling-price-display');
+            const itemTotal = itemDiv.querySelector('.item-total');
 
-            // Update display elements
-            itemDiv.querySelector('.unit-cost-display').textContent = unitCost.toFixed(2);
-            itemDiv.querySelector('.selling-price-display').textContent = sellingPrice.toFixed(2);
-            itemDiv.querySelector('.item-total').textContent = total.toFixed(2);
+            if (unitCostDisplay) unitCostDisplay.textContent = unitCost.toFixed(2);
+            if (sellingPriceDisplay) sellingPriceDisplay.textContent = sellingPrice.toFixed(2);
+            if (itemTotal) itemTotal.textContent = total.toFixed(2);
         }
 
         function updateTotals() {
             const items = document.querySelectorAll('.grn-item');
             let totalItems = items.length;
-            let totalQty = 0;
+            let totalQuantity = 0;
             let subtotal = 0;
-            let totalVat = 0;
 
             items.forEach(item => {
-                const qty = parseFloat(item.querySelector('.received-qty').value) || 0;
-                const price = parseFloat(item.querySelector('.unit-price').value) || 0;
-                const discount = parseFloat(item.querySelector('.discount').value) || 0;
-                const vat = parseFloat(item.querySelector('.vat').value) || 0;
-
-                totalQty += qty;
-
-                const itemSubtotal = qty * price;
-                const discountAmount = itemSubtotal * (discount / 100);
-                const afterDiscount = itemSubtotal - discountAmount;
-                const vatAmount = afterDiscount * (vat / 100);
-
-                subtotal += afterDiscount;
-                totalVat += vatAmount;
+                const quantity = parseInt(item.querySelector('.quantity').value) || 1;
+                const unitCost = parseFloat(item.querySelector('.unit-cost').value) || 0;
+                totalQuantity += quantity;
+                subtotal += unitCost * quantity;
             });
 
-            document.getElementById('total-items').textContent = totalItems;
-            document.getElementById('total-quantity').textContent = totalQty;
-            document.getElementById('subtotal').textContent = subtotal.toFixed(2);
-            document.getElementById('total-vat').textContent = totalVat.toFixed(2);
-            document.getElementById('grand-total').textContent = (subtotal + totalVat).toFixed(2);
+            // Update display elements if they exist
+            const totalItemsElement = document.getElementById('total-items');
+            const totalQuantityElement = document.getElementById('total-quantity');
+            const subtotalElement = document.getElementById('subtotal');
+            const totalVatElement = document.getElementById('total-vat');
+            const grandTotalElement = document.getElementById('grand-total');
+
+            if (totalItemsElement) totalItemsElement.textContent = totalItems;
+            if (totalQuantityElement) totalQuantityElement.textContent = totalQuantity;
+            if (subtotalElement) subtotalElement.textContent = subtotal.toFixed(2);
+            if (totalVatElement) totalVatElement.textContent = '0.00'; // No separate VAT calculation at total level
+            if (grandTotalElement) grandTotalElement.textContent = subtotal.toFixed(2);
         }
 
         function updateItemNumbers() {
@@ -1333,20 +1338,20 @@
                                         </div>
                                         <div>
                                             <span class="text-xs text-slate-500">Unit Price:</span>
-                                            <span class="text-sm font-medium text-slate-700 dark:text-slate-300 ml-1">$${item.unit_price}</span>
+                                            <span class="text-sm font-medium text-slate-700 dark:text-slate-300 ml-1">$${item.unit_cost}</span>
                                         </div>
                                         <div>
                                             <label class="text-xs text-slate-500">Selling Price:</label>
                                             <input type="number"
                                                 id="selling_price_sug_${index}"
-                                                value="${item.selling_price || (item.unit_price * 1.3).toFixed(2)}"
+                                                value="${item.selling_price || (item.unit_cost + (item.unit_cost * (item.vat || 0) / 100) - (item.unit_cost * (item.discount || 0) / 100)).toFixed(2)}"
                                                 step="0.01"
                                                 class="ml-1 w-20 px-1 py-0.5 text-sm border border-slate-300 dark:border-slate-600 rounded dark:bg-slate-600 dark:text-white">
                                         </div>
                                         <div>
                                             <span class="text-xs text-slate-500">Markup:</span>
                                             <span id="markup_sug_${index}" class="text-sm font-medium text-green-600 dark:text-green-400 ml-1">
-                                                ${((((item.selling_price || item.unit_price * 1.3) - item.unit_price) / item.unit_price) * 100).toFixed(1)}%
+                                                ${((((item.selling_price || (item.unit_cost + (item.unit_cost * (item.vat || 0) / 100) - (item.unit_cost * (item.discount || 0) / 100))) - item.unit_cost) / item.unit_cost) * 100).toFixed(1)}%
                                             </span>
                                         </div>
                                     </div>
@@ -1417,20 +1422,20 @@
                                         </div>
                                         <div>
                                             <span class="text-xs text-slate-500">Unit Price:</span>
-                                            <span class="text-sm font-medium text-slate-700 dark:text-slate-300 ml-1">$${item.unit_price}</span>
+                                            <span class="text-sm font-medium text-slate-700 dark:text-slate-300 ml-1">$${item.unit_cost}</span>
                                         </div>
                                         <div>
                                             <label class="text-xs text-slate-500">Selling Price:</label>
                                             <input type="number"
                                                 id="selling_price_unr_${index}"
-                                                value="${item.selling_price || (item.unit_price * 1.3).toFixed(2)}"
+                                                value="${item.selling_price || (item.unit_cost + (item.unit_cost * (item.vat || 0) / 100) - (item.unit_cost * (item.discount || 0) / 100)).toFixed(2)}"
                                                 step="0.01"
                                                 class="ml-1 w-20 px-1 py-0.5 text-sm border border-slate-300 dark:border-slate-600 rounded dark:bg-slate-600 dark:text-white">
                                         </div>
                                         <div>
                                             <span class="text-xs text-slate-500">Markup:</span>
                                             <span id="markup_unr_${index}" class="text-sm font-medium text-green-600 dark:text-green-400 ml-1">
-                                                ${((((item.selling_price || item.unit_price * 1.3) - item.unit_price) / item.unit_price) * 100).toFixed(1)}%
+                                                ${((((item.selling_price || (item.unit_cost + (item.unit_cost * (item.vat || 0) / 100) - (item.unit_cost * (item.discount || 0) / 100))) - item.unit_cost) / item.unit_cost) * 100).toFixed(1)}%
                                             </span>
                                         </div>
                                     </div>
@@ -1483,8 +1488,8 @@
                     if (sellingInput && markupSpan) {
                         sellingInput.addEventListener('input', function() {
                             const sellingPrice = parseFloat(this.value) || 0;
-                            const unitPrice = item.unit_price;
-                            const markup = unitPrice > 0 ? ((sellingPrice - unitPrice) / unitPrice * 100).toFixed(1) : 0;
+                            const unitCost = item.unit_cost;
+                            const markup = unitCost > 0 ? ((sellingPrice - unitCost) / unitCost * 100).toFixed(1) : 0;
                             markupSpan.textContent = `${markup}%`;
                             markupSpan.className = markup >= 0 ?
                                 'text-sm font-medium text-green-600 dark:text-green-400 ml-1' :
@@ -1502,8 +1507,8 @@
                     if (sellingInput && markupSpan) {
                         sellingInput.addEventListener('input', function() {
                             const sellingPrice = parseFloat(this.value) || 0;
-                            const unitPrice = item.unit_price;
-                            const markup = unitPrice > 0 ? ((sellingPrice - unitPrice) / unitPrice * 100).toFixed(1) : 0;
+                            const unitCost = item.unit_cost;
+                            const markup = unitCost > 0 ? ((sellingPrice - unitCost) / unitCost * 100).toFixed(1) : 0;
                             markupSpan.textContent = `${markup}%`;
                             markupSpan.className = markup >= 0 ?
                                 'text-sm font-medium text-green-600 dark:text-green-400 ml-1' :

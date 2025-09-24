@@ -104,8 +104,12 @@
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900 dark:text-white">{{ $quotation->customer->name }}</div>
-                                <div class="text-sm text-gray-500 dark:text-gray-400">{{ $quotation->customer->type }}</div>
+                                <div class="text-sm text-gray-900 dark:text-white">
+                                    {{ $quotation->manual_customer_name ?: ($quotation->customer ? $quotation->customer->name : 'Manual Customer') }}
+                                </div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400">
+                                    {{ $quotation->customer ? $quotation->customer->type : 'Manual' }}
+                                </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                                 {{ $quotation->quote_date->format('M d, Y') }}

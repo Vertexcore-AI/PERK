@@ -1,4 +1,4 @@
-<header class="h-16 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200/30 dark:border-slate-800/30 flex items-center justify-between px-6">
+<header class="h-16 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200/30 dark:border-slate-800/30 flex items-center justify-between px-6 relative z-[9999]">
     <!-- Left Section -->
     <div class="flex items-center gap-4">
         <!-- Mobile Menu Toggle -->
@@ -38,7 +38,7 @@
                 x-transition:leave="transition ease-in duration-75"
                 x-transition:leave-start="opacity-100 transform scale-100"
                 x-transition:leave-end="opacity-0 transform scale-95"
-                class="absolute right-0 mt-2 w-80 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md rounded-xl shadow-sm border border-slate-200/50 dark:border-slate-700/50 z-50">
+                class="absolute right-0 mt-2 w-80 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md rounded-xl shadow-sm border border-slate-200/50 dark:border-slate-700/50 z-[9998]">
 
                 <div class="p-4 border-b border-slate-200/30 dark:border-slate-700/30">
                     <h3 class="text-sm font-semibold text-slate-900 dark:text-white">Notifications</h3>
@@ -88,15 +88,15 @@
         </button>
 
         <!-- User Menu -->
-        <div x-data="{ open: false }" class="relative">
+        <div x-data="{ open: false }" class="relative z-[10000]">
             <button @click="open = !open"
                 class="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-100/80 dark:hover:bg-slate-800/80 transition-colors">
                 <div class="w-8 h-8 bg-gradient-to-br from-primary-600/80 to-primary-700/80 rounded-lg flex items-center justify-center">
-                    <span class="text-white text-sm font-semibold">AD</span>
+                    <span class="text-white text-sm font-semibold">{{ strtoupper(substr(auth()->user()->username ?? 'U', 0, 1)) }}{{ strtoupper(substr(auth()->user()->email ?? '', strpos(auth()->user()->email ?? '', '@') > 0 ? 1 : 0, 1)) }}</span>
                 </div>
                 <div class="hidden lg:block text-left">
-                    <p class="text-sm font-medium text-slate-900 dark:text-white">Alexandra Della</p>
-                    <p class="text-xs text-slate-500 dark:text-slate-400">Administrator</p>
+                    <p class="text-sm font-medium text-slate-900 dark:text-white">{{ auth()->user()->username ?? 'User' }}</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">{{ auth()->user()->email ?? '' }}</p>
                 </div>
                 <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 hidden lg:block"></i>
             </button>
@@ -110,16 +110,16 @@
                 x-transition:leave="transition ease-in duration-75"
                 x-transition:leave-start="opacity-100 transform scale-100"
                 x-transition:leave-end="opacity-0 transform scale-95"
-                class="absolute right-0 mt-2 w-56 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md rounded-xl shadow-sm border border-slate-200/50 dark:border-slate-700/50 z-50">
+                class="absolute right-0 mt-2 w-56 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md rounded-xl shadow-sm border border-slate-200/50 dark:border-slate-700/50 z-[9999]">
 
                 <div class="p-4 border-b border-slate-200/30 dark:border-slate-700/30">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 bg-gradient-to-br from-primary-600/80 to-primary-700/80 rounded-lg flex items-center justify-center">
-                            <span class="text-white font-semibold">AD</span>
+                            <span class="text-white font-semibold">{{ strtoupper(substr(auth()->user()->username ?? 'U', 0, 1)) }}{{ strtoupper(substr(auth()->user()->email ?? '', strpos(auth()->user()->email ?? '', '@') > 0 ? 1 : 0, 1)) }}</span>
                         </div>
                         <div>
-                            <p class="text-sm font-medium text-slate-900 dark:text-white">Alexandra Della</p>
-                            <p class="text-xs text-slate-500 dark:text-slate-400">alex.della@perk.com</p>
+                            <p class="text-sm font-medium text-slate-900 dark:text-white">{{ auth()->user()->username ?? 'User' }}</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">{{ auth()->user()->email ?? '' }}</p>
                         </div>
                     </div>
                 </div>
@@ -140,10 +140,13 @@
                 </div>
 
                 <div class="p-2 border-t border-slate-200 dark:border-slate-700">
-                    <a href="{{ url('/logout') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-rose-50/70 dark:hover:bg-rose-900/10 text-rose-600/80 dark:text-rose-400/80 transition-colors">
-                        <i data-lucide="log-out" class="w-4 h-4"></i>
-                        <span class="text-sm font-medium">Logout</span>
-                    </a>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-rose-50/70 dark:hover:bg-rose-900/10 text-rose-600/80 dark:text-rose-400/80 transition-colors">
+                            <i data-lucide="log-out" class="w-4 h-4"></i>
+                            <span class="text-sm font-medium">Logout</span>
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>

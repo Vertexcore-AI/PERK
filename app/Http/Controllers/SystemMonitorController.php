@@ -20,9 +20,35 @@ class SystemMonitorController extends Controller
      */
     public function index(): View
     {
-        $systemStatus = $this->systemMonitor->getSystemStatus();
+        try {
+            Log::info('SystemMonitorController@index: Starting');
 
-        return view('system-monitor.index', compact('systemStatus'));
+            $systemStatus = $this->systemMonitor->getSystemStatus();
+
+            Log::info('SystemMonitorController@index: System status retrieved successfully');
+
+            return view('system-monitor.index', compact('systemStatus'));
+        } catch (\Exception $e) {
+            Log::error('SystemMonitorController@index: Error occurred', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ]);
+
+            // Return a fallback view with error info
+            $systemStatus = [
+                'error' => true,
+                'message' => 'Failed to load system status: ' . $e->getMessage(),
+                'cpu' => ['usage' => 0, 'high' => false, 'critical' => false],
+                'thermal' => ['state' => 'unknown', 'label' => 'Unknown', 'color' => 'gray', 'critical' => false],
+                'power' => ['ac' => true, 'label' => 'Unknown'],
+                'idle' => ['time' => 0, 'state' => 'unknown'],
+                'timestamp' => now()->toIso8601String()
+            ];
+
+            return view('system-monitor.index', compact('systemStatus'));
+        }
     }
 
     /**

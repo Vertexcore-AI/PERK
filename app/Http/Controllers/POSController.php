@@ -115,7 +115,7 @@ class POSController extends Controller
     {
         $validated = $request->validate([
             'items' => 'required|array',
-            'items.*.item_id' => 'required|exists:items,item_id',
+            'items.*.item_id' => 'required|exists:items,id',
             'items.*.quantity' => 'required|integer|min:1',
             'items.*.unit_price' => 'required|numeric|min:0',
             'items.*.discount' => 'nullable|numeric|min:0|max:100',
@@ -134,7 +134,7 @@ class POSController extends Controller
     {
         $validated = $request->validate([
             'items' => 'required|array',
-            'items.*.item_id' => 'required|exists:items,item_id',
+            'items.*.item_id' => 'required|exists:items,id',
             'items.*.quantity' => 'required|integer|min:1',
         ]);
 
@@ -208,7 +208,9 @@ class POSController extends Controller
     public function processSale(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'customer_id' => 'required|exists:customers,id',
+            'customer_id' => 'nullable|exists:customers,id',
+            'customer_name' => 'nullable|string|max:255', // For manual customers
+            'customer_address' => 'nullable|string|max:500', // For manual customers
             'payment_method' => 'required|in:cash,card,mixed',
             'cash_amount' => 'required_if:payment_method,cash,mixed|numeric|min:0',
             'card_amount' => 'required_if:payment_method,card,mixed|numeric|min:0',
@@ -225,6 +227,17 @@ class POSController extends Controller
         ]);
 
         try {
+            // Handle manual customers - create customer if needed
+            if (!$validated['customer_id'] && !empty($validated['customer_name'])) {
+                $customer = \App\Models\Customer::create([
+                    'name' => $validated['customer_name'],
+                    'address' => $validated['customer_address'] ?? '',
+                    'type' => 'Retail',
+                    'contact' => '',
+                ]);
+                $validated['customer_id'] = $customer->id;
+            }
+
             // Add sale date
             $validated['sale_date'] = now()->toDateString();
 
@@ -315,7 +328,7 @@ class POSController extends Controller
         $formattedQuotations = $quotations->map(function ($quotation) {
             return [
                 'quote_id' => $quotation->quote_id,
-                'customer_name' => $quotation->customer->name,
+                'customer_name' => $quotation->customer_name, // Using the mapped name from QuotationService
                 'quote_date' => $quotation->quote_date->format('Y-m-d'),
                 'valid_until' => $quotation->valid_until->format('Y-m-d'),
                 'total_estimate' => $quotation->total_estimate,
@@ -343,7 +356,10 @@ class POSController extends Controller
                 'success' => true,
                 'quotation' => [
                     'quote_id' => $data['quotation']->quote_id,
-                    'customer' => $data['quotation']->customer,
+                    'customer' => $data['quotation']->customer ?: (object)[
+                        'name' => $data['quotation']->manual_customer_name ?? 'Unknown Customer',
+                        'address' => $data['quotation']->manual_customer_address ?? ''
+                    ],
                     'total_estimate' => $data['quotation']->total_estimate
                 ],
                 'items' => $data['items']
@@ -383,8 +399,8 @@ class POSController extends Controller
         $validated = $request->validate([
             'quote_id' => 'required|exists:quotations,quote_id',
             'items' => 'required|array|min:1',
-            'items.*.item_id' => 'required|exists:items,item_id',
-            'items.*.batch_id' => 'required|exists:batches,batch_id',
+            'items.*.item_id' => 'required|exists:items,id',
+            'items.*.batch_id' => 'nullable|exists:batches,id',
             'items.*.quantity' => 'required|integer|min:1',
             'items.*.unit_price' => 'required|numeric|min:0',
             'items.*.discount' => 'nullable|numeric|min:0|max:100',
@@ -392,13 +408,22 @@ class POSController extends Controller
         ]);
 
         try {
-            $sale = $this->quotationService->convertToSale($validated['quote_id'], $validated['items']);
+            // Process items to find batches for those without batch_id
+            $processedItems = $this->processItemsForConversion($validated['items']);
+
+            if (empty($processedItems)) {
+                throw new \Exception('No items with available stock to convert.');
+            }
+
+            $sale = $this->quotationService->convertToSale($validated['quote_id'], $processedItems);
 
             return response()->json([
                 'success' => true,
                 'sale_id' => $sale->sale_id,
                 'total_amount' => $sale->total_amount,
-                'message' => 'Quotation converted to sale successfully!'
+                'message' => 'Quotation converted to sale successfully!',
+                'processed_items' => count($processedItems),
+                'total_items' => count($validated['items'])
             ]);
 
         } catch (\Exception $e) {
@@ -407,6 +432,39 @@ class POSController extends Controller
                 'error' => $e->getMessage()
             ], 400);
         }
+    }
+
+    /**
+     * Process items to find batches for those without batch_id
+     */
+    private function processItemsForConversion(array $items): array
+    {
+        $processedItems = [];
+
+        foreach ($items as $item) {
+            // If batch_id is provided and valid, use it
+            if (!empty($item['batch_id'])) {
+                $batch = \App\Models\Batch::find($item['batch_id']);
+                if ($batch && $batch->remaining_qty >= $item['quantity']) {
+                    $processedItems[] = $item;
+                    continue;
+                }
+            }
+
+            // Try to find available batch for the item using FIFO
+            $availableBatch = $this->salesService->findAvailableBatchForItem(
+                $item['item_id'],
+                $item['quantity']
+            );
+
+            if ($availableBatch) {
+                $item['batch_id'] = $availableBatch->id;
+                $processedItems[] = $item;
+            }
+            // Items without available batches are skipped
+        }
+
+        return $processedItems;
     }
 
     /**

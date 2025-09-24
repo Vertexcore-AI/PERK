@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container mx-auto px-4 py-6">
-    <div class="max-w-6xl mx-auto">
+    <div class="max-w-7make x2 mx-auto">
         <!-- Header -->
         <div class="flex items-center justify-between mb-6">
             <div>
@@ -73,14 +73,13 @@
                                 <tr class="border-b border-slate-200 dark:border-slate-700">
                                     <th class="text-left py-3 px-4 font-medium text-slate-700 dark:text-slate-300">Item</th>
                                     <th class="text-left py-3 px-4 font-medium text-slate-700 dark:text-slate-300">Vendor Code</th>
-                                    <th class="text-center py-3 px-4 font-medium text-slate-700 dark:text-slate-300">Received</th>
-                                    <th class="text-center py-3 px-4 font-medium text-slate-700 dark:text-slate-300">Stored</th>
+                                    <th class="text-center py-3 px-4 font-medium text-slate-700 dark:text-slate-300">Quantity</th>
                                     <th class="text-right py-3 px-4 font-medium text-slate-700 dark:text-slate-300">Unit Cost</th>
                                     <th class="text-right py-3 px-4 font-medium text-slate-700 dark:text-slate-300">Selling Price</th>
                                     <th class="text-center py-3 px-4 font-medium text-slate-700 dark:text-slate-300">Margin</th>
                                     <th class="text-center py-3 px-4 font-medium text-slate-700 dark:text-slate-300">Discount</th>
                                     <th class="text-center py-3 px-4 font-medium text-slate-700 dark:text-slate-300">VAT</th>
-                                    <th class="text-right py-3 px-4 font-medium text-slate-700 dark:text-slate-300">Total</th>
+                                    <th class="text-right py-3 px-4 font-medium text-slate-700 dark:text-slate-300">Net Cost</th>
                                     <th class="text-center py-3 px-4 font-medium text-slate-700 dark:text-slate-300">Batch</th>
                                 </tr>
                             </thead>
@@ -107,25 +106,8 @@
                                                 {{ $grnItem->vendor_item_code }}
                                             </span>
                                         </td>
-                                        <td class="py-4 px-4 text-center">
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400">
-                                                {{ $grnItem->received_qty }}
-                                            </span>
-                                        </td>
-                                        <td class="py-4 px-4 text-center">
-                                            @if($grnItem->stored_qty == $grnItem->received_qty)
-                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400">
-                                                    {{ $grnItem->stored_qty }}
-                                                </span>
-                                            @elseif($grnItem->stored_qty > 0)
-                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400">
-                                                    {{ $grnItem->stored_qty }}
-                                                </span>
-                                            @else
-                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400">
-                                                    0
-                                                </span>
-                                            @endif
+                                        <td class="py-4 px-4 text-center font-medium text-slate-900 dark:text-white">
+                                            {{ number_format($grnItem->quantity ?? 1) }}
                                         </td>
                                         <td class="py-4 px-4 text-right font-medium text-slate-900 dark:text-white">
                                             ${{ number_format($grnItem->unit_cost, 2) }}
@@ -192,9 +174,7 @@
                         </div>
 
                         @php
-                            $totalSellingValue = $grn->grnItems->sum(function($item) {
-                                return $item->selling_price * $item->stored_qty;
-                            });
+                            $totalSellingValue = $grn->grnItems->sum('selling_price');
                             $avgMargin = $grn->grnItems->where('selling_price', '>', 0)->avg(function($item) {
                                 return $item->unit_cost > 0 ? (($item->selling_price - $item->unit_cost) / $item->unit_cost) * 100 : 0;
                             });

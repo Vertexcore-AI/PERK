@@ -19,19 +19,24 @@ class SystemMonitor
     public function getCpuUsage(): float
     {
         return Cache::remember('cpu_usage', self::CACHE_TTL, function () {
-            // Get CPU usage through system info
-            $cpuInfo = System::cpuUsage();
-            $usage = $cpuInfo['percentCPUUsage'] ?? 0;
+            try {
+                // Get CPU usage through system info
+                $cpuInfo = System::cpuUsage();
+                $usage = $cpuInfo['percentCPUUsage'] ?? 0;
 
-            // Log warning if exceeds threshold
-            if ($usage > self::CPU_THRESHOLD) {
-                Log::warning('High CPU usage detected', [
-                    'usage' => $usage,
-                    'threshold' => self::CPU_THRESHOLD
-                ]);
+                // Log warning if exceeds threshold
+                if ($usage > self::CPU_THRESHOLD) {
+                    Log::warning('High CPU usage detected', [
+                        'usage' => $usage,
+                        'threshold' => self::CPU_THRESHOLD
+                    ]);
+                }
+
+                return $usage;
+            } catch (\Exception $e) {
+                Log::error('Failed to get CPU usage', ['error' => $e->getMessage()]);
+                return 0.0; // Return safe default
             }
-
-            return $usage;
         });
     }
 
@@ -40,14 +45,24 @@ class SystemMonitor
      */
     public function getThermalState(): array
     {
-        $state = PowerMonitor::getCurrentThermalState();
+        try {
+            $state = PowerMonitor::getCurrentThermalState();
 
-        return [
-            'state' => $state,
-            'label' => $this->getThermalLabel($state),
-            'color' => $this->getThermalColor($state),
-            'critical' => $state === ThermalStatesEnum::CRITICAL
-        ];
+            return [
+                'state' => $state,
+                'label' => $this->getThermalLabel($state),
+                'color' => $this->getThermalColor($state),
+                'critical' => $state === ThermalStatesEnum::CRITICAL
+            ];
+        } catch (\Exception $e) {
+            Log::error('Failed to get thermal state', ['error' => $e->getMessage()]);
+            return [
+                'state' => ThermalStatesEnum::UNKNOWN,
+                'label' => 'Unknown',
+                'color' => 'gray',
+                'critical' => false
+            ];
+        }
     }
 
     /**
@@ -55,7 +70,12 @@ class SystemMonitor
      */
     public function isOnAcPower(): bool
     {
-        return PowerMonitor::isOnAcPower();
+        try {
+            return PowerMonitor::isOnAcPower();
+        } catch (\Exception $e) {
+            Log::error('Failed to get AC power status', ['error' => $e->getMessage()]);
+            return true; // Safe default
+        }
     }
 
     /**
@@ -63,7 +83,12 @@ class SystemMonitor
      */
     public function getIdleTime(): int
     {
-        return PowerMonitor::getSystemIdleTime();
+        try {
+            return PowerMonitor::getSystemIdleTime();
+        } catch (\Exception $e) {
+            Log::error('Failed to get idle time', ['error' => $e->getMessage()]);
+            return 0; // Safe default
+        }
     }
 
     /**
@@ -71,7 +96,12 @@ class SystemMonitor
      */
     public function getIdleState(): string
     {
-        return PowerMonitor::getSystemIdleState();
+        try {
+            return PowerMonitor::getSystemIdleState();
+        } catch (\Exception $e) {
+            Log::error('Failed to get idle state', ['error' => $e->getMessage()]);
+            return 'unknown'; // Safe default
+        }
     }
 
     /**

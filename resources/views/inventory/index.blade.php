@@ -214,7 +214,7 @@
                                                 </a>
                                             </div>
                                             <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                                                Vendor: {{ $stock->batch->vendor->name }}
+                                                Vendor: {{ $stock->batch->vendor->name ?? 'N/A' }}
                                             </p>
                                         </td>
                                         <td class="py-4 px-4 text-center">
