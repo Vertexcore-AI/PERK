@@ -5,19 +5,15 @@
 @section('page-title', 'Vendor Item Mapping Details')
 
 @section('breadcrumb')
-    <li class="flex items-center">
-        <a href="{{ url('/dashboard') }}" class="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300">Dashboard</a>
-        <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-400"></i>
-    </li>
-    <li class="flex items-center">
-        <a href="{{ route('inventory.index') }}" class="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300">Inventory</a>
-        <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-400"></i>
-    </li>
-    <li class="flex items-center">
-        <a href="{{ route('inventory.mappings.index') }}" class="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300">Mapping</a>
-        <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-400"></i>
-    </li>
-    <li class="text-slate-600 dark:text-slate-300">Details</li>
+    <div class="breadcrumb-path">
+        <a href="{{ url('/dashboard') }}">Dashboard</a>
+        <span class="breadcrumb-separator">></span>
+        <a href="{{ route('inventory.index') }}">Inventory</a>
+        <span class="breadcrumb-separator">></span>
+        <a href="{{ route('inventory.mappings.index') }}">Vendor Item Mappings</a>
+        <span class="breadcrumb-separator">></span>
+        <span class="breadcrumb-current">Mapping Details</span>
+    </div>
 @endsection
 
 @section('page-actions')

@@ -8,8 +8,9 @@
     <title>Login - Perk Enterprises</title>
 
     <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -20,37 +21,48 @@
 <body class="font-sans antialiased">
     <div class="min-h-screen flex">
         <!-- Left Section - Login Form (30%) -->
-        <div class="w-full lg:w-[30%] bg-white dark:bg-slate-900 flex flex-col justify-center px-6 sm:px-12">
-            <div class="mx-auto w-full max-w-sm">
-                <!-- Logo -->
-                <div class="flex justify-center mb-8">
-                    <img src="{{ asset('images/logo.jpeg') }}"
-                         alt="Perk Enterprises"
-                         class="h-20 w-auto object-contain">
+        <div class="w-full lg:w-[30%] login-abstract-bg flex flex-col justify-center px-6 sm:px-12">
+            <!-- Abstract Background Elements -->
+            <div class="login-geometric-shapes">
+                <div class="login-shape-1"></div>
+                <div class="login-shape-2"></div>
+                <div class="login-shape-3"></div>
+                <div class="login-mesh-gradient"></div>
+            </div>
+
+            <div class="mx-auto w-full max-w-sm relative z-10">
+                <!-- Logo & Brand -->
+                <div class="text-center mb-10">
+                    <div class="flex justify-center mb-4">
+                        <img src="{{ asset('images/logo.jpeg') }}"
+                             alt="Perk Enterprises"
+                             class="h-20 w-auto object-contain">
+                    </div>
+                   
                 </div>
 
                 <!-- Welcome Text -->
-                <div class="text-center mb-6">
-                    <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Welcome Back</h2>
-                    <p class="text-sm text-slate-600 dark:text-slate-400 mt-2">Sign in to your account to continue</p>
+                <div class="text-center mb-8">
+                    <h2 class="login-title mb-3">Welcome Back</h2>
+                    <p class="login-subtitle">Sign in to your account </p>
                 </div>
 
                 <!-- Success Message -->
                 @if(session('success'))
-                    <div class="mb-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                    <div class="mb-6 p-4 bg-emerald-50/80 backdrop-blur-sm border border-emerald-200/50 rounded-xl shadow-sm">
                         <div class="flex items-center">
-                            <i data-lucide="check-circle" class="w-5 h-5 text-green-600 dark:text-green-400"></i>
-                            <span class="ml-2 text-sm text-green-600 dark:text-green-400">{{ session('success') }}</span>
+                            <i data-lucide="check-circle" class="w-5 h-5 text-emerald-600"></i>
+                            <span class="ml-3 text-sm font-medium text-emerald-700">{{ session('success') }}</span>
                         </div>
                     </div>
                 @endif
 
                 <!-- Error Messages -->
                 @if ($errors->any())
-                    <div class="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                    <div class="mb-6 p-4 bg-rose-50/80 backdrop-blur-sm border border-rose-200/50 rounded-xl shadow-sm">
                         <div class="flex items-center">
-                            <i data-lucide="alert-circle" class="w-5 h-5 text-red-600 dark:text-red-400"></i>
-                            <span class="ml-2 text-sm text-red-600 dark:text-red-400">
+                            <i data-lucide="alert-circle" class="w-5 h-5 text-rose-600"></i>
+                            <span class="ml-3 text-sm font-medium text-rose-700">
                                 {{ $errors->first() }}
                             </span>
                         </div>
@@ -62,14 +74,11 @@
                     @csrf
 
                     <!-- Email/Username -->
-                    <div class="mb-4">
-                        <label for="email" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    <div class="mb-6">
+                        <label for="email" class="block text-sm font-semibold text-slate-700 mb-3 tracking-wide">
                             Email or Username
                         </label>
                         <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i data-lucide="user" class="w-5 h-5 text-slate-400"></i>
-                            </div>
                             <input
                                 id="email"
                                 name="email"
@@ -77,58 +86,56 @@
                                 required
                                 autofocus
                                 value="{{ old('email') }}"
-                                class="w-full pl-10 pr-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent @error('email') border-red-500 @enderror"
+                                class="login-glass-input @error('email') border-red-500 @enderror"
                                 placeholder="Enter your email or username">
+                           
                         </div>
                     </div>
 
                     <!-- Password -->
                     <div class="mb-6">
-                        <label for="password" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                        <label for="password" class="block text-sm font-semibold text-slate-700 mb-3 tracking-wide">
                             Password
                         </label>
                         <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i data-lucide="lock" class="w-5 h-5 text-slate-400"></i>
-                            </div>
                             <input
                                 id="password"
                                 name="password"
                                 type="password"
                                 required
-                                class="w-full pl-10 pr-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent @error('password') border-red-500 @enderror"
+                                class="login-glass-input @error('password') border-red-500 @enderror"
                                 placeholder="Enter your password">
+                           
                         </div>
                     </div>
 
                     <!-- Remember Me -->
-                    <div class="flex items-center justify-between mb-6">
-                        <div class="flex items-center">
-                            <input
-                                id="remember"
-                                name="remember"
-                                type="checkbox"
-                                class="w-4 h-4 text-rose-600 bg-slate-100 border-slate-300 rounded focus:ring-rose-500 dark:focus:ring-rose-600 dark:ring-offset-slate-800 focus:ring-2 dark:bg-slate-700 dark:border-slate-600">
-                            <label for="remember" class="ml-2 text-sm text-slate-600 dark:text-slate-400">
-                                Remember me
-                            </label>
-                        </div>
+                    <div class="flex items-center mb-8">
+                        <input
+                            id="remember"
+                            name="remember"
+                            type="checkbox"
+                            class="login-glass-checkbox">
+                        <label for="remember" class="ml-3 text-sm font-medium text-slate-600 tracking-wide">
+                            Remember me for 30 days
+                        </label>
                     </div>
 
                     <!-- Submit Button -->
                     <button
                         type="submit"
-                        class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 transition duration-200">
+                        class="login-glass-button">
                         <i data-lucide="log-in" class="w-5 h-5 mr-2"></i>
-                        Sign In
+                        Sign Into Dashboard
                     </button>
                 </form>
 
                 <!-- Footer -->
-                <div class="mt-8 text-center">
-                    <p class="text-xs text-slate-500 dark:text-slate-400">
-                        &copy; {{ date('Y') }} Perk Enterprises. All rights reserved.
+                <div class="mt-10 text-center">
+                    <p class="text-xs text-slate-500 font-medium tracking-wide">
+                        &copy; {{ date('Y') }} Perk Enterprises • All rights reserved
                     </p>
+         
                 </div>
             </div>
         </div>

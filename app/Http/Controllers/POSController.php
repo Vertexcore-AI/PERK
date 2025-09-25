@@ -185,12 +185,13 @@ class POSController extends Controller
         ]);
 
         try {
-            $customer = $this->customerService->createCustomer([
+            $customer = Customer::create([
                 'name' => $validated['name'],
                 'contact' => $validated['contact'] ?? null,
                 'type' => $validated['type'] ?? 'Retail',
                 'vehicle_type' => $validated['vehicle_type'] ?? null,
-                'vehicle_model' => $validated['vehicle_model'] ?? null
+                'vehicle_model' => $validated['vehicle_model'] ?? null,
+                'is_active' => true
             ]);
 
             return response()->json([
@@ -484,4 +485,5 @@ class POSController extends Controller
 
         return view('pos.pdf.invoice', compact('sale', 'type'));
     }
+
 }

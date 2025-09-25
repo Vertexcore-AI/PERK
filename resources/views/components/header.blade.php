@@ -8,7 +8,7 @@
         </button>
 
         <!-- Search Bar -->
-        <div class="hidden md:block relative">
+        <!-- <div class="hidden md:block relative">
             <div class="relative">
                 <i data-lucide="search"
                     class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400"></i>
@@ -16,7 +16,7 @@
                     placeholder="Search..."
                     class="pl-10 pr-4 py-2 w-64 lg:w-80 bg-slate-50/80 dark:bg-slate-800/80 backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50 rounded-xl text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400/70 dark:placeholder-slate-500/70 focus:outline-none focus:ring-2 focus:ring-secondary-500/50 focus:border-transparent transition-all duration-200">
             </div>
-        </div>
+        </div> -->
     </div>
 
     <!-- Right Section -->

@@ -45,10 +45,10 @@
                         <div>
                             <h1 class="text-xl font-semibold text-slate-900 dark:text-white">@yield('page-title')</h1>
                             @hasSection('breadcrumb')
-                                <nav class="flex items-center text-sm mt-1">
-                                    <ol class="flex items-center">
+                                <nav class="flex items-center mt-3">
+                                    <div class="breadcrumb-container">
                                         @yield('breadcrumb')
-                                    </ol>
+                                    </div>
                                 </nav>
                             @endif
                         </div>

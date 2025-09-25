@@ -323,4 +323,185 @@
     .transition-smooth {
         @apply transition-all duration-300 ease-out;
     }
+
+    /* Modern Path-Style Breadcrumbs */
+    .breadcrumb-container {
+        @apply inline-flex items-center px-4 py-2 rounded-xl
+               bg-gradient-to-r from-white/70 via-white/80 to-white/70
+               backdrop-blur-sm border border-white/40
+               shadow-sm shadow-slate-200/10;
+        background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.6) 100%);
+    }
+
+    .breadcrumb-path {
+        @apply text-sm font-medium text-slate-600;
+    }
+
+    .breadcrumb-path a {
+        @apply text-slate-500 hover:text-primary-600
+               transition-colors duration-200 ease-out
+               relative;
+    }
+
+    .breadcrumb-path a:hover {
+        @apply text-primary-600;
+    }
+
+    .breadcrumb-path a::after {
+        content: '';
+        @apply absolute bottom-0 left-0 w-0 h-0.5 bg-primary-500
+               transition-all duration-300 ease-out;
+    }
+
+    .breadcrumb-path a:hover::after {
+        @apply w-full;
+    }
+
+    .breadcrumb-separator {
+        @apply mx-3 text-slate-400 font-bold select-none;
+    }
+
+    .breadcrumb-current {
+        @apply text-primary-700 font-semibold;
+    }
+
+    /* Modern Login Page - Minimalist Abstract Design */
+    .login-abstract-bg {
+        @apply relative overflow-hidden;
+        background: #ffffff;
+    }
+
+    .login-abstract-bg::before {
+        content: '';
+        @apply absolute top-0 left-0 w-full h-full;
+        opacity: 0.02;
+        background: radial-gradient(circle at 20% 80%, rgba(216, 17, 89, 0.1) 0%, transparent 60%),
+                    radial-gradient(circle at 80% 20%, rgba(216, 17, 89, 0.05) 0%, transparent 60%);
+    }
+
+    .login-geometric-shapes {
+        @apply absolute inset-0 pointer-events-none;
+    }
+
+    .login-shape-1 {
+        @apply absolute w-32 h-32 rounded-full;
+        background: linear-gradient(45deg, rgba(216, 17, 89, 0.03), rgba(240, 98, 146, 0.02));
+        top: 10%;
+        right: 15%;
+        animation: float-gentle 6s ease-in-out infinite;
+    }
+
+    .login-shape-2 {
+        @apply absolute w-20 h-20;
+        background: linear-gradient(135deg, rgba(216, 17, 89, 0.02), transparent);
+        top: 60%;
+        right: 25%;
+        border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+        animation: float-gentle 8s ease-in-out infinite reverse;
+    }
+
+    .login-shape-3 {
+        @apply absolute w-16 h-16 rounded-lg;
+        background: linear-gradient(45deg, rgba(59, 130, 246, 0.02), rgba(139, 92, 246, 0.01));
+        top: 80%;
+        right: 10%;
+        animation: float-gentle 7s ease-in-out infinite;
+        transform: rotate(45deg);
+    }
+
+    .login-mesh-gradient {
+        @apply absolute inset-0;
+        opacity: 0.01;
+        background: linear-gradient(45deg, transparent 40%, rgba(216, 17, 89, 0.02) 50%, transparent 60%);
+        animation: mesh-shift 10s ease-in-out infinite alternate;
+    }
+
+    @keyframes float-gentle {
+        0%, 100% {
+            transform: translateY(0px) rotate(0deg);
+        }
+        50% {
+            transform: translateY(-20px) rotate(180deg);
+        }
+    }
+
+    @keyframes mesh-shift {
+        0% {
+            opacity: 0.1;
+            transform: scale(1) rotate(0deg);
+        }
+        100% {
+            opacity: 0.3;
+            transform: scale(1.1) rotate(5deg);
+        }
+    }
+
+    /* Modern Typography Classes */
+    .login-title {
+        @apply text-3xl font-bold tracking-tight;
+        font-family: 'Poppins', ui-sans-serif, system-ui, sans-serif;
+        background: linear-gradient(135deg, #1e293b 0%, #475569 50%, #64748b 100%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        line-height: 1.2;
+    }
+
+    .login-subtitle {
+        @apply text-sm font-medium text-slate-600 tracking-wide;
+        font-family: 'Poppins', ui-sans-serif, system-ui, sans-serif;
+        line-height: 1.6;
+        letter-spacing: 0.025em;
+        font-weight: 400;
+    }
+
+    .login-brand {
+        @apply text-xl font-bold tracking-tight;
+        font-family: 'Poppins', ui-sans-serif, system-ui, sans-serif;
+        background: linear-gradient(135deg, #d81159 0%, #f06292 100%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 700;
+    }
+
+    /* Modern Glass Form Elements */
+    .login-glass-input {
+        @apply w-full pl-10 pr-4 py-3 rounded-xl border border-white/30
+               bg-white/80 backdrop-blur-sm
+               text-slate-900 placeholder-slate-400
+               shadow-sm shadow-slate-200/10
+               transition-all duration-200 ease-out
+               focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-300
+               focus:bg-white/90 focus:shadow-md;
+    }
+
+    .login-glass-button {
+        @apply w-full flex items-center justify-center px-6 py-3 rounded-xl
+               bg-gradient-to-r from-primary-500/90 to-primary-600/90
+               backdrop-blur-sm border border-primary-400/20
+               text-white font-semibold text-sm
+               shadow-lg shadow-primary-500/20
+               transition-all duration-300 ease-out
+               hover:from-primary-600/90 hover:to-primary-700/90
+               hover:shadow-xl hover:shadow-primary-500/25
+               hover:scale-[1.02]
+               active:scale-[0.98]
+               focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:ring-offset-2;
+    }
+
+    .login-glass-checkbox {
+        @apply w-4 h-4 rounded bg-white/80 border border-slate-300/50
+               text-primary-600 focus:ring-2 focus:ring-primary-500/30
+               backdrop-blur-sm transition-all duration-200;
+    }
+
+    .login-input-icon {
+        @apply absolute left-3 top-1/2 transform -translate-y-1/2
+               w-5 h-5 text-slate-400 transition-colors duration-200;
+    }
+
+    .login-glass-input:focus + .login-input-icon {
+        @apply text-primary-500;
+    }
 }

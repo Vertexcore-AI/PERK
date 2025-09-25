@@ -11,23 +11,19 @@
 @endsection
 
 @section('breadcrumb')
-    <li class="flex items-center">
-        <a href="{{ url('/dashboard') }}" class="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300">Dashboard</a>
-        <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-400"></i>
-    </li>
-    @if($filteredStore)
-        <li class="flex items-center">
-            <a href="{{ route('stores.index') }}" class="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300">Stores</a>
-            <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-400"></i>
-        </li>
-        <li class="flex items-center">
-            <a href="{{ route('bins.index') }}" class="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300">Bins</a>
-            <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-400"></i>
-        </li>
-        <li class="text-slate-600 dark:text-slate-300">{{ $filteredStore->store_name }}</li>
-    @else
-        <li class="text-slate-600 dark:text-slate-300">Bins</li>
-    @endif
+    <div class="breadcrumb-path">
+        <a href="{{ url('/dashboard') }}">Dashboard</a>
+        <span class="breadcrumb-separator">></span>
+        @if($filteredStore)
+            <a href="{{ route('stores.index') }}">Stores</a>
+            <span class="breadcrumb-separator">></span>
+            <a href="{{ route('bins.index') }}">Bins</a>
+            <span class="breadcrumb-separator">></span>
+            <span class="breadcrumb-current">{{ $filteredStore->store_name }}</span>
+        @else
+            <span class="breadcrumb-current">Bins</span>
+        @endif
+    </div>
 @endsection
 
 @section('page-actions')

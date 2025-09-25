@@ -5,10 +5,15 @@
 @section('page-title', 'Edit Store')
 
 @section('breadcrumb')
-    <li class="breadcrumb-item"><a href="{{ url('/dashboard') }}">Dashboard</a></li>
-    <li class="breadcrumb-item"><a href="{{ route('stores.index') }}">Stores</a></li>
-    <li class="breadcrumb-item"><a href="{{ route('stores.show', $store) }}">{{ $store->store_name }}</a></li>
-    <li class="breadcrumb-item active">Edit</li>
+    <div class="breadcrumb-path">
+        <a href="{{ url('/dashboard') }}">Dashboard</a>
+        <span class="breadcrumb-separator">></span>
+        <a href="{{ route('stores.index') }}">Stores</a>
+        <span class="breadcrumb-separator">></span>
+        <a href="{{ route('stores.show', $store) }}">{{ $store->store_name }}</a>
+        <span class="breadcrumb-separator">></span>
+        <span class="breadcrumb-current">Edit</span>
+    </div>
 @endsection
 
 @section('page-actions')
