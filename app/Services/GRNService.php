@@ -77,11 +77,13 @@ class GRNService
                 );
 
                 // Calculate selling price using the correct formula if not provided
-                $sellingPrice = $itemData['selling_price'];
-                if (!$sellingPrice) {
-                    $vatAmount = $itemData['unit_cost'] * (($itemData['vat'] ?? 0) / 100);
+                $sellingPrice = $itemData['selling_price'] ?? 0;
+                if (!$sellingPrice || $sellingPrice <= 0) {
+                    // Correct formula: selling price = (unit cost - discount) + VAT on net amount
                     $discountAmount = $itemData['unit_cost'] * (($itemData['discount'] ?? 0) / 100);
-                    $sellingPrice = $itemData['unit_cost'] + $vatAmount - $discountAmount;
+                    $netCost = $itemData['unit_cost'] - $discountAmount;
+                    $vatAmount = $netCost * (($itemData['vat'] ?? 0) / 100);
+                    $sellingPrice = $netCost + $vatAmount;
                 }
 
                 // Create GRN item record with selling price
@@ -165,13 +167,16 @@ class GRNService
     public function calculateCosts($unitCost, $discount, $vat, $quantity = 1)
     {
         $discountAmount = $unitCost * ($discount / 100);
-        $vatAmount = $unitCost * ($vat / 100);
+        $netCost = $unitCost - $discountAmount;
+        $vatAmount = $netCost * ($vat / 100);
 
-        // Total cost is (unit cost after discount) * quantity (what we actually paid)
-        $totalCost = ($unitCost - $discountAmount) * $quantity;
+        // Total cost is what we actually paid: (unit cost - discount) * quantity
+        // VAT is typically not part of purchase cost but part of selling price
+        $totalCost = $netCost * $quantity;
 
         return [
             'unit_cost' => $unitCost,
+            'net_cost' => $netCost,
             'discount_amount' => $discountAmount,
             'vat_amount' => $vatAmount,
             'total_cost' => $totalCost,
@@ -197,12 +202,30 @@ class GRNService
         }
 
         foreach ($grnData['items'] as $index => $item) {
+            $position = $index + 1;
+
             if (empty($item['vendor_item_code'])) {
-                throw new \Exception("Vendor item code is required for item at position " . ($index + 1));
+                throw new \Exception("Vendor item code is required for item at position {$position}");
             }
 
             if (empty($item['unit_cost']) || $item['unit_cost'] <= 0) {
-                throw new \Exception("Valid unit cost is required for item at position " . ($index + 1));
+                throw new \Exception("Valid unit cost is required for item at position {$position}");
+            }
+
+            if (isset($item['quantity']) && $item['quantity'] <= 0) {
+                throw new \Exception("Valid quantity is required for item at position {$position}");
+            }
+
+            if (isset($item['discount']) && ($item['discount'] < 0 || $item['discount'] > 100)) {
+                throw new \Exception("Discount must be between 0-100% for item at position {$position}");
+            }
+
+            if (isset($item['vat']) && ($item['vat'] < 0 || $item['vat'] > 100)) {
+                throw new \Exception("VAT must be between 0-100% for item at position {$position}");
+            }
+
+            if (isset($item['selling_price']) && $item['selling_price'] < 0) {
+                throw new \Exception("Selling price cannot be negative for item at position {$position}");
             }
         }
 

@@ -57,35 +57,87 @@ class GRNController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'vendor_id' => 'required|exists:vendors,id',
-            'inv_no' => 'required|string|max:50',
-            'billing_date' => 'required|date',
-            'items' => 'required|array|min:1',
-            'items.*.vendor_item_code' => 'required|string',
-            'items.*.quantity' => 'required|integer|min:1',
-            'items.*.unit_cost' => 'required|numeric|min:0',
-            'items.*.selling_price' => 'nullable|numeric|min:0',
-            'items.*.discount' => 'nullable|numeric|min:0|max:100',
-            'items.*.vat' => 'nullable|numeric|min:0|max:100',
-            'items.*.store_id' => 'required|exists:stores,id',
-            'items.*.bin_id' => 'nullable|exists:bins,id',
-            'items.*.notes' => 'nullable|string',
-        ]);
-
         try {
-            \Log::info('GRN Creation Started', ['request_data' => $request->all()]);
-            $grn = $this->grnService->processGRN($request->all());
-            \Log::info('GRN Created Successfully', ['grn_id' => $grn->grn_id]);
+            // Enhanced validation with better error messages
+            $validated = $request->validate([
+                'vendor_id' => 'required|exists:vendors,id',
+                'inv_no' => 'required|string|max:50',
+                'billing_date' => 'required|date|before_or_equal:today',
+                'items' => 'required|array|min:1',
+                'items.*.vendor_item_code' => 'required|string|max:50',
+                'items.*.quantity' => 'required|integer|min:1|max:999999',
+                'items.*.unit_cost' => 'required|numeric|min:0.01|max:999999.99',
+                'items.*.selling_price' => 'nullable|numeric|min:0|max:999999.99',
+                'items.*.discount' => 'nullable|numeric|min:0|max:100',
+                'items.*.vat' => 'nullable|numeric|min:0|max:100',
+                'items.*.store_id' => 'required|exists:stores,id',
+                'items.*.bin_id' => 'nullable|exists:bins,id',
+                'items.*.notes' => 'nullable|string|max:500',
+            ], [
+                'vendor_id.required' => 'Please select a vendor.',
+                'vendor_id.exists' => 'Selected vendor does not exist.',
+                'inv_no.required' => 'Invoice number is required.',
+                'inv_no.max' => 'Invoice number cannot exceed 50 characters.',
+                'billing_date.required' => 'Billing date is required.',
+                'billing_date.date' => 'Billing date must be a valid date.',
+                'billing_date.before_or_equal' => 'Billing date cannot be in the future.',
+                'items.required' => 'At least one item must be added.',
+                'items.min' => 'At least one item must be added.',
+                'items.*.vendor_item_code.required' => 'Vendor item code is required for all items.',
+                'items.*.quantity.required' => 'Quantity is required for all items.',
+                'items.*.quantity.min' => 'Quantity must be at least 1.',
+                'items.*.quantity.max' => 'Quantity cannot exceed 999,999.',
+                'items.*.unit_cost.required' => 'Unit cost is required for all items.',
+                'items.*.unit_cost.min' => 'Unit cost must be greater than 0.',
+                'items.*.unit_cost.max' => 'Unit cost cannot exceed 999,999.99.',
+                'items.*.selling_price.max' => 'Selling price cannot exceed 999,999.99.',
+                'items.*.discount.max' => 'Discount cannot exceed 100%.',
+                'items.*.vat.max' => 'VAT cannot exceed 100%.',
+                'items.*.store_id.required' => 'Store is required for all items.',
+                'items.*.store_id.exists' => 'Selected store does not exist.',
+                'items.*.bin_id.exists' => 'Selected bin does not exist.',
+                'items.*.notes.max' => 'Notes cannot exceed 500 characters.',
+            ]);
+
+            \Log::info('GRN Creation Started', [
+                'vendor_id' => $validated['vendor_id'],
+                'inv_no' => $validated['inv_no'],
+                'items_count' => count($validated['items']),
+                'user_id' => auth()->id()
+            ]);
+
+            // Additional business logic validation
+            $this->validateBusinessRules($validated);
+
+            $grn = $this->grnService->processGRN($validated);
+
+            \Log::info('GRN Created Successfully', [
+                'grn_id' => $grn->grn_id,
+                'total_amount' => $grn->total_amount,
+                'items_count' => $grn->grnItems->count()
+            ]);
 
             return redirect()->route('grns.show', $grn->grn_id)
-                ->with('success', 'GRN created successfully.');
+                ->with('success', 'GRN created successfully with ID: ' . $grn->grn_id);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::warning('GRN Validation Failed', [
+                'errors' => $e->errors(),
+                'vendor_id' => $request->vendor_id,
+                'inv_no' => $request->inv_no
+            ]);
+            throw $e; // Re-throw to show validation errors
+
         } catch (\Exception $e) {
             \Log::error('GRN Creation Failed', [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'request_data' => $request->all()
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'vendor_id' => $request->vendor_id,
+                'inv_no' => $request->inv_no,
+                'user_id' => auth()->id()
             ]);
+
             return redirect()->back()
                 ->withInput()
                 ->with('error', 'Error creating GRN: ' . $e->getMessage());
@@ -171,39 +223,90 @@ class GRNController extends Controller
 
             // Convert to array and clean data
             $importData = [];
+            $errors = [];
+
             foreach ($collection as $rowIndex => $row) {
                 // Normalize column names for each row
                 $normalizedRow = [];
                 foreach ($row as $key => $value) {
                     $normalizedKey = $this->normalizeColumnName($key);
+                    // Skip row number columns
+                    if ($normalizedKey === 'row_number') {
+                        continue;
+                    }
                     $normalizedRow[$normalizedKey] = $value;
                 }
 
-                // Check if we have required columns
-                if (!empty($normalizedRow['item_code']) && !empty($normalizedRow['description'])) {
-                    // Calculate default selling price if not provided
-                    $unitCost = (float) ($normalizedRow['unit_cost'] ?? 0);
-                    $sellingPrice = (float) ($normalizedRow['selling_price'] ?? 0);
-
-                    // If no selling price provided, calculate using the correct formula
-                    if ($sellingPrice == 0 && $unitCost > 0) {
-                        $vat = (float) ($normalizedRow['vat'] ?? 0);
-                        $discount = (float) ($normalizedRow['discount'] ?? 0);
-                        $vatAmount = $unitCost * ($vat / 100);
-                        $discountAmount = $unitCost * ($discount / 100);
-                        $sellingPrice = $unitCost + $vatAmount - $discountAmount;
+                // Check if we have required columns and skip empty rows
+                if (empty($normalizedRow['item_code']) || empty($normalizedRow['description'])) {
+                    // Skip empty rows but log if it looks like data
+                    if (!empty(array_filter($normalizedRow))) {
+                        $errors[] = "Row " . ($rowIndex + 2) . ": Missing item code or description";
                     }
-
-                    $importData[] = [
-                        'item_code' => trim($normalizedRow['item_code']),
-                        'description' => trim($normalizedRow['description']),
-                        'quantity' => (int) ($normalizedRow['quantity'] ?? 1),
-                        'unit_cost' => $unitCost,
-                        'selling_price' => round($sellingPrice, 2),
-                        'vat' => (float) ($normalizedRow['vat'] ?? 0),
-                        'discount' => (float) ($normalizedRow['discount'] ?? 0),
-                    ];
+                    continue;
                 }
+
+                // Validate and clean numeric values
+                $unitCost = $this->cleanNumericValue($normalizedRow['unit_cost'] ?? 0);
+                $quantity = max(1, (int) ($normalizedRow['quantity'] ?? 1));
+                $vat = $this->cleanNumericValue($normalizedRow['vat'] ?? 0);
+                $discount = $this->cleanNumericValue($normalizedRow['discount'] ?? 0);
+                $sellingPrice = $this->cleanNumericValue($normalizedRow['selling_price'] ?? 0);
+                $totalValue = $this->cleanNumericValue($normalizedRow['total_value'] ?? 0);
+
+                // Validate unit cost
+                if ($unitCost <= 0) {
+                    $errors[] = "Row " . ($rowIndex + 2) . ": Invalid unit cost '{$normalizedRow['unit_cost']}'";
+                    continue;
+                }
+
+                // Validate discount and VAT percentages
+                if ($discount < 0 || $discount > 100) {
+                    $errors[] = "Row " . ($rowIndex + 2) . ": Discount must be between 0-100%";
+                    continue;
+                }
+                if ($vat < 0 || $vat > 100) {
+                    $errors[] = "Row " . ($rowIndex + 2) . ": VAT must be between 0-100%";
+                    continue;
+                }
+
+                // Calculate selling price if not provided
+                if ($sellingPrice <= 0 && $unitCost > 0) {
+                    // Correct formula: selling price = unit cost - discount + VAT
+                    $discountAmount = $unitCost * ($discount / 100);
+                    $netCost = $unitCost - $discountAmount;
+                    $vatAmount = $netCost * ($vat / 100);
+                    $sellingPrice = $netCost + $vatAmount;
+                }
+
+                // Validate against total value if provided
+                if ($totalValue > 0) {
+                    $expectedTotal = ($unitCost - ($unitCost * $discount / 100)) * $quantity;
+                    $tolerance = $expectedTotal * 0.01; // 1% tolerance
+                    if (abs($expectedTotal - $totalValue) > $tolerance) {
+                        $errors[] = "Row " . ($rowIndex + 2) . ": Total value {$totalValue} doesn't match calculated value {$expectedTotal}";
+                    }
+                }
+
+                $importData[] = [
+                    'item_code' => trim($normalizedRow['item_code']),
+                    'description' => trim($normalizedRow['description']),
+                    'quantity' => $quantity,
+                    'unit_cost' => $unitCost,
+                    'selling_price' => round($sellingPrice, 2),
+                    'vat' => $vat,
+                    'discount' => $discount,
+                    'original_row' => $rowIndex + 2, // For error reporting
+                ];
+            }
+
+            // Check for validation errors
+            if (!empty($errors)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Data validation failed',
+                    'errors' => $errors
+                ], 400);
             }
 
             if (empty($importData)) {
@@ -570,10 +673,44 @@ class GRNController extends Controller
 
             'discount' => 'discount',
             'discount%' => 'discount',
+            'disc %' => 'discount',
+            'disc%' => 'discount',
             'discount percent' => 'discount',
             'discount_percent' => 'discount',
+
+            // Handle row number columns (to be ignored)
+            'no' => 'row_number',
+            'no.' => 'row_number',
+            'row' => 'row_number',
+            'sr no' => 'row_number',
+            'sr. no' => 'row_number',
+            'serial' => 'row_number',
+            '#' => 'row_number',
+
+            // Handle total value columns (for validation)
+            'total value' => 'total_value',
+            'total_value' => 'total_value',
+            'totalvalue' => 'total_value',
+            'total' => 'total_value',
+            'amount' => 'total_value',
+            'line total' => 'total_value',
+            'line_total' => 'total_value',
         ];
 
         return $mappings[$columnName] ?? $columnName;
+    }
+
+    /**
+     * Clean and convert numeric values from CSV
+     */
+    private function cleanNumericValue($value)
+    {
+        if (is_numeric($value)) {
+            return (float) $value;
+        }
+
+        // Handle string values with commas, spaces, currency symbols
+        $cleaned = preg_replace('/[^0-9.-]/', '', (string) $value);
+        return is_numeric($cleaned) ? (float) $cleaned : 0.0;
     }
 }
