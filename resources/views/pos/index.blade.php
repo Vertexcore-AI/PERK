@@ -282,12 +282,12 @@
          x-transition:leave="ease-in duration-200"
          x-transition:leave-start="opacity-100"
          x-transition:leave-end="opacity-0"
-         class="fixed inset-0 z-50 overflow-y-auto"
+         class="fixed inset-0 z-60 overflow-y-auto"
          @click.self="showCustomerModal = false">
-        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div class="fixed inset-0 bg-slate-500 bg-opacity-75 transition-opacity"></div>
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="fixed inset-0 bg-slate-500 bg-opacity-75 transition-opacity" @click="showCustomerModal = false"></div>
 
-            <div class="inline-block align-bottom bg-white dark:bg-slate-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div class="relative bg-white dark:bg-slate-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all w-full max-w-lg z-10">
                 <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700">
                     <h3 class="text-lg font-medium text-slate-900 dark:text-white">Add New Customer</h3>
                 </div>
@@ -316,6 +316,20 @@
                         </select>
                     </div>
 
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Vehicle Type</label>
+                        <input type="text" x-model="newCustomer.vehicle_type"
+                               placeholder="e.g. Car, SUV, Truck"
+                               class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-md bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Vehicle Model</label>
+                        <input type="text" x-model="newCustomer.vehicle_model"
+                               placeholder="e.g. Toyota Camry, Honda Civic"
+                               class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-md bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
+                    </div>
+
                     <div class="flex justify-end space-x-3 pt-4">
                         <button type="button" @click="showCustomerModal = false"
                                 class="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-md text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">
@@ -339,12 +353,12 @@
          x-transition:leave="ease-in duration-200"
          x-transition:leave-start="opacity-100"
          x-transition:leave-end="opacity-0"
-         class="fixed inset-0 z-50 overflow-y-auto"
+         class="fixed inset-0 z-70 overflow-y-auto"
          @click.self="showPaymentModal = false">
         <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center">
             <div class="fixed inset-0 bg-slate-500 bg-opacity-75 transition-opacity" @click="showPaymentModal = false"></div>
 
-            <div class="relative inline-block align-bottom bg-white dark:bg-slate-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full z-60">
+            <div class="relative inline-block align-bottom bg-white dark:bg-slate-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full z-10">
                 <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700">
                     <h3 class="text-lg font-medium text-slate-900 dark:text-white">Process Payment</h3>
                     <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
@@ -417,9 +431,9 @@
          class="fixed inset-0 z-50 overflow-y-auto"
          @click.self="showBatchModal = false">
         <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div class="fixed inset-0 bg-slate-500 bg-opacity-75 transition-opacity"></div>
+            <div class="fixed inset-0 bg-slate-500 bg-opacity-75 transition-opacity" @click="showBatchModal = false"></div>
 
-            <div class="inline-block align-bottom bg-white dark:bg-slate-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+            <div class="relative inline-block align-bottom bg-white dark:bg-slate-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full z-10">
                 <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700">
                     <h3 class="text-lg font-medium text-slate-900 dark:text-white">Select Batch</h3>
                     <p class="text-sm text-slate-600 dark:text-slate-400 mt-1" x-show="selectedItemForBatch">
@@ -671,7 +685,9 @@ function posApp() {
         newCustomer: {
             name: '',
             contact: '',
-            type: 'Retail'
+            type: 'Retail',
+            vehicle_type: '',
+            vehicle_model: ''
         },
 
         cartItems: [],
@@ -913,7 +929,7 @@ function posApp() {
                     this.selectedCustomer = result.customer;
                     this.customerSearch = result.customer.name;
                     this.showCustomerModal = false;
-                    this.newCustomer = { name: '', contact: '', type: 'Retail' };
+                    this.newCustomer = { name: '', contact: '', type: 'Retail', vehicle_type: '', vehicle_model: '' };
                 } else {
                     this.showAlertDialog('error', 'Customer Creation Failed', result.error);
                 }

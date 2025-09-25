@@ -47,10 +47,11 @@ class GRNService
 
             // Process each GRN item
             foreach ($grnData['items'] as $itemData) {
-                // Resolve vendor item mapping
+                // Resolve vendor item mapping (with auto-creation)
                 $item = $this->resolveVendorItemMapping(
                     $grnData['vendor_id'],
-                    $itemData['vendor_item_code']
+                    $itemData['vendor_item_code'],
+                    $itemData // Pass full item data for auto-creation
                 );
 
                 // Calculate costs
@@ -77,13 +78,11 @@ class GRNService
                 );
 
                 // Calculate selling price using the correct formula if not provided
-                $sellingPrice = $itemData['selling_price'] ?? 0;
-                if (!$sellingPrice || $sellingPrice <= 0) {
-                    // Correct formula: selling price = (unit cost - discount) + VAT on net amount
+                $sellingPrice = $itemData['selling_price'];
+                if (!$sellingPrice) {
+                    $vatAmount = $itemData['unit_cost'] * (($itemData['vat'] ?? 0) / 100);
                     $discountAmount = $itemData['unit_cost'] * (($itemData['discount'] ?? 0) / 100);
-                    $netCost = $itemData['unit_cost'] - $discountAmount;
-                    $vatAmount = $netCost * (($itemData['vat'] ?? 0) / 100);
-                    $sellingPrice = $netCost + $vatAmount;
+                    $sellingPrice = $itemData['unit_cost'] + $vatAmount - $discountAmount;
                 }
 
                 // Create GRN item record with selling price
@@ -126,8 +125,9 @@ class GRNService
 
     /**
      * Resolve vendor item code to internal item
+     * Auto-creates items if they don't exist
      */
-    public function resolveVendorItemMapping($vendorId, $vendorItemCode)
+    public function resolveVendorItemMapping($vendorId, $vendorItemCode, $itemData = null)
     {
         \Log::info('GRNService: Resolving vendor item mapping', [
             'vendor_id' => $vendorId,
@@ -146,8 +146,16 @@ class GRNService
 
         // If no mapping exists, try to find item by item_no
         $item = Item::where('item_no', $vendorItemCode)->first();
-        
-        if (!$item) {
+
+        if (!$item && $itemData) {
+            // Auto-create item if item data is provided
+            \Log::info('GRNService: Auto-creating item', [
+                'vendor_item_code' => $vendorItemCode,
+                'description' => $itemData['description'] ?? null
+            ]);
+
+            $item = $this->createItemFromGRNData($vendorItemCode, $itemData);
+        } elseif (!$item) {
             throw new \Exception("Item not found for vendor code: {$vendorItemCode}. Please create mapping.");
         }
 
@@ -156,6 +164,7 @@ class GRNService
             'vendor_id' => $vendorId,
             'vendor_item_code' => $vendorItemCode,
             'item_id' => $item->id,
+            'vendor_item_name' => $itemData['description'] ?? null,
         ]);
 
         return $item;
@@ -167,16 +176,13 @@ class GRNService
     public function calculateCosts($unitCost, $discount, $vat, $quantity = 1)
     {
         $discountAmount = $unitCost * ($discount / 100);
-        $netCost = $unitCost - $discountAmount;
-        $vatAmount = $netCost * ($vat / 100);
+        $vatAmount = $unitCost * ($vat / 100);
 
-        // Total cost is what we actually paid: (unit cost - discount) * quantity
-        // VAT is typically not part of purchase cost but part of selling price
-        $totalCost = $netCost * $quantity;
+        // Total cost is (unit cost after discount) * quantity (what we actually paid)
+        $totalCost = ($unitCost - $discountAmount) * $quantity;
 
         return [
             'unit_cost' => $unitCost,
-            'net_cost' => $netCost,
             'discount_amount' => $discountAmount,
             'vat_amount' => $vatAmount,
             'total_cost' => $totalCost,
@@ -202,30 +208,12 @@ class GRNService
         }
 
         foreach ($grnData['items'] as $index => $item) {
-            $position = $index + 1;
-
             if (empty($item['vendor_item_code'])) {
-                throw new \Exception("Vendor item code is required for item at position {$position}");
+                throw new \Exception("Vendor item code is required for item at position " . ($index + 1));
             }
 
             if (empty($item['unit_cost']) || $item['unit_cost'] <= 0) {
-                throw new \Exception("Valid unit cost is required for item at position {$position}");
-            }
-
-            if (isset($item['quantity']) && $item['quantity'] <= 0) {
-                throw new \Exception("Valid quantity is required for item at position {$position}");
-            }
-
-            if (isset($item['discount']) && ($item['discount'] < 0 || $item['discount'] > 100)) {
-                throw new \Exception("Discount must be between 0-100% for item at position {$position}");
-            }
-
-            if (isset($item['vat']) && ($item['vat'] < 0 || $item['vat'] > 100)) {
-                throw new \Exception("VAT must be between 0-100% for item at position {$position}");
-            }
-
-            if (isset($item['selling_price']) && $item['selling_price'] < 0) {
-                throw new \Exception("Selling price cannot be negative for item at position {$position}");
+                throw new \Exception("Valid unit cost is required for item at position " . ($index + 1));
             }
         }
 
@@ -310,6 +298,23 @@ class GRNService
             'vendor_item_code' => $vendorItemCode,
             'item_id' => $itemId,
             'vendor_item_name' => $description // Use vendor_item_name instead of description
+        ]);
+    }
+
+    /**
+     * Create new item from GRN data
+     */
+    public function createItemFromGRNData($vendorItemCode, $itemData)
+    {
+        return Item::create([
+            'name' => $itemData['description'] ?? $vendorItemCode,
+            'item_no' => $vendorItemCode,
+            'description' => $itemData['description'] ?? null,
+            'category_id' => $this->getDefaultCategoryId(),
+            'unit_of_measure' => 'pcs',
+            'reorder_point' => 0,
+            'is_serialized' => false,
+            'is_active' => true,
         ]);
     }
 

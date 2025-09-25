@@ -403,15 +403,21 @@
                         </div>
                     </div>
 
-                    <!-- <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center justify-between mb-6">
                         <div class="flex items-center gap-2">
                             <i data-lucide="info" class="w-4 h-4 text-blue-500"></i>
                             <span class="text-sm text-slate-600 dark:text-slate-400">Need a template?</span>
                         </div>
-                        <a href="{{ route('grns.download-template') }}" class="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 text-sm font-medium">
-                            Download Template
-                        </a>
-                    </div> -->
+                        <div class="flex gap-2">
+                            <a href="{{ route('grns.download-template') }}" class="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 text-sm font-medium">
+                                Download Template
+                            </a>
+                            <span class="text-slate-400">|</span>
+                            <a href="{{ route('grns.download-default-format') }}" class="text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300 text-sm font-medium">
+                                Download Default Format
+                            </a>
+                        </div>
+                    </div>
 <!-- 
                     <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4">
                         <div class="flex items-start gap-3">

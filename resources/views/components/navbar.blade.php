@@ -45,12 +45,12 @@
         <div class="px-3 space-y-1">
             <!-- Dashboard -->
             <a href="{{ url('/dashboard') }}"
-                class="sidebar-item {{ request()->is('dashboard') ? 'active' : '' }}">
-                <i data-lucide="layout-dashboard" class="w-5 h-5 flex-shrink-0"></i>
+                class="sidebar-item {{ request()->is('dashboard') ? 'bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-pink-500/10 border border-pink-400/30 backdrop-blur-md shadow-lg shadow-pink-500/20 text-pink-100 dark:text-pink-200' : '' }} transition-all duration-300">
+                <img src="{{ asset('assets/images/icons/1.png') }}" class="w-5 h-5 flex-shrink-0" alt="Dashboard">
                 <span x-show="expanded" x-transition class="flex-1">Dashboard</span>
                 @if(request()->is('dashboard'))
                 <span x-show="expanded"
-                    class="w-2 h-2 bg-primary-600/70 rounded-full animate-pulse"></span>
+                    class="w-2 h-2 bg-pink-400/70 rounded-full animate-pulse shadow-sm shadow-pink-400"></span>
                 @endif
             </a>
 
@@ -63,30 +63,30 @@
 
             <!-- Vendors -->
             <a href="{{ url('/vendors') }}"
-                class="sidebar-item {{ request()->is('vendors*') ? 'active' : '' }}">
-                <i data-lucide="truck" class="w-5 h-5 flex-shrink-0"></i>
+                class="sidebar-item {{ request()->is('vendors*') ? 'bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-pink-500/10 border border-pink-400/30 backdrop-blur-md shadow-lg shadow-pink-500/20 text-pink-100 dark:text-pink-200' : '' }} transition-all duration-300">
+                <img src="{{ asset('assets/images/icons/vendors.png') }}" class="w-5 h-5 flex-shrink-0" alt="Vendors">
                 <span x-show="expanded" x-transition class="flex-1">Vendors</span>
             </a>
 
             <!-- Categories -->
             <a href="{{ url('/categories') }}"
-                class="sidebar-item {{ request()->is('categories*') ? 'active' : '' }}">
-                <i data-lucide="tag" class="w-5 h-5 flex-shrink-0"></i>
+                class="sidebar-item {{ request()->is('categories*') ? 'bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-pink-500/10 border border-pink-400/30 backdrop-blur-md shadow-lg shadow-pink-500/20 text-pink-100 dark:text-pink-200' : '' }} transition-all duration-300">
+                <img src="{{ asset('assets/images/icons/category.png') }}" class="w-5 h-5 flex-shrink-0" alt="Categories">
                 <span x-show="expanded" x-transition class="flex-1">Categories</span>
             </a>
 
             <!-- Stores & Bins -->
             <a href="{{ url('/stores') }}"
-                class="sidebar-item {{ request()->is('stores*') ? 'active' : '' }}">
-                <i data-lucide="warehouse" class="w-5 h-5 flex-shrink-0"></i>
+                class="sidebar-item {{ request()->is('stores*') ? 'bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-pink-500/10 border border-pink-400/30 backdrop-blur-md shadow-lg shadow-pink-500/20 text-pink-100 dark:text-pink-200' : '' }} transition-all duration-300">
+                <img src="{{ asset('assets/images/icons/stores.png') }}" class="w-5 h-5 flex-shrink-0" alt="Stores & Bins">
                 <span x-show="expanded" x-transition class="flex-1">Stores & Bins</span>
             </a>
 
             <!-- Inventory Management -->
             <div x-data="{ open: {{ request()->is('grns*') || request()->is('inventory*') || request()->is('items*') || request()->is('batches*') ? 'true' : 'false' }} }">
                 <button @click="open = !open"
-                    class="sidebar-item w-full {{ request()->is('grns*') || request()->is('inventory*') || request()->is('items*') || request()->is('batches*') ? 'text-primary-700/80 dark:text-primary-400/80' : '' }}">
-                    <i data-lucide="package" class="w-5 h-5 flex-shrink-0"></i>
+                    class="sidebar-item w-full {{ request()->is('grns*') || request()->is('inventory*') || request()->is('items*') || request()->is('batches*') ? 'bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-pink-500/10 border border-pink-400/30 backdrop-blur-md shadow-lg shadow-pink-500/20 text-pink-100 dark:text-pink-200' : '' }} transition-all duration-300">
+                    <img src="{{ asset('assets/images/icons/inventory.png') }}" class="w-5 h-5 flex-shrink-0" alt="Inventory">
                     <span x-show="expanded" class="flex-1 text-left">Inventory</span>
                     <i x-show="expanded" data-lucide="chevron-down"
                         :class="open ? 'rotate-180' : ''"
@@ -94,15 +94,15 @@
                 </button>
                 <div x-show="open && expanded" x-collapse class="mt-1 space-y-1">
                     <a href="{{ url('/grns') }}"
-                        class="sidebar-item pl-12 {{ request()->is('grns*') ? 'bg-primary-50/50 dark:bg-primary-900/10 text-primary-700/80 dark:text-primary-400/80' : '' }}">
+                        class="sidebar-item pl-12 {{ request()->is('grns*') ? 'bg-gradient-to-r from-pink-500/5 via-purple-500/5 to-pink-500/5 border-l-2 border-pink-400/50 backdrop-blur-sm shadow-md shadow-pink-500/10 text-pink-200 dark:text-pink-100' : '' }} transition-all duration-300">
                         Good Recive Notes
                     </a>
                     <a href="{{ route('inventory.mappings.index') }}"
-                        class="sidebar-item pl-12 {{ request()->is('inventory/mappings*') ? 'bg-primary-50/50 dark:bg-primary-900/10 text-primary-700/80 dark:text-primary-400/80' : '' }}">
+                        class="sidebar-item pl-12 {{ request()->is('inventory/mappings*') ? 'bg-gradient-to-r from-pink-500/5 via-purple-500/5 to-pink-500/5 border-l-2 border-pink-400/50 backdrop-blur-sm shadow-md shadow-pink-500/10 text-pink-200 dark:text-pink-100' : '' }} transition-all duration-300">
                         Vendor Mapping
                     </a>
                     <a href="{{ url('/inventory') }}"
-                        class="sidebar-item pl-12 {{ request()->is('inventory') || request()->is('inventory/stock-*') ? 'bg-primary-50/50 dark:bg-primary-900/10 text-primary-700/80 dark:text-primary-400/80' : '' }}">
+                        class="sidebar-item pl-12 {{ request()->is('inventory') || request()->is('inventory/stock-*') ? 'bg-gradient-to-r from-pink-500/5 via-purple-500/5 to-pink-500/5 border-l-2 border-pink-400/50 backdrop-blur-sm shadow-md shadow-pink-500/10 text-pink-200 dark:text-pink-100' : '' }} transition-all duration-300">
                         Stock Management
                     </a>
                     <!-- <a href="{{ route('inventory.stock-by-item') }}"
@@ -116,11 +116,11 @@
                         Low Stock Alert
                     </a> -->
                     <a href="{{ url('/batches') }}"
-                        class="sidebar-item pl-12 {{ request()->is('batches*') ? 'bg-primary-50/50 dark:bg-primary-900/10 text-primary-700/80 dark:text-primary-400/80' : '' }}">
+                        class="sidebar-item pl-12 {{ request()->is('batches*') ? 'bg-gradient-to-r from-pink-500/5 via-purple-500/5 to-pink-500/5 border-l-2 border-pink-400/50 backdrop-blur-sm shadow-md shadow-pink-500/10 text-pink-200 dark:text-pink-100' : '' }} transition-all duration-300">
                         Batch Management
                     </a>
                     <a href="{{ url('/items') }}"
-                        class="sidebar-item pl-12 {{ request()->is('items*') ? 'bg-primary-50/50 dark:bg-primary-900/10 text-primary-700/80 dark:text-primary-400/80' : '' }}">
+                        class="sidebar-item pl-12 {{ request()->is('items*') ? 'bg-gradient-to-r from-pink-500/5 via-purple-500/5 to-pink-500/5 border-l-2 border-pink-400/50 backdrop-blur-sm shadow-md shadow-pink-500/10 text-pink-200 dark:text-pink-100' : '' }} transition-all duration-300">
                         Items Registry
                     </a>
                 </div>
@@ -129,8 +129,8 @@
             <!-- Sales & POS -->
             <div x-data="{ open: {{ request()->is('pos*') || request()->is('sales*') || request()->is('returns*') ? 'true' : 'false' }} }">
                 <button @click="open = !open"
-                    class="sidebar-item w-full {{ request()->is('pos*') || request()->is('sales*') || request()->is('returns*') ? 'text-primary-700/80 dark:text-primary-400/80' : '' }}">
-                    <i data-lucide="shopping-cart" class="w-5 h-5 flex-shrink-0"></i>
+                    class="sidebar-item w-full {{ request()->is('pos*') || request()->is('sales*') || request()->is('returns*') ? 'bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-pink-500/10 border border-pink-400/30 backdrop-blur-md shadow-lg shadow-pink-500/20 text-pink-100 dark:text-pink-200' : '' }} transition-all duration-300">
+                    <img src="{{ asset('assets/images/icons/Sales.png') }}" class="w-5 h-5 flex-shrink-0" alt="Sales & POS">
                     <span x-show="expanded" class="flex-1 text-left">Sales & POS</span>
                     <i x-show="expanded" data-lucide="chevron-down"
                         :class="open ? 'rotate-180' : ''"
@@ -138,11 +138,11 @@
                 </button>
                 <div x-show="open && expanded" x-collapse class="mt-1 space-y-1">
                     <a href="{{ url('/pos') }}"
-                        class="sidebar-item pl-12 {{ request()->is('pos*') ? 'bg-primary-50/50 dark:bg-primary-900/10 text-primary-700/80 dark:text-primary-400/80' : '' }}">
+                        class="sidebar-item pl-12 {{ request()->is('pos*') ? 'bg-gradient-to-r from-pink-500/5 via-purple-500/5 to-pink-500/5 border-l-2 border-pink-400/50 backdrop-blur-sm shadow-md shadow-pink-500/10 text-pink-200 dark:text-pink-100' : '' }} transition-all duration-300">
                         Point of Sale
                     </a>
                     <a href="{{ url('/sales') }}"
-                        class="sidebar-item pl-12 {{ request()->is('sales*') ? 'bg-primary-50/50 dark:bg-primary-900/10 text-primary-700/80 dark:text-primary-400/80' : '' }}">
+                        class="sidebar-item pl-12 {{ request()->is('sales*') ? 'bg-gradient-to-r from-pink-500/5 via-purple-500/5 to-pink-500/5 border-l-2 border-pink-400/50 backdrop-blur-sm shadow-md shadow-pink-500/10 text-pink-200 dark:text-pink-100' : '' }} transition-all duration-300">
                         Sales History
                     </a>
                     <!-- <a href="{{ url('/returns') }}"
@@ -155,52 +155,18 @@
     
 
             <!-- Customers -->
-            <div x-data="{ open: {{ request()->is('customers*') ? 'true' : 'false' }} }">
-                <button @click="open = !open"
-                    class="sidebar-item w-full {{ request()->is('customers*') ? 'text-primary-700/80 dark:text-primary-400/80' : '' }}">
-                    <i data-lucide="users" class="w-5 h-5 flex-shrink-0"></i>
-                    <span x-show="expanded" class="flex-1 text-left">Customers</span>
-                    <i x-show="expanded" data-lucide="chevron-down"
-                        :class="open ? 'rotate-180' : ''"
-                        class="w-4 h-4 transition-transform duration-200"></i>
-                </button>
-                <div x-show="open && expanded" x-collapse class="mt-1 space-y-1">
-                    <a href="{{ url('/customers') }}"
-                        class="sidebar-item pl-12 {{ request()->is('customers') ? 'bg-primary-50/50 dark:bg-primary-900/10 text-primary-700/80 dark:text-primary-400/80' : '' }}">
-                        Customer List
-                    </a>
-                    <a href="{{ url('/customers/create') }}"
-                        class="sidebar-item pl-12 {{ request()->is('customers/create') ? 'bg-primary-50/50 dark:bg-primary-900/10 text-primary-700/80 dark:text-primary-400/80' : '' }}">
-                        Add Customer
-                    </a>
-                </div>
-            </div>
+            <a href="{{ url('/customers') }}"
+                class="sidebar-item {{ request()->is('customers*') ? 'bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-pink-500/10 border border-pink-400/30 backdrop-blur-md shadow-lg shadow-pink-500/20 text-pink-100 dark:text-pink-200' : '' }} transition-all duration-300">
+                <img src="{{ asset('assets/images/icons/customers.png') }}" class="w-5 h-5 flex-shrink-0" alt="Customers">
+                <span x-show="expanded" x-transition class="flex-1">Customers</span>
+            </a>
 
             <!-- Quotations -->
-            <div x-data="{ open: {{ request()->is('quotations*') || request()->is('invoices*') ? 'true' : 'false' }} }">
-                <button @click="open = !open"
-                    class="sidebar-item w-full {{ request()->is('quotations*') || request()->is('invoices*') ? 'text-primary-700/80 dark:text-primary-400/80' : '' }}">
-                    <i data-lucide="file-text" class="w-5 h-5 flex-shrink-0"></i>
-                    <span x-show="expanded" class="flex-1 text-left">Quotations</span>
-                    <i x-show="expanded" data-lucide="chevron-down"
-                        :class="open ? 'rotate-180' : ''"
-                        class="w-4 h-4 transition-transform duration-200"></i>
-                </button>
-                <div x-show="open && expanded" x-collapse class="mt-1 space-y-1">
-                    <a href="{{ url('/quotations/create') }}"
-                        class="sidebar-item pl-12 {{ request()->is('quotations/create') ? 'bg-primary-50/50 dark:bg-primary-900/10 text-primary-700/80 dark:text-primary-400/80' : '' }}">
-                        Create Quote
-                    </a>
-                    <a href="{{ url('/quotations') }}"
-                        class="sidebar-item pl-12 {{ request()->is('quotations') ? 'bg-primary-50/50 dark:bg-primary-900/10 text-primary-700/80 dark:text-primary-400/80' : '' }}">
-                        Manage Quotes
-                    </a>
-                    <!-- <a href="{{ url('/invoices') }}"
-                        class="sidebar-item pl-12 {{ request()->is('invoices*') ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400' : '' }}">
-                        Invoices
-                    </a> -->
-                </div>
-            </div>
+            <a href="{{ url('/quotations') }}"
+                class="sidebar-item {{ request()->is('quotations*') ? 'bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-pink-500/10 border border-pink-400/30 backdrop-blur-md shadow-lg shadow-pink-500/20 text-pink-100 dark:text-pink-200' : '' }} transition-all duration-300">
+                <img src="{{ asset('assets/images/icons/quotations.png') }}" class="w-5 h-5 flex-shrink-0" alt="Quotations">
+                <span x-show="expanded" x-transition class="flex-1">Quotations</span>
+            </a>
 
             <!-- Reports -->
             <!-- <div x-data="{ open: {{ request()->is('reports*') ? 'true' : 'false' }} }">
@@ -241,8 +207,8 @@
 
             <!-- Database Backup -->
             <a href="{{ url('/backups') }}"
-                class="sidebar-item {{ request()->is('backups*') ? 'active' : '' }}">
-                <i data-lucide="database" class="w-5 h-5 flex-shrink-0"></i>
+                class="sidebar-item {{ request()->is('backups*') ? 'bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-pink-500/10 border border-pink-400/30 backdrop-blur-md shadow-lg shadow-pink-500/20 text-pink-100 dark:text-pink-200' : '' }} transition-all duration-300">
+                <img src="{{ asset('assets/images/icons/database.png') }}" class="w-5 h-5 flex-shrink-0" alt="Database Backup">
                 <span x-show="expanded" x-transition class="flex-1">Database Backup</span>
             </a>
 

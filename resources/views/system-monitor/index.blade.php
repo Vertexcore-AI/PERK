@@ -21,7 +21,7 @@
     <!-- System Status Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <!-- CPU Usage Card -->
-        <div class="bg-white p-6 rounded-lg shadow-lg">
+        <div class="card p-6 bg-gradient-to-br from-violet-500/5 via-purple-500/5 to-violet-500/5 border border-violet-400/20 backdrop-blur-md shadow-xl shadow-violet-500/10 transition-all duration-300 hover:shadow-2xl hover:shadow-violet-500/15">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-lg font-semibold text-gray-900">CPU Usage</h3>
                 <span id="cpuPercentage" class="text-2xl font-bold text-blue-600">
@@ -46,7 +46,7 @@
         </div>
 
         <!-- Thermal State Card -->
-        <div class="bg-white p-6 rounded-lg shadow-lg">
+        <div class="card p-6 bg-gradient-to-br from-violet-500/5 via-purple-500/5 to-violet-500/5 border border-violet-400/20 backdrop-blur-md shadow-xl shadow-violet-500/10 transition-all duration-300 hover:shadow-2xl hover:shadow-violet-500/15">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-lg font-semibold text-gray-900">Thermal State</h3>
                 <span id="thermalLabel"
@@ -73,7 +73,7 @@
         </div>
 
         <!-- Power Status Card -->
-        <div class="bg-white p-6 rounded-lg shadow-lg">
+        <div class="card p-6 bg-gradient-to-br from-violet-500/5 via-purple-500/5 to-violet-500/5 border border-violet-400/20 backdrop-blur-md shadow-xl shadow-violet-500/10 transition-all duration-300 hover:shadow-2xl hover:shadow-violet-500/15">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-lg font-semibold text-gray-900">Power Status</h3>
                 <span id="powerLabel" class="text-sm font-medium text-gray-600">
@@ -99,7 +99,7 @@
         </div>
 
         <!-- App Updates Card -->
-        <div class="bg-white p-6 rounded-lg shadow-lg">
+        <div class="card p-6 bg-gradient-to-br from-violet-500/5 via-purple-500/5 to-violet-500/5 border border-violet-400/20 backdrop-blur-md shadow-xl shadow-violet-500/10 transition-all duration-300 hover:shadow-2xl hover:shadow-violet-500/15">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-lg font-semibold text-gray-900">App Updates</h3>
                 <span id="appVersion" class="text-sm font-medium text-gray-600">
@@ -137,7 +137,7 @@
     </div>
 
     <!-- System Details -->
-    <div class="bg-white p-6 rounded-lg shadow-lg">
+    <div class="card p-6 bg-gradient-to-br from-violet-500/5 via-purple-500/5 to-violet-500/5 border border-violet-400/20 backdrop-blur-md shadow-xl shadow-violet-500/10 transition-all duration-300 hover:shadow-2xl hover:shadow-violet-500/15">
         <h3 class="text-lg font-semibold text-gray-900 mb-4">System Details</h3>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -175,7 +175,7 @@
     </div>
 
     <!-- System Information -->
-    <div class="bg-white p-6 rounded-lg shadow-lg">
+    <div class="card p-6 bg-gradient-to-br from-violet-500/5 via-purple-500/5 to-violet-500/5 border border-violet-400/20 backdrop-blur-md shadow-xl shadow-violet-500/10 transition-all duration-300 hover:shadow-2xl hover:shadow-violet-500/15">
         <h3 class="text-lg font-semibold text-gray-900 mb-4">System Information</h3>
 
         <div id="systemInfo" class="grid grid-cols-1 md:grid-cols-2 gap-4">

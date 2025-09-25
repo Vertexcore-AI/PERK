@@ -24,6 +24,7 @@ return new class extends Migration
             $table->decimal('discount_percent', 5, 2)->default(0);
             $table->decimal('vat_percent', 5, 2)->default(0);
             $table->decimal('selling_price', 10, 2)->default(0);
+            $table->text('notes')->nullable();
             $table->timestamps();
 
             $table->index('item_id');

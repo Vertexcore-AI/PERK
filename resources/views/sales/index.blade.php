@@ -27,7 +27,7 @@
     <!-- Stats Cards -->
     @if(isset($stats))
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div class="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
+        <div class="card p-6 bg-gradient-to-br from-blue-500/5 via-cyan-500/5 to-blue-500/5 border border-blue-400/20 backdrop-blur-md shadow-xl shadow-blue-500/10 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/15">
             <div class="flex items-center">
                 <div class="p-2 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
                     <i data-lucide="shopping-cart" class="w-6 h-6 text-blue-600 dark:text-blue-400"></i>
@@ -39,7 +39,7 @@
             </div>
         </div>
 
-        <div class="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
+        <div class="card p-6 bg-gradient-to-br from-emerald-500/5 via-green-500/5 to-emerald-500/5 border border-emerald-400/20 backdrop-blur-md shadow-xl shadow-emerald-500/10 transition-all duration-300 hover:shadow-2xl hover:shadow-emerald-500/15">
             <div class="flex items-center">
                 <div class="p-2 bg-emerald-100 dark:bg-emerald-900/20 rounded-lg">
                     <i data-lucide="dollar-sign" class="w-6 h-6 text-emerald-600 dark:text-emerald-400"></i>
@@ -51,7 +51,7 @@
             </div>
         </div>
 
-        <div class="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
+        <div class="card p-6 bg-gradient-to-br from-amber-500/5 via-yellow-500/5 to-amber-500/5 border border-amber-400/20 backdrop-blur-md shadow-xl shadow-amber-500/10 transition-all duration-300 hover:shadow-2xl hover:shadow-amber-500/15">
             <div class="flex items-center">
                 <div class="p-2 bg-amber-100 dark:bg-amber-900/20 rounded-lg">
                     <i data-lucide="trending-up" class="w-6 h-6 text-amber-600 dark:text-amber-400"></i>
@@ -63,7 +63,7 @@
             </div>
         </div>
 
-        <div class="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
+        <div class="card p-6 bg-gradient-to-br from-purple-500/5 via-indigo-500/5 to-purple-500/5 border border-purple-400/20 backdrop-blur-md shadow-xl shadow-purple-500/10 transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/15">
             <div class="flex items-center">
                 <div class="p-2 bg-purple-100 dark:bg-purple-900/20 rounded-lg">
                     <i data-lucide="credit-card" class="w-6 h-6 text-purple-600 dark:text-purple-400"></i>

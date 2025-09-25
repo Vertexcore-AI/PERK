@@ -49,7 +49,7 @@
 
         <!-- Statistics Cards -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            <div class="bg-white dark:bg-slate-800 rounded-lg p-6 border border-slate-200 dark:border-slate-700">
+            <div class="card p-6 bg-gradient-to-br from-amber-500/5 via-yellow-500/5 to-amber-500/5 border border-amber-400/20 backdrop-blur-md shadow-xl shadow-amber-500/10 transition-all duration-300 hover:shadow-2xl hover:shadow-amber-500/15">
                 <div class="flex items-center">
                     <div class="p-2 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
                         <i data-lucide="alert-triangle" class="w-6 h-6 text-yellow-600 dark:text-yellow-400"></i>
@@ -61,7 +61,7 @@
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-slate-800 rounded-lg p-6 border border-slate-200 dark:border-slate-700">
+            <div class="card p-6 bg-gradient-to-br from-amber-500/5 via-yellow-500/5 to-amber-500/5 border border-amber-400/20 backdrop-blur-md shadow-xl shadow-amber-500/10 transition-all duration-300 hover:shadow-2xl hover:shadow-amber-500/15">
                 <div class="flex items-center">
                     <div class="p-2 bg-red-100 dark:bg-red-900/30 rounded-lg">
                         <i data-lucide="x-circle" class="w-6 h-6 text-red-600 dark:text-red-400"></i>
@@ -73,7 +73,7 @@
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-slate-800 rounded-lg p-6 border border-slate-200 dark:border-slate-700">
+            <div class="card p-6 bg-gradient-to-br from-amber-500/5 via-yellow-500/5 to-amber-500/5 border border-amber-400/20 backdrop-blur-md shadow-xl shadow-amber-500/10 transition-all duration-300 hover:shadow-2xl hover:shadow-amber-500/15">
                 <div class="flex items-center">
                     <div class="p-2 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
                         <i data-lucide="trending-down" class="w-6 h-6 text-orange-600 dark:text-orange-400"></i>

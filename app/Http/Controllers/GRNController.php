@@ -57,87 +57,35 @@ class GRNController extends Controller
      */
     public function store(Request $request)
     {
+        $request->validate([
+            'vendor_id' => 'required|exists:vendors,id',
+            'inv_no' => 'required|string|max:50',
+            'billing_date' => 'required|date',
+            'items' => 'required|array|min:1',
+            'items.*.vendor_item_code' => 'required|string',
+            'items.*.quantity' => 'required|integer|min:1',
+            'items.*.unit_cost' => 'required|numeric|min:0',
+            'items.*.selling_price' => 'nullable|numeric|min:0',
+            'items.*.discount' => 'nullable|numeric|min:0|max:100',
+            'items.*.vat' => 'nullable|numeric|min:0|max:100',
+            'items.*.store_id' => 'required|exists:stores,id',
+            'items.*.bin_id' => 'nullable|exists:bins,id',
+            'items.*.notes' => 'nullable|string',
+        ]);
+
         try {
-            // Enhanced validation with better error messages
-            $validated = $request->validate([
-                'vendor_id' => 'required|exists:vendors,id',
-                'inv_no' => 'required|string|max:50',
-                'billing_date' => 'required|date|before_or_equal:today',
-                'items' => 'required|array|min:1',
-                'items.*.vendor_item_code' => 'required|string|max:50',
-                'items.*.quantity' => 'required|integer|min:1|max:999999',
-                'items.*.unit_cost' => 'required|numeric|min:0.01|max:999999.99',
-                'items.*.selling_price' => 'nullable|numeric|min:0|max:999999.99',
-                'items.*.discount' => 'nullable|numeric|min:0|max:100',
-                'items.*.vat' => 'nullable|numeric|min:0|max:100',
-                'items.*.store_id' => 'required|exists:stores,id',
-                'items.*.bin_id' => 'nullable|exists:bins,id',
-                'items.*.notes' => 'nullable|string|max:500',
-            ], [
-                'vendor_id.required' => 'Please select a vendor.',
-                'vendor_id.exists' => 'Selected vendor does not exist.',
-                'inv_no.required' => 'Invoice number is required.',
-                'inv_no.max' => 'Invoice number cannot exceed 50 characters.',
-                'billing_date.required' => 'Billing date is required.',
-                'billing_date.date' => 'Billing date must be a valid date.',
-                'billing_date.before_or_equal' => 'Billing date cannot be in the future.',
-                'items.required' => 'At least one item must be added.',
-                'items.min' => 'At least one item must be added.',
-                'items.*.vendor_item_code.required' => 'Vendor item code is required for all items.',
-                'items.*.quantity.required' => 'Quantity is required for all items.',
-                'items.*.quantity.min' => 'Quantity must be at least 1.',
-                'items.*.quantity.max' => 'Quantity cannot exceed 999,999.',
-                'items.*.unit_cost.required' => 'Unit cost is required for all items.',
-                'items.*.unit_cost.min' => 'Unit cost must be greater than 0.',
-                'items.*.unit_cost.max' => 'Unit cost cannot exceed 999,999.99.',
-                'items.*.selling_price.max' => 'Selling price cannot exceed 999,999.99.',
-                'items.*.discount.max' => 'Discount cannot exceed 100%.',
-                'items.*.vat.max' => 'VAT cannot exceed 100%.',
-                'items.*.store_id.required' => 'Store is required for all items.',
-                'items.*.store_id.exists' => 'Selected store does not exist.',
-                'items.*.bin_id.exists' => 'Selected bin does not exist.',
-                'items.*.notes.max' => 'Notes cannot exceed 500 characters.',
-            ]);
-
-            \Log::info('GRN Creation Started', [
-                'vendor_id' => $validated['vendor_id'],
-                'inv_no' => $validated['inv_no'],
-                'items_count' => count($validated['items']),
-                'user_id' => auth()->id()
-            ]);
-
-            // Additional business logic validation
-            $this->validateBusinessRules($validated);
-
-            $grn = $this->grnService->processGRN($validated);
-
-            \Log::info('GRN Created Successfully', [
-                'grn_id' => $grn->grn_id,
-                'total_amount' => $grn->total_amount,
-                'items_count' => $grn->grnItems->count()
-            ]);
+            \Log::info('GRN Creation Started', ['request_data' => $request->all()]);
+            $grn = $this->grnService->processGRN($request->all());
+            \Log::info('GRN Created Successfully', ['grn_id' => $grn->grn_id]);
 
             return redirect()->route('grns.show', $grn->grn_id)
-                ->with('success', 'GRN created successfully with ID: ' . $grn->grn_id);
-
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            \Log::warning('GRN Validation Failed', [
-                'errors' => $e->errors(),
-                'vendor_id' => $request->vendor_id,
-                'inv_no' => $request->inv_no
-            ]);
-            throw $e; // Re-throw to show validation errors
-
+                ->with('success', 'GRN created successfully.');
         } catch (\Exception $e) {
             \Log::error('GRN Creation Failed', [
                 'error' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'vendor_id' => $request->vendor_id,
-                'inv_no' => $request->inv_no,
-                'user_id' => auth()->id()
+                'trace' => $e->getTraceAsString(),
+                'request_data' => $request->all()
             ]);
-
             return redirect()->back()
                 ->withInput()
                 ->with('error', 'Error creating GRN: ' . $e->getMessage());
@@ -209,104 +157,138 @@ class GRNController extends Controller
      */
     public function uploadExcel(Request $request)
     {
-        $request->validate([
-            'vendor_id' => 'required|exists:vendors,id',
-            'excel_file' => 'required|file|mimes:xlsx,xls,csv|max:2048',
+        // Force JSON response
+        $request->headers->set('Accept', 'application/json');
+
+        // Basic logging to see if method is called
+        \Log::info('GRN Upload started', [
+            'vendor_id' => $request->vendor_id,
+            'file_name' => $request->file('excel_file') ? $request->file('excel_file')->getClientOriginalName() : 'no file',
+            'headers' => $request->headers->all()
         ]);
+
+        // Custom validation for file types
+        try {
+            $request->validate([
+                'vendor_id' => 'required|exists:vendors,id',
+                'excel_file' => 'required|file|max:2048',
+            ]);
+
+            // Additional file extension validation
+            $file = $request->file('excel_file');
+            $extension = strtolower($file->getClientOriginalExtension());
+            $allowedExtensions = ['xlsx', 'xls', 'csv'];
+
+            if (!in_array($extension, $allowedExtensions)) {
+                \Log::error('Invalid file extension', [
+                    'extension' => $extension,
+                    'filename' => $file->getClientOriginalName(),
+                    'mime_type' => $file->getMimeType()
+                ]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid file type. Please upload a CSV (.csv), Excel (.xlsx), or Excel 97-2003 (.xls) file.'
+                ], 422);
+            }
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::error('Validation failed', $e->errors());
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed: ' . implode(', ', array_map(fn($errors) => implode(', ', $errors), $e->errors()))
+            ], 422);
+        }
+
+        \Log::info('GRN Upload validation passed');
 
         try {
             $file = $request->file('excel_file');
+            \Log::info('File received', ['size' => $file->getSize(), 'mime' => $file->getMimeType()]);
+
             $import = new GRNExcelImport();
 
             // Parse the Excel file
+            \Log::info('Starting Excel parsing');
             $collection = Excel::toCollection($import, $file)->first();
+            \Log::info('Excel parsed', ['rows' => $collection->count()]);
+
+            // Validate that the file has the required columns
+            if ($collection->isEmpty()) {
+                \Log::warning('Collection is empty');
+                return response()->json([
+                    'success' => false,
+                    'message' => 'The uploaded file is empty or has no valid data.'
+                ]);
+            }
+
+            // Get headers from first row (assuming first row contains headers)
+            $firstRow = $collection->first();
+            if (!$firstRow) {
+                \Log::error('First row is null');
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unable to read file headers. Please check the file format.'
+                ]);
+            }
+
+            $headers = array_keys($firstRow->toArray());
+            \Log::info('Headers found', ['headers' => $headers]);
+
+            $validation = GRNExcelImport::validateRequiredColumns($headers);
+            \Log::info('Validation result', $validation);
+
+            if (!$validation['valid']) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $validation['message']
+                ]);
+            }
 
             // Convert to array and clean data
             $importData = [];
-            $errors = [];
-
             foreach ($collection as $rowIndex => $row) {
+                // Skip if row is empty
+                if ($row->filter()->isEmpty()) {
+                    continue;
+                }
+
                 // Normalize column names for each row
                 $normalizedRow = [];
                 foreach ($row as $key => $value) {
                     $normalizedKey = $this->normalizeColumnName($key);
-                    // Skip row number columns
-                    if ($normalizedKey === 'row_number') {
-                        continue;
-                    }
                     $normalizedRow[$normalizedKey] = $value;
                 }
 
-                // Check if we have required columns and skip empty rows
-                if (empty($normalizedRow['item_code']) || empty($normalizedRow['description'])) {
-                    // Skip empty rows but log if it looks like data
-                    if (!empty(array_filter($normalizedRow))) {
-                        $errors[] = "Row " . ($rowIndex + 2) . ": Missing item code or description";
+                \Log::debug('Processing row', [
+                    'row_index' => $rowIndex,
+                    'original_row' => $row->toArray(),
+                    'normalized_row' => $normalizedRow
+                ]);
+
+                // Check if we have required columns
+                if (!empty($normalizedRow['item_code']) && !empty($normalizedRow['description'])) {
+                    // Calculate default selling price if not provided
+                    $unitCost = (float) ($normalizedRow['unit_cost'] ?? 0);
+                    $sellingPrice = (float) ($normalizedRow['selling_price'] ?? 0);
+
+                    // If no selling price provided, calculate using the correct formula
+                    if ($sellingPrice == 0 && $unitCost > 0) {
+                        $vat = (float) ($normalizedRow['vat'] ?? 0);
+                        $discount = (float) ($normalizedRow['discount'] ?? 0);
+                        $vatAmount = $unitCost * ($vat / 100);
+                        $discountAmount = $unitCost * ($discount / 100);
+                        $sellingPrice = $unitCost + $vatAmount - $discountAmount;
                     }
-                    continue;
+
+                    $importData[] = [
+                        'item_code' => trim($normalizedRow['item_code']),
+                        'description' => trim($normalizedRow['description']),
+                        'quantity' => (int) ($normalizedRow['quantity'] ?? 1),
+                        'unit_cost' => $unitCost,
+                        'selling_price' => round($sellingPrice, 2),
+                        'vat' => (float) ($normalizedRow['vat'] ?? 0),
+                        'discount' => (float) ($normalizedRow['discount'] ?? 0),
+                    ];
                 }
-
-                // Validate and clean numeric values
-                $unitCost = $this->cleanNumericValue($normalizedRow['unit_cost'] ?? 0);
-                $quantity = max(1, (int) ($normalizedRow['quantity'] ?? 1));
-                $vat = $this->cleanNumericValue($normalizedRow['vat'] ?? 0);
-                $discount = $this->cleanNumericValue($normalizedRow['discount'] ?? 0);
-                $sellingPrice = $this->cleanNumericValue($normalizedRow['selling_price'] ?? 0);
-                $totalValue = $this->cleanNumericValue($normalizedRow['total_value'] ?? 0);
-
-                // Validate unit cost
-                if ($unitCost <= 0) {
-                    $errors[] = "Row " . ($rowIndex + 2) . ": Invalid unit cost '{$normalizedRow['unit_cost']}'";
-                    continue;
-                }
-
-                // Validate discount and VAT percentages
-                if ($discount < 0 || $discount > 100) {
-                    $errors[] = "Row " . ($rowIndex + 2) . ": Discount must be between 0-100%";
-                    continue;
-                }
-                if ($vat < 0 || $vat > 100) {
-                    $errors[] = "Row " . ($rowIndex + 2) . ": VAT must be between 0-100%";
-                    continue;
-                }
-
-                // Calculate selling price if not provided
-                if ($sellingPrice <= 0 && $unitCost > 0) {
-                    // Correct formula: selling price = unit cost - discount + VAT
-                    $discountAmount = $unitCost * ($discount / 100);
-                    $netCost = $unitCost - $discountAmount;
-                    $vatAmount = $netCost * ($vat / 100);
-                    $sellingPrice = $netCost + $vatAmount;
-                }
-
-                // Validate against total value if provided
-                if ($totalValue > 0) {
-                    $expectedTotal = ($unitCost - ($unitCost * $discount / 100)) * $quantity;
-                    $tolerance = $expectedTotal * 0.01; // 1% tolerance
-                    if (abs($expectedTotal - $totalValue) > $tolerance) {
-                        $errors[] = "Row " . ($rowIndex + 2) . ": Total value {$totalValue} doesn't match calculated value {$expectedTotal}";
-                    }
-                }
-
-                $importData[] = [
-                    'item_code' => trim($normalizedRow['item_code']),
-                    'description' => trim($normalizedRow['description']),
-                    'quantity' => $quantity,
-                    'unit_cost' => $unitCost,
-                    'selling_price' => round($sellingPrice, 2),
-                    'vat' => $vat,
-                    'discount' => $discount,
-                    'original_row' => $rowIndex + 2, // For error reporting
-                ];
-            }
-
-            // Check for validation errors
-            if (!empty($errors)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Data validation failed',
-                    'errors' => $errors
-                ], 400);
             }
 
             if (empty($importData)) {
@@ -339,12 +321,29 @@ class GRNController extends Controller
         } catch (\Exception $e) {
             \Log::error('Excel import failed', [
                 'error' => $e->getMessage(),
-                'file' => $file->getClientOriginalName() ?? 'unknown'
+                'trace' => $e->getTraceAsString(),
+                'file' => $file->getClientOriginalName() ?? 'unknown',
+                'line' => $e->getLine(),
+                'file_path' => $e->getFile()
             ]);
+
+            // Provide more specific error messages based on exception type
+            $userMessage = 'Error processing Excel file: ';
+
+            if (strpos($e->getMessage(), 'Undefined array key') !== false ||
+                strpos($e->getMessage(), 'Undefined index') !== false) {
+                $userMessage = 'Missing required columns in the file. Please check that your file contains: ITEM_CODE, DESCRIPTION, QTY, Unit Price columns.';
+            } elseif (strpos($e->getMessage(), 'Permission denied') !== false) {
+                $userMessage = 'File access error. Please try uploading the file again.';
+            } elseif (strpos($e->getMessage(), 'Invalid file format') !== false) {
+                $userMessage = 'Invalid file format. Please upload a CSV, XLS, or XLSX file.';
+            } else {
+                $userMessage .= $e->getMessage();
+            }
 
             return response()->json([
                 'success' => false,
-                'message' => 'Error processing Excel file: ' . $e->getMessage()
+                'message' => $userMessage
             ], 400);
         }
     }
@@ -574,10 +573,11 @@ class GRNController extends Controller
             // Clear import session
             session()->forget(['grn_import_data', 'grn_vendor_id']);
 
+            $itemCount = count($importData['resolved']);
             return response()->json([
                 'success' => true,
                 'grn_id' => $grn->grn_id,
-                'message' => 'GRN created successfully from import.',
+                'message' => "Import completed successfully! GRN #{$grn->grn_id} created with {$itemCount} items.",
                 'redirect' => route('grns.show', $grn->grn_id)
             ]);
 
@@ -618,14 +618,45 @@ class GRNController extends Controller
     }
 
     /**
+     * Download the default CSV format from public folder
+     */
+    public function downloadDefaultFormat()
+    {
+        $filePath = public_path('inventory.csv');
+
+        if (!file_exists($filePath)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Default format file not found.'
+            ], 404);
+        }
+
+        return response()->download($filePath, 'inventory_default_format.csv', [
+            'Content-Type' => 'text/csv',
+        ]);
+    }
+
+    /**
      * Normalize column names to handle variations
      */
     private function normalizeColumnName($columnName)
     {
         $columnName = strtolower(trim($columnName));
 
-        // Map common variations to our expected format
+        // Map common variations to our expected format - comprehensive mapping
         $mappings = [
+            // Serial/Row number (ignored)
+            'no' => 'row_number',
+            'no.' => 'row_number',
+            'sr' => 'row_number',
+            'sr.' => 'row_number',
+            'serial' => 'row_number',
+            'serial no' => 'row_number',
+            'serial_no' => 'row_number',
+            'row' => 'row_number',
+            'index' => 'row_number',
+
+            // Item Code variations
             'item code' => 'item_code',
             'itemcode' => 'item_code',
             'item_code' => 'item_code',
@@ -633,14 +664,24 @@ class GRNController extends Controller
             'vendor_item_code' => 'item_code',
             'part number' => 'item_code',
             'part_number' => 'item_code',
+            'part no' => 'item_code',
+            'part_no' => 'item_code',
+            'partno' => 'item_code',
+            'code' => 'item_code',
+            'product code' => 'item_code',
+            'product_code' => 'item_code',
 
+            // Description variations
             'description' => 'description',
             'item description' => 'description',
             'item_description' => 'description',
             'name' => 'description',
             'item name' => 'description',
             'item_name' => 'description',
+            'product name' => 'description',
+            'product_name' => 'description',
 
+            // Unit Cost/Price variations
             'unit price' => 'unit_cost',
             'unitprice' => 'unit_cost',
             'unit_price' => 'unit_cost',
@@ -649,7 +690,11 @@ class GRNController extends Controller
             'price' => 'unit_cost',
             'cost' => 'unit_cost',
             'purchase price' => 'unit_cost',
+            'purchase_price' => 'unit_cost',
+            'buy price' => 'unit_cost',
+            'buy_price' => 'unit_cost',
 
+            // Selling Price variations
             'selling price' => 'selling_price',
             'selling_price' => 'selling_price',
             'sellingprice' => 'selling_price',
@@ -658,59 +703,43 @@ class GRNController extends Controller
             'retail price' => 'selling_price',
             'retail_price' => 'selling_price',
 
+            // Quantity variations
             'quantity' => 'quantity',
             'qty' => 'quantity',
             'received quantity' => 'quantity',
             'received_quantity' => 'quantity',
             'received qty' => 'quantity',
             'received_qty' => 'quantity',
+            'count' => 'quantity',
 
+            // VAT variations
             'vat' => 'vat',
             'vat%' => 'vat',
             'vat percent' => 'vat',
             'vat_percent' => 'vat',
             'tax' => 'vat',
+            'tax%' => 'vat',
+            'tax percent' => 'vat',
+            'tax_percent' => 'vat',
 
+            // Discount variations
             'discount' => 'discount',
             'discount%' => 'discount',
             'disc %' => 'discount',
-            'disc%' => 'discount',
+            'disc' => 'discount',
             'discount percent' => 'discount',
             'discount_percent' => 'discount',
 
-            // Handle row number columns (to be ignored)
-            'no' => 'row_number',
-            'no.' => 'row_number',
-            'row' => 'row_number',
-            'sr no' => 'row_number',
-            'sr. no' => 'row_number',
-            'serial' => 'row_number',
-            '#' => 'row_number',
-
-            // Handle total value columns (for validation)
+            // Total Value variations (optional field)
             'total value' => 'total_value',
             'total_value' => 'total_value',
-            'totalvalue' => 'total_value',
+            'total cost' => 'total_value',
+            'total_cost' => 'total_value',
+            'total price' => 'total_value',
+            'total_price' => 'total_value',
             'total' => 'total_value',
-            'amount' => 'total_value',
-            'line total' => 'total_value',
-            'line_total' => 'total_value',
         ];
 
         return $mappings[$columnName] ?? $columnName;
-    }
-
-    /**
-     * Clean and convert numeric values from CSV
-     */
-    private function cleanNumericValue($value)
-    {
-        if (is_numeric($value)) {
-            return (float) $value;
-        }
-
-        // Handle string values with commas, spaces, currency symbols
-        $cleaned = preg_replace('/[^0-9.-]/', '', (string) $value);
-        return is_numeric($cleaned) ? (float) $cleaned : 0.0;
     }
 }

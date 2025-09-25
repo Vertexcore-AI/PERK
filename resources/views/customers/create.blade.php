@@ -57,7 +57,7 @@
 
     <div class="max-w-2xl mx-0">
         <!-- Form Card -->
-        <div class="card animate-in" style="animation-delay: 0.1s">
+        <div class="card animate-in bg-gradient-to-br from-pink-500/5 via-purple-500/5 to-pink-500/5 border border-pink-400/20 backdrop-blur-md shadow-xl shadow-pink-500/10 transition-all duration-300 hover:shadow-2xl hover:shadow-pink-500/15" style="animation-delay: 0.1s">
             <div class="p-6 border-b border-slate-200 dark:border-slate-700">
                 <div class="flex items-center gap-3">
                     <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/25">
@@ -138,6 +138,32 @@
                             icon="file-text"
                             :error="$errors->first('vat_number')"
                             help="Optional: VAT registration number for tax invoices"
+                        />
+                    </div>
+
+                    <!-- Vehicle Type -->
+                    <div class="animate-in" style="animation-delay: 0.55s">
+                        <x-forms.input
+                            label="Vehicle Type"
+                            name="vehicle_type"
+                            :value="old('vehicle_type')"
+                            placeholder="e.g. Car, SUV, Truck"
+                            icon="truck"
+                            :error="$errors->first('vehicle_type')"
+                            help="Optional: Type of vehicle"
+                        />
+                    </div>
+
+                    <!-- Vehicle Model -->
+                    <div class="animate-in" style="animation-delay: 0.58s">
+                        <x-forms.input
+                            label="Vehicle Model"
+                            name="vehicle_model"
+                            :value="old('vehicle_model')"
+                            placeholder="e.g. Toyota Camry, Honda Civic"
+                            icon="car"
+                            :error="$errors->first('vehicle_model')"
+                            help="Optional: Vehicle make and model"
                         />
                     </div>
 

@@ -89,13 +89,7 @@
                         <tr class="group" data-category="{{ $item->category_id }}">
                             <td>
                                 <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center">
-                                        @if($item->is_serialized)
-                                            <i data-lucide="scan-line" class="w-5 h-5 text-white"></i>
-                                        @else
-                                            <i data-lucide="package" class="w-5 h-5 text-white"></i>
-                                        @endif
-                                    </div>
+                                    
                                     <div>
                                         <span class="font-medium text-slate-900 dark:text-white">{{ $item->name }}</span>
                                         <span class="block text-xs text-slate-500 dark:text-slate-400 mt-1">

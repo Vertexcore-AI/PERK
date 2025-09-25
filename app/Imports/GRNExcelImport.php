@@ -63,50 +63,143 @@ class GRNExcelImport implements ToCollection, WithHeadingRow, WithValidation
      */
     private function normalizeColumnName($columnName)
     {
-        $columnName = strtolower(trim($columnName));
+        $originalColumnName = trim($columnName);
+        $columnName = strtolower($originalColumnName);
 
-        // Map common variations to our expected format
+        // Map common variations to our expected format - comprehensive mapping
         $mappings = [
+            // Serial/Row number (ignored)
+            'no' => 'row_number',
+            'no.' => 'row_number',
+            'sr' => 'row_number',
+            'sr.' => 'row_number',
+            'serial' => 'row_number',
+            'serial no' => 'row_number',
+            'serial_no' => 'row_number',
+            'row' => 'row_number',
+            'index' => 'row_number',
+
+            // Item Code variations
             'item code' => 'item_code',
             'itemcode' => 'item_code',
+            'item_code' => 'item_code',
             'vendor item code' => 'item_code',
             'vendor_item_code' => 'item_code',
             'part number' => 'item_code',
             'part_number' => 'item_code',
+            'part no' => 'item_code',
+            'part_no' => 'item_code',
+            'partno' => 'item_code',
+            'code' => 'item_code',
+            'product code' => 'item_code',
+            'product_code' => 'item_code',
 
+            // Description variations
             'description' => 'description',
             'item description' => 'description',
             'item_description' => 'description',
             'name' => 'description',
             'item name' => 'description',
             'item_name' => 'description',
+            'product name' => 'description',
+            'product_name' => 'description',
 
-            'unit price' => 'unit_price',
-            'unitprice' => 'unit_price',
-            'unit_price' => 'unit_price',
-            'price' => 'unit_price',
-            'cost' => 'unit_price',
+            // Unit Cost/Price variations
+            'unit price' => 'unit_cost',
+            'unitprice' => 'unit_cost',
+            'unit_price' => 'unit_cost',
+            'unit cost' => 'unit_cost',
+            'unit_cost' => 'unit_cost',
+            'price' => 'unit_cost',
+            'cost' => 'unit_cost',
+            'purchase price' => 'unit_cost',
+            'purchase_price' => 'unit_cost',
+            'buy price' => 'unit_cost',
+            'buy_price' => 'unit_cost',
 
+            // Quantity variations
             'quantity' => 'quantity',
             'qty' => 'quantity',
             'received quantity' => 'quantity',
             'received_quantity' => 'quantity',
             'received qty' => 'quantity',
             'received_qty' => 'quantity',
+            'count' => 'quantity',
 
+            // VAT variations
             'vat' => 'vat',
             'vat%' => 'vat',
             'vat percent' => 'vat',
             'vat_percent' => 'vat',
             'tax' => 'vat',
+            'tax%' => 'vat',
+            'tax percent' => 'vat',
+            'tax_percent' => 'vat',
 
+            // Discount variations
             'discount' => 'discount',
             'discount%' => 'discount',
+            'disc %' => 'discount',
+            'disc' => 'discount',
             'discount percent' => 'discount',
             'discount_percent' => 'discount',
+
+            // Total Value variations (optional field)
+            'total value' => 'total_value',
+            'total_value' => 'total_value',
+            'total cost' => 'total_value',
+            'total_cost' => 'total_value',
+            'total price' => 'total_value',
+            'total_price' => 'total_value',
+            'total' => 'total_value',
+            'amount' => 'total_value',
         ];
 
         return $mappings[$columnName] ?? $columnName;
+    }
+
+    /**
+     * Validate that required columns are present in the file
+     */
+    public static function validateRequiredColumns($headers)
+    {
+        $normalizedHeaders = [];
+        foreach ($headers as $header) {
+            $instance = new self();
+            $normalizedHeaders[] = $instance->normalizeColumnName($header);
+        }
+
+        $requiredColumns = ['item_code', 'description', 'unit_cost', 'quantity'];
+        $missingColumns = [];
+
+        foreach ($requiredColumns as $required) {
+            if (!in_array($required, $normalizedHeaders)) {
+                $missingColumns[] = $required;
+            }
+        }
+
+        if (!empty($missingColumns)) {
+            $expectedVariations = [
+                'item_code' => 'ITEM_CODE, Item Code, Part No, Part Number, Code',
+                'description' => 'DESCRIPTION, Description, Name, Item Name, Product Name',
+                'unit_cost' => 'Unit Price, Unit Cost, Price, Cost, Purchase Price',
+                'quantity' => 'QTY, Quantity, Received Quantity, Amount, Count'
+            ];
+
+            $errorMessage = "Missing required columns. Found columns: " . implode(', ', $headers) . "\n\n";
+            $errorMessage .= "Missing required fields and their accepted variations:\n";
+
+            foreach ($missingColumns as $missing) {
+                $errorMessage .= "• {$missing}: " . $expectedVariations[$missing] . "\n";
+            }
+
+            return [
+                'valid' => false,
+                'message' => $errorMessage
+            ];
+        }
+
+        return ['valid' => true];
     }
 
     /**

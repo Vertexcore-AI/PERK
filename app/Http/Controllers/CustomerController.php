@@ -40,9 +40,12 @@ class CustomerController extends Controller
             'contact' => 'nullable|string|max:255',
             'address' => 'nullable|string|max:255',
             'type' => 'required|in:Retail,Insurance,Wholesale',
+            'vat_number' => 'nullable|string|max:100',
+            'vehicle_type' => 'nullable|string|max:100',
+            'vehicle_model' => 'nullable|string|max:100',
         ]);
 
-        $customer = Customer::create($request->only(['name', 'contact', 'address', 'type']));
+        $customer = Customer::create($request->only(['name', 'contact', 'address', 'type', 'vat_number', 'vehicle_type', 'vehicle_model']));
 
         return redirect()->route('customers.show', $customer)
             ->with('success', 'Customer created successfully.');
@@ -74,9 +77,12 @@ class CustomerController extends Controller
             'contact' => 'nullable|string|max:255',
             'address' => 'nullable|string|max:255',
             'type' => 'required|in:Retail,Insurance,Wholesale',
+            'vat_number' => 'nullable|string|max:100',
+            'vehicle_type' => 'nullable|string|max:100',
+            'vehicle_model' => 'nullable|string|max:100',
         ]);
 
-        $customer->update($request->only(['name', 'contact', 'address', 'type']));
+        $customer->update($request->only(['name', 'contact', 'address', 'type', 'vat_number', 'vehicle_type', 'vehicle_model']));
 
         return redirect()->route('customers.index')
             ->with('success', 'Customer updated successfully.');

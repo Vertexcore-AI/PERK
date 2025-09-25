@@ -23,7 +23,7 @@ return new class extends Migration
             $table->index('vendor_id');
             $table->index('item_id');
             $table->index('vendor_item_code');
-            $table->unique(['vendor_id', 'item_id']);
+            $table->unique(['vendor_id', 'vendor_item_code']);
         });
     }
 

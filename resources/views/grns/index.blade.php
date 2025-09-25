@@ -63,39 +63,51 @@
 
     <!-- GRN Statistics -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-        <div class="card p-6">
-            <div class="flex items-center justify-between mb-4">
-                <div class="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-xl flex items-center justify-center">
+        <div class="card p-4 bg-gradient-to-br from-indigo-500/5 via-purple-500/5 to-indigo-500/5 border border-indigo-400/20 backdrop-blur-md shadow-xl shadow-indigo-500/10 transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-500/15">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-xl flex items-center justify-center flex-shrink-0">
                     <i data-lucide="file-text" class="w-6 h-6 text-indigo-600 dark:text-indigo-400"></i>
                 </div>
-                <span class="badge badge-info">Total</span>
+                <div class="flex-1">
+                    <div class="flex items-center justify-between">
+                        <h4 class="text-2xl font-bold text-slate-900 dark:text-white">{{ $totalGRNs ?? 0 }}</h4>
+                        <span class="badge badge-info">Total</span>
+                    </div>
+                    <p class="text-sm text-slate-600 dark:text-slate-400">Total GRNs</p>
+                </div>
             </div>
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white">{{ $totalGRNs ?? 0 }}</h4>
-            <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Total GRNs</p>
         </div>
 
        
 
-        <div class="card p-6">
-            <div class="flex items-center justify-between mb-4">
-                <div class="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center">
+        <div class="card p-4 bg-gradient-to-br from-indigo-500/5 via-purple-500/5 to-indigo-500/5 border border-indigo-400/20 backdrop-blur-md shadow-xl shadow-indigo-500/10 transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-500/15">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center flex-shrink-0">
                     <i data-lucide="calendar" class="w-6 h-6 text-emerald-600 dark:text-emerald-400"></i>
                 </div>
-                <span class="badge badge-success">Today</span>
+                <div class="flex-1">
+                    <div class="flex items-center justify-between">
+                        <h4 class="text-2xl font-bold text-slate-900 dark:text-white">{{ $todayGRNs ?? 0 }}</h4>
+                        <span class="badge badge-success">Today</span>
+                    </div>
+                    <p class="text-sm text-slate-600 dark:text-slate-400">Today's GRNs</p>
+                </div>
             </div>
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white">{{ $todayGRNs ?? 0 }}</h4>
-            <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Today's GRNs</p>
         </div>
 
-        <div class="card p-6">
-            <div class="flex items-center justify-between mb-4">
-                <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center">
+        <div class="card p-4 bg-gradient-to-br from-indigo-500/5 via-purple-500/5 to-indigo-500/5 border border-indigo-400/20 backdrop-blur-md shadow-xl shadow-indigo-500/10 transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-500/15">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center flex-shrink-0">
                     <i data-lucide="dollar-sign" class="w-6 h-6 text-purple-600 dark:text-purple-400"></i>
                 </div>
-                <span class="badge badge-primary">Value</span>
+                <div class="flex-1">
+                    <div class="flex items-center justify-between">
+                        <h4 class="text-2xl font-bold text-slate-900 dark:text-white">${{ number_format($totalValue ?? 0, 0) }}</h4>
+                        <span class="badge badge-primary">Value</span>
+                    </div>
+                    <p class="text-sm text-slate-600 dark:text-slate-400">Total Value</p>
+                </div>
             </div>
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white">${{ number_format($totalValue ?? 0, 0) }}</h4>
-            <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Total Value</p>
         </div>
     </div>
 
@@ -140,9 +152,7 @@
                             </td>
                             <td>
                                 <div class="flex items-center gap-2">
-                                    <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
-                                        <i data-lucide="truck" class="w-4 h-4 text-white"></i>
-                                    </div>
+                                    remo
                                     <span class="text-slate-900 dark:text-white">{{ $grn->vendor->name ?? 'N/A' }}</span>
                                 </div>
                             </td>

@@ -83,9 +83,9 @@
 @layer components {
     /* Modern Button Styles */
     .btn-primary {
-        @apply relative inline-flex items-center justify-center px-6 py-2.5
+        @apply relative inline-flex items-center justify-center px-4 py-2
                bg-primary-500/90 backdrop-blur-sm
-               text-white font-medium rounded-xl
+               text-white font-medium rounded-xl text-sm
                shadow-sm shadow-primary-500/10
                transition-all duration-200 ease-out
                hover:bg-primary-600/90 hover:shadow-md hover:shadow-primary-500/15
@@ -94,9 +94,9 @@
     }
 
     .btn-secondary {
-        @apply inline-flex items-center justify-center px-6 py-2.5
+        @apply inline-flex items-center justify-center px-4 py-2
                bg-secondary-500/90 backdrop-blur-sm
-               text-white font-medium rounded-xl
+               text-white font-medium rounded-xl text-sm
                shadow-sm shadow-secondary-500/10
                transition-all duration-200 ease-out
                hover:bg-secondary-600/90 hover:shadow-md hover:shadow-secondary-500/15
@@ -105,9 +105,9 @@
     }
 
     .btn-outline-secondary {
-        @apply inline-flex items-center justify-center px-6 py-2.5
+        @apply inline-flex items-center justify-center px-4 py-2
                bg-white dark:bg-slate-800
-               text-secondary-700 dark:text-secondary-300 font-medium
+               text-secondary-700 dark:text-secondary-300 font-medium text-sm
                border border-secondary-200 dark:border-secondary-700 rounded-xl
                transition-all duration-200 ease-out
                hover:bg-secondary-50 dark:hover:bg-secondary-900/20 hover:border-secondary-300
@@ -117,9 +117,9 @@
     }
 
     .btn-highlight {
-        @apply inline-flex items-center justify-center px-6 py-2.5
+        @apply inline-flex items-center justify-center px-4 py-2
                bg-highlight-400/20 backdrop-blur-sm
-               text-highlight-700 dark:text-highlight-400 font-medium rounded-xl
+               text-highlight-700 dark:text-highlight-400 font-medium rounded-xl text-sm
                border border-highlight-400/30
                shadow-sm
                transition-all duration-200 ease-out
@@ -129,8 +129,8 @@
     }
 
     .btn-ghost {
-        @apply inline-flex items-center justify-center px-6 py-2.5
-               text-slate-600 dark:text-slate-400 font-medium rounded-xl
+        @apply inline-flex items-center justify-center px-4 py-2
+               text-slate-600 dark:text-slate-400 font-medium rounded-xl text-sm
                transition-all duration-200 ease-out
                hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900
                active:scale-[0.98]
@@ -138,9 +138,9 @@
     }
 
     .btn-danger {
-        @apply inline-flex items-center justify-center px-6 py-2.5
+        @apply inline-flex items-center justify-center px-4 py-2
                bg-rose-500/90 backdrop-blur-sm
-               text-white font-medium rounded-xl
+               text-white font-medium rounded-xl text-sm
                shadow-sm shadow-rose-500/10
                transition-all duration-200 ease-out
                hover:bg-rose-600/90 hover:shadow-md hover:shadow-rose-500/15
@@ -149,7 +149,7 @@
     }
 
     .btn-icon {
-        @apply inline-flex items-center justify-center w-10 h-10
+        @apply inline-flex items-center justify-center w-8 h-8
                rounded-lg transition-all duration-200 ease-out
                hover:bg-slate-100 dark:hover:bg-slate-800
                active:scale-[0.92]

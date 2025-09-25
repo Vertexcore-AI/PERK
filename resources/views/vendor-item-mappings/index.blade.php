@@ -70,15 +70,19 @@
 
     <!-- Statistics Cards -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-        <div class="card p-6">
-            <div class="flex items-center justify-between mb-4">
-                <div class="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-xl flex items-center justify-center">
+        <div class="card p-4 bg-gradient-to-br from-orange-500/5 via-amber-500/5 to-orange-500/5 border border-orange-400/20 backdrop-blur-md shadow-xl shadow-orange-500/10 transition-all duration-300 hover:shadow-2xl hover:shadow-orange-500/15">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-xl flex items-center justify-center flex-shrink-0">
                     <i data-lucide="link" class="w-6 h-6 text-indigo-600 dark:text-indigo-400"></i>
                 </div>
-                <span class="badge badge-info">Total</span>
+                <div class="flex-1">
+                    <div class="flex items-center justify-between">
+                        <h4 class="text-2xl font-bold text-slate-900 dark:text-white">{{ $totalMappings ?? 0 }}</h4>
+                        <span class="badge badge-info">Total</span>
+                    </div>
+                    <p class="text-sm text-slate-600 dark:text-slate-400">Total Mappings</p>
+                </div>
             </div>
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white">{{ $totalMappings ?? 0 }}</h4>
-            <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Total Mappings</p>
         </div>
 
         <!-- <div class="card p-6">
@@ -92,15 +96,19 @@
             <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Preferred Vendors</p>
         </div> -->
 
-        <div class="card p-6">
-            <div class="flex items-center justify-between mb-4">
-                <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center">
+        <div class="card p-4 bg-gradient-to-br from-orange-500/5 via-amber-500/5 to-orange-500/5 border border-orange-400/20 backdrop-blur-md shadow-xl shadow-orange-500/10 transition-all duration-300 hover:shadow-2xl hover:shadow-orange-500/15">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center flex-shrink-0">
                     <i data-lucide="package" class="w-6 h-6 text-purple-600 dark:text-purple-400"></i>
                 </div>
-                <span class="badge badge-primary">Items</span>
+                <div class="flex-1">
+                    <div class="flex items-center justify-between">
+                        <h4 class="text-2xl font-bold text-slate-900 dark:text-white">{{ $uniqueItems ?? 0 }}</h4>
+                        <span class="badge badge-primary">Items</span>
+                    </div>
+                    <p class="text-sm text-slate-600 dark:text-slate-400">Mapped Items</p>
+                </div>
             </div>
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white">{{ $uniqueItems ?? 0 }}</h4>
-            <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Mapped Items</p>
         </div>
 
         <!-- <div class="card p-6">
@@ -170,7 +178,7 @@
                         <th scope="col">Vendor</th>
                         <th scope="col">Internal Item</th>
                         <th scope="col">Category</th>
-                        <th scope="col">Vendor Cost</th>
+
                         <th scope="col">Status</th>
                         <th scope="col">Created</th>
                         <th scope="col" class="text-right">Actions</th>
@@ -189,9 +197,7 @@
                             </td>
                             <td>
                                 <div class="flex items-center gap-2">
-                                    <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
-                                        <i data-lucide="truck" class="w-4 h-4 text-white"></i>
-                                    </div>
+                                    
                                     <span class="text-slate-900 dark:text-white">{{ $mapping->vendor->name ?? 'N/A' }}</span>
                                 </div>
                             </td>
@@ -206,13 +212,7 @@
                                     {{ $mapping->item->category->name ?? 'Uncategorized' }}
                                 </span>
                             </td>
-                            <td>
-                                @if($mapping->vendor_cost)
-                                    <span class="font-medium text-slate-900 dark:text-white">${{ number_format($mapping->vendor_cost, 2) }}</span>
-                                @else
-                                    <span class="text-slate-400">-</span>
-                                @endif
-                            </td>
+                           
                             <td>
                                 @if($mapping->is_preferred)
                                     <span class="badge badge-success">

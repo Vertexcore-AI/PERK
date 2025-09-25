@@ -72,6 +72,27 @@
                     </div>
                     @endif
 
+                    @if($customer->vat_number)
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 dark:text-slate-400">VAT Number</label>
+                        <p class="mt-1 text-slate-900 dark:text-white">{{ $customer->vat_number }}</p>
+                    </div>
+                    @endif
+
+                    @if($customer->vehicle_type)
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 dark:text-slate-400">Vehicle Type</label>
+                        <p class="mt-1 text-slate-900 dark:text-white">{{ $customer->vehicle_type }}</p>
+                    </div>
+                    @endif
+
+                    @if($customer->vehicle_model)
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 dark:text-slate-400">Vehicle Model</label>
+                        <p class="mt-1 text-slate-900 dark:text-white">{{ $customer->vehicle_model }}</p>
+                    </div>
+                    @endif
+
                     @if($customer->address)
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-slate-600 dark:text-slate-400">Address</label>

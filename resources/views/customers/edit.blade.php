@@ -49,7 +49,7 @@
         </div>
     @endif
 
-    <div class="card">
+    <div class="card bg-gradient-to-br from-pink-500/5 via-purple-500/5 to-pink-500/5 border border-pink-400/20 backdrop-blur-md shadow-xl shadow-pink-500/10 transition-all duration-300 hover:shadow-2xl hover:shadow-pink-500/15">
         <div class="p-6 border-b border-slate-200 dark:border-slate-700">
             <div class="flex items-center">
                 <div class="w-12 h-12 rounded-xl flex items-center justify-center mr-4
@@ -197,6 +197,48 @@
                     @error('vat_number')
                         <p class="mt-1 text-sm text-rose-600 dark:text-rose-400">{{ $message }}</p>
                     @enderror
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="vehicle_type" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                            Vehicle Type
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i data-lucide="truck" class="w-5 h-5 text-slate-400"></i>
+                            </div>
+                            <input type="text"
+                                name="vehicle_type"
+                                id="vehicle_type"
+                                value="{{ old('vehicle_type', $customer->vehicle_type) }}"
+                                class="pl-10 w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent @error('vehicle_type') border-rose-500 @enderror"
+                                placeholder="e.g. Car, SUV, Truck">
+                        </div>
+                        @error('vehicle_type')
+                            <p class="mt-1 text-sm text-rose-600 dark:text-rose-400">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="vehicle_model" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                            Vehicle Model
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i data-lucide="car" class="w-5 h-5 text-slate-400"></i>
+                            </div>
+                            <input type="text"
+                                name="vehicle_model"
+                                id="vehicle_model"
+                                value="{{ old('vehicle_model', $customer->vehicle_model) }}"
+                                class="pl-10 w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent @error('vehicle_model') border-rose-500 @enderror"
+                                placeholder="e.g. Toyota Camry, Honda Civic">
+                        </div>
+                        @error('vehicle_model')
+                            <p class="mt-1 text-sm text-rose-600 dark:text-rose-400">{{ $message }}</p>
+                        @enderror
+                    </div>
                 </div>
 
                 <div>

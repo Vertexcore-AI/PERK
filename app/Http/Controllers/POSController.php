@@ -179,14 +179,18 @@ class POSController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'contact' => 'nullable|string|max:20',
-            'type' => 'nullable|in:Retail,Insurance,Wholesale,Corporate'
+            'type' => 'nullable|in:Retail,Insurance,Wholesale,Corporate',
+            'vehicle_type' => 'nullable|string|max:100',
+            'vehicle_model' => 'nullable|string|max:100'
         ]);
 
         try {
             $customer = $this->customerService->createCustomer([
                 'name' => $validated['name'],
                 'contact' => $validated['contact'] ?? null,
-                'type' => $validated['type'] ?? 'Retail'
+                'type' => $validated['type'] ?? 'Retail',
+                'vehicle_type' => $validated['vehicle_type'] ?? null,
+                'vehicle_model' => $validated['vehicle_model'] ?? null
             ]);
 
             return response()->json([

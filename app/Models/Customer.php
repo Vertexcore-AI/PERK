@@ -20,6 +20,8 @@ class Customer extends Model
         'postal_code',
         'type',
         'vat_number',
+        'vehicle_type',
+        'vehicle_model',
         'is_active'
     ];
 

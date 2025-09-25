@@ -53,6 +53,7 @@ Route::post('grns/upload-excel', [GRNController::class, 'uploadExcel'])->name('g
 Route::post('grns/resolve-mapping', [GRNController::class, 'resolveMapping'])->name('grns.resolve-mapping');
 Route::post('grns/process-import', [GRNController::class, 'processImport'])->name('grns.process-import');
 Route::get('grns/download-template', [GRNController::class, 'downloadTemplate'])->name('grns.download-template');
+Route::get('grns/download-default-format', [GRNController::class, 'downloadDefaultFormat'])->name('grns.download-default-format');
 
 // Batch Management routes
 Route::resource('batches', \App\Http\Controllers\BatchController::class)->only(['index', 'show', 'edit', 'update']);

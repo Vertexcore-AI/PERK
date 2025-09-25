@@ -25,7 +25,7 @@
                     Low Stock
                 </a>
                 <a href="{{ route('inventory.transfer.show') }}"
-                   class="btn-primary">
+                   class="btn-primary gap-2">
                     <i data-lucide="arrow-right-left" class="w-4 h-4"></i>
                     Transfer Stock
                 </a>
@@ -34,7 +34,7 @@
 
         <!-- Statistics Cards -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-            <div class="bg-white dark:bg-slate-800 rounded-lg p-6 border border-slate-200 dark:border-slate-700">
+            <div class="card p-6 bg-gradient-to-br from-blue-500/5 via-cyan-500/5 to-blue-500/5 border border-blue-400/20 backdrop-blur-md shadow-xl shadow-blue-500/10 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/15">
                 <div class="flex items-center">
                     <div class="p-2 bg-secondary-100 dark:bg-secondary-900/30 rounded-lg">
                         <i data-lucide="package" class="w-6 h-6 text-secondary-600 dark:text-secondary-400"></i>
@@ -46,7 +46,7 @@
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-slate-800 rounded-lg p-6 border border-slate-200 dark:border-slate-700">
+            <div class="card p-6 bg-gradient-to-br from-blue-500/5 via-cyan-500/5 to-blue-500/5 border border-blue-400/20 backdrop-blur-md shadow-xl shadow-blue-500/10 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/15">
                 <div class="flex items-center">
                     <div class="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
                         <i data-lucide="boxes" class="w-6 h-6 text-green-600 dark:text-green-400"></i>
@@ -58,7 +58,7 @@
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-slate-800 rounded-lg p-6 border border-slate-200 dark:border-slate-700">
+            <div class="card p-6 bg-gradient-to-br from-blue-500/5 via-cyan-500/5 to-blue-500/5 border border-blue-400/20 backdrop-blur-md shadow-xl shadow-blue-500/10 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/15">
                 <div class="flex items-center">
                     <div class="p-2 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
                         <i data-lucide="alert-triangle" class="w-6 h-6 text-yellow-600 dark:text-yellow-400"></i>
@@ -70,7 +70,7 @@
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-slate-800 rounded-lg p-6 border border-slate-200 dark:border-slate-700">
+            <div class="card p-6 bg-gradient-to-br from-blue-500/5 via-cyan-500/5 to-blue-500/5 border border-blue-400/20 backdrop-blur-md shadow-xl shadow-blue-500/10 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/15">
                 <div class="flex items-center">
                     <div class="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
                         <i data-lucide="dollar-sign" class="w-6 h-6 text-purple-600 dark:text-purple-400"></i>
@@ -130,7 +130,7 @@
                         </select>
                     </div>
 
-                    <div class="flex items-end gap-2">
+                    <div class="flex items-end gap-2 mb-4">
                         <button type="submit" class="btn-primary">
                             <i data-lucide="search" class="w-4 h-4"></i>
                             Search
