@@ -23,5 +23,19 @@ Homestead.yaml
 Thumbs.db
 .claude
 /dist
-/storage/*
+# Storage folder (except .gitignore files)
+/storage/app/private/*
+/storage/app/public/*
+!/storage/app/public/.gitignore
+!/storage/app/private/.gitignore
+/storage/framework/cache/data/*
+/storage/framework/sessions/*
+/storage/framework/testing/*
+/storage/framework/views/*
+/storage/logs/*
+!/storage/**/.gitignore
+
+# Database files
 /database/database.sqlite
+*.sqlite
+*.db
