@@ -11,7 +11,7 @@
                     <i data-lucide="dollar-sign" class="w-6 h-6 text-white"></i>
                 </div>
                 <div class="text-center">
-                    <div class="text-2xl font-bold text-slate-900 dark:text-white" id="daily-sales-amount">$0.00</div>
+                    <div class="text-2xl font-bold text-slate-900 dark:text-white" id="daily-sales-amount">LKR 0.00</div>
                     <h3 class="text-sm font-semibold text-slate-600 dark:text-slate-400">Total Daily Sales</h3>
                 </div>
             </div>
@@ -33,7 +33,7 @@
                     <i data-lucide="package" class="w-6 h-6 text-white"></i>
                 </div>
                 <div class="text-center">
-                    <div class="text-2xl font-bold text-slate-900 dark:text-white" id="inventory-value">$0.00</div>
+                    <div class="text-2xl font-bold text-slate-900 dark:text-white" id="inventory-value">LKR 0.00</div>
                     <h3 class="text-sm font-semibold text-slate-600 dark:text-slate-400">Inventory Value</h3>
                 </div>
             </div>
@@ -77,7 +77,7 @@
                     <i data-lucide="trending-up" class="w-6 h-6 text-white"></i>
                 </div>
                 <div class="text-center">
-                    <div class="text-2xl font-bold text-slate-900 dark:text-white" id="daily-profit-amount">$0.00</div>
+                    <div class="text-2xl font-bold text-slate-900 dark:text-white" id="daily-profit-amount">LKR 0.00</div>
                     <h3 class="text-sm font-semibold text-slate-600 dark:text-slate-400">Daily Profit</h3>
                 </div>
             </div>
@@ -108,7 +108,7 @@
             <div class="bg-gradient-to-br from-emerald-600/90 via-emerald-500/90 to-emerald-600/90 backdrop-blur-sm text-white p-4 border-b border-emerald-400/30">
                 <div class="flex justify-between items-start mb-3">
                     <div>
-                        <h4 class="text-2xl font-bold text-white" id="sidebar-daily-sales-total">$0.00</h4>
+                        <h4 class="text-2xl font-bold text-white" id="sidebar-daily-sales-total">LKR 0.00</h4>
                         <p class="text-emerald-100 text-sm">Today's Sales</p>
                     </div>
                     <div class="flex items-center gap-1 text-xs font-medium bg-white/20 backdrop-blur-sm px-2 py-1 rounded-full border border-white/30">
@@ -169,7 +169,7 @@
                 const dailySales = data.daily_sales;
                 const dailySalesAmount = document.getElementById('daily-sales-amount');
                 if (dailySalesAmount) {
-                    dailySalesAmount.textContent = '$' + dailySales.amount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                    dailySalesAmount.textContent = 'LKR ' + dailySales.amount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
                 }
 
                 const salesChange = document.getElementById('daily-sales-change');
@@ -205,7 +205,7 @@
                 const inventory = data.inventory_value;
                 const inventoryValue = document.getElementById('inventory-value');
                 if (inventoryValue) {
-                    inventoryValue.textContent = '$' + inventory.total_value.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                    inventoryValue.textContent = 'LKR ' + inventory.total_value.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
                 }
 
                 const inventoryItemsCount = document.getElementById('inventory-items-count');
@@ -249,7 +249,7 @@
                 const profit = data.daily_profit;
                 const dailyProfitAmount = document.getElementById('daily-profit-amount');
                 if (dailyProfitAmount) {
-                    dailyProfitAmount.textContent = '$' + profit.amount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                    dailyProfitAmount.textContent = 'LKR ' + profit.amount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
                 }
 
                 const profitMarginDisplay = document.getElementById('profit-margin-display');
@@ -282,7 +282,7 @@
                 // Update Sidebar Daily Sales
                 const sidebarDailySalesTotal = document.getElementById('sidebar-daily-sales-total');
                 if (sidebarDailySalesTotal) {
-                    sidebarDailySalesTotal.textContent = '$' + dailySales.amount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                    sidebarDailySalesTotal.textContent = 'LKR ' + dailySales.amount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
                 }
 
                 const sidebarLastUpdated = document.getElementById('sidebar-last-updated');
@@ -313,7 +313,7 @@
                                         </div>
                                     </div>
                                     <div class="text-right">
-                                        <div class="font-bold text-slate-900 dark:text-white">$${sale.total_amount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                                        <div class="font-bold text-slate-900 dark:text-white">LKR ${sale.total_amount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
                                         <div class="text-xs text-slate-500">#${sale.sale_id}</div>
                                     </div>
                                 </div>`;

@@ -77,7 +77,7 @@
                     </div>
                     <div class="ml-4">
                         <p class="text-sm font-medium text-slate-600 dark:text-slate-400">Total Value</p>
-                        <p class="text-2xl font-bold text-slate-900 dark:text-white">${{ number_format($totalValue, 2) }}</p>
+                        <p class="text-2xl font-bold text-slate-900 dark:text-white">LKR {{ number_format($totalValue, 2) }}</p>
                     </div>
                 </div>
             </div>
@@ -124,7 +124,7 @@
                             <option value="">All Bins</option>
                             @foreach($bins as $bin)
                                 <option value="{{ $bin->id }}" {{ request('bin_id') == $bin->id ? 'selected' : '' }}>
-                                    {{ $bin->store->store_name }} - {{ $bin->bin_name }}
+                                    {{ $bin->store->store_name }} - {{ $bin->name }}
                                 </option>
                             @endforeach
                         </select>
@@ -201,7 +201,7 @@
                                         </td>
                                         <td class="py-4 px-4">
                                             <p class="text-slate-700 dark:text-slate-300">
-                                                {{ $stock->bin ? $stock->bin->bin_name : 'No Bin' }}
+                                                {{ $stock->bin ? $stock->bin->name : 'No Bin' }}
                                             </p>
                                         </td>
                                         <td class="py-4 px-4">
@@ -224,10 +224,10 @@
                                             </span>
                                         </td>
                                         <td class="py-4 px-4 text-right font-medium text-slate-900 dark:text-white">
-                                            ${{ number_format($stock->batch->unit_cost ?? 0, 2) }}
+                                            LKR {{ number_format($stock->batch->unit_cost ?? 0, 2) }}
                                         </td>
                                         <td class="py-4 px-4 text-right font-bold text-slate-900 dark:text-white">
-                                            ${{ number_format($stockValue, 2) }}
+                                            LKR {{ number_format($stockValue, 2) }}
                                         </td>
                                  
                                         <!-- <td class="py-4 px-4">

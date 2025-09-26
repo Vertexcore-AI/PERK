@@ -140,7 +140,7 @@
                                 </label>
                                 <div class="relative">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <span class="text-slate-400">$</span>
+                                        <span class="text-slate-400">LKR</span>
                                     </div>
                                     <input type="number"
                                         name="vendor_cost"
@@ -237,7 +237,7 @@
                     @if($mapping->vendor_cost)
                     <div>
                         <p class="text-sm text-slate-600 dark:text-slate-400">Reference Cost</p>
-                        <p class="font-medium text-slate-900 dark:text-white">${{ number_format($mapping->vendor_cost, 2) }}</p>
+                        <p class="font-medium text-slate-900 dark:text-white">LKR {{ number_format($mapping->vendor_cost, 2) }}</p>
                     </div>
                     @endif
                     <div>
@@ -311,7 +311,7 @@
             .then(data => {
                 if (data.success) {
                     document.getElementById('vendor_cost').value = data.updated_cost;
-                    alert('Reference cost updated to $' + data.updated_cost);
+                    alert('Reference cost updated to LKR ' + data.updated_cost);
                 } else {
                     alert('Error: ' + data.message);
                 }

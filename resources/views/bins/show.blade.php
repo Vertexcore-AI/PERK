@@ -130,7 +130,7 @@
                             <i data-lucide="package" class="w-4 h-4 text-slate-600 dark:text-slate-400"></i>
                             <span class="text-xs font-medium text-slate-700 dark:text-slate-300 uppercase tracking-wide">Items</span>
                         </div>
-                        <p class="text-2xl font-bold text-slate-900 dark:text-slate-100">0</p>
+                        <p class="text-2xl font-bold text-slate-900 dark:text-slate-100">{{ $totalItems ?? 0 }}</p>
                         <p class="text-xs text-slate-500 dark:text-slate-400">Total items stored</p>
                     </div>
 
@@ -139,7 +139,7 @@
                             <i data-lucide="dollar-sign" class="w-4 h-4 text-slate-600 dark:text-slate-400"></i>
                             <span class="text-xs font-medium text-slate-700 dark:text-slate-300 uppercase tracking-wide">Value</span>
                         </div>
-                        <p class="text-2xl font-bold text-slate-900 dark:text-slate-100">$0</p>
+                        <p class="text-2xl font-bold text-slate-900 dark:text-slate-100">LKR {{ number_format($totalValue ?? 0, 2) }}</p>
                         <p class="text-xs text-slate-500 dark:text-slate-400">Total inventory value</p>
                     </div>
                 </div>

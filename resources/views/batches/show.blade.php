@@ -58,14 +58,14 @@
                         <div>
                             <label class="text-sm font-medium text-slate-700 dark:text-slate-300">Unit Cost</label>
                             <p class="text-slate-900 dark:text-white font-bold text-lg mt-1">
-                                ${{ number_format($batch->unit_cost, 2) }}
+                                LKR {{ number_format($batch->unit_cost, 2) }}
                             </p>
                         </div>
                         <div>
                             <label class="text-sm font-medium text-slate-700 dark:text-slate-300">Selling Price</label>
                             @if($batch->selling_price > 0)
                                 <p class="text-green-600 dark:text-green-400 font-bold text-lg mt-1">
-                                    ${{ number_format($batch->selling_price, 2) }}
+                                    LKR {{ number_format($batch->selling_price, 2) }}
                                 </p>
                                 @php
                                     $margin = (($batch->selling_price - $batch->unit_cost) / $batch->unit_cost) * 100;
@@ -134,14 +134,14 @@
                         <div class="pt-4 border-t border-slate-200 dark:border-slate-700">
                             <label class="text-sm font-medium text-slate-700 dark:text-slate-300">Stock Value (Cost)</label>
                             <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                                ${{ number_format($stockValue, 2) }}
+                                LKR {{ number_format($stockValue, 2) }}
                             </p>
                         </div>
                         @if($batch->selling_price > 0)
                             <div>
                                 <label class="text-sm font-medium text-slate-700 dark:text-slate-300">Potential Selling Value</label>
                                 <p class="text-2xl font-bold text-green-600 dark:text-green-400">
-                                    ${{ number_format($currentStock * $batch->selling_price, 2) }}
+                                    LKR {{ number_format($currentStock * $batch->selling_price, 2) }}
                                 </p>
                             </div>
                         @endif
@@ -175,7 +175,7 @@
                                             {{ $stock->store->store_name }}
                                         </td>
                                         <td class="py-3 px-4 text-slate-700 dark:text-slate-300">
-                                            {{ $stock->bin ? $stock->bin->bin_name : 'No Bin' }}
+                                            {{ $stock->bin ? $stock->bin->name : 'No Bin' }}
                                         </td>
                                         <td class="py-3 px-4 text-center">
                                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400">
@@ -183,7 +183,7 @@
                                             </span>
                                         </td>
                                         <td class="py-3 px-4 text-right font-medium text-slate-900 dark:text-white">
-                                            ${{ number_format($stock->quantity * $batch->unit_cost, 2) }}
+                                            LKR {{ number_format($stock->quantity * $batch->unit_cost, 2) }}
                                         </td>
                                         <td class="py-3 px-4 text-center text-sm text-slate-600 dark:text-slate-400">
                                             {{ \Carbon\Carbon::parse($stock->last_updated)->format('d/m/Y H:i') }}
@@ -221,12 +221,12 @@
                                 </div>
                                 <div>
                                     <label class="text-sm font-medium text-slate-700 dark:text-slate-300">Unit Cost</label>
-                                    <p class="text-slate-900 dark:text-white font-medium">${{ number_format($grnItem->unit_cost, 2) }}</p>
+                                    <p class="text-slate-900 dark:text-white font-medium">LKR {{ number_format($grnItem->unit_cost, 2) }}</p>
                                 </div>
                                 @if($grnItem->selling_price > 0)
                                     <div class="md:col-span-2">
                                         <label class="text-sm font-medium text-slate-700 dark:text-slate-300">Selling Price</label>
-                                        <p class="text-green-600 dark:text-green-400 font-medium">${{ number_format($grnItem->selling_price, 2) }}</p>
+                                        <p class="text-green-600 dark:text-green-400 font-medium">LKR {{ number_format($grnItem->selling_price, 2) }}</p>
                                     </div>
                                 @endif
                             </div>

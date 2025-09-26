@@ -104,7 +104,7 @@
                         @if($mapping->vendor_cost)
                         <div>
                             <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Reference Cost</label>
-                            <p class="text-lg font-semibold text-slate-900 dark:text-white">${{ number_format($mapping->vendor_cost, 2) }}</p>
+                            <p class="text-lg font-semibold text-slate-900 dark:text-white">LKR {{ number_format($mapping->vendor_cost, 2) }}</p>
                             <p class="text-xs text-slate-500 dark:text-slate-400">Catalog/Reference price</p>
                         </div>
                         @endif
@@ -158,7 +158,7 @@
                                 </td>
                                 <td>
                                     @if($otherMapping->vendor_cost)
-                                        <span class="font-medium text-slate-900 dark:text-white">${{ number_format($otherMapping->vendor_cost, 2) }}</span>
+                                        <span class="font-medium text-slate-900 dark:text-white">LKR {{ number_format($otherMapping->vendor_cost, 2) }}</span>
                                     @else
                                         <span class="text-slate-400">-</span>
                                     @endif
@@ -238,8 +238,8 @@
                                 $minCost = $costs->min();
                                 $maxCost = $costs->max();
                             @endphp
-                            <p class="font-medium text-slate-900 dark:text-white">${{ number_format($minCost, 2) }} - ${{ number_format($maxCost, 2) }}</p>
-                            <p class="text-xs text-slate-500 dark:text-slate-400">Savings: ${{ number_format($maxCost - $minCost, 2) }}</p>
+                            <p class="font-medium text-slate-900 dark:text-white">LKR {{ number_format($minCost, 2) }} - LKR {{ number_format($maxCost, 2) }}</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Savings: LKR {{ number_format($maxCost - $minCost, 2) }}</p>
                         </div>
                     </div>
                     @endif

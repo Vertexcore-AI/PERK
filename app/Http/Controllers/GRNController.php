@@ -9,6 +9,7 @@ use App\Models\Store;
 use App\Models\Bin;
 use App\Services\GRNService;
 use App\Imports\GRNExcelImport;
+use App\Imports\GRNExcelRawImport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
@@ -69,6 +70,7 @@ class GRNController extends Controller
             'items.*.discount' => 'nullable|numeric|min:0|max:100',
             'items.*.vat' => 'nullable|numeric|min:0|max:100',
             'items.*.store_id' => 'required|exists:stores,id',
+            'items.*.bin_code' => 'nullable|string|max:50',
             'items.*.bin_id' => 'nullable|exists:bins,id',
             'items.*.notes' => 'nullable|string',
         ]);
@@ -202,39 +204,245 @@ class GRNController extends Controller
 
         try {
             $file = $request->file('excel_file');
-            \Log::info('File received', ['size' => $file->getSize(), 'mime' => $file->getMimeType()]);
 
+            // Inspect file content for debugging
+            $fileInspection = GRNExcelImport::inspectFileContent($file);
+            \Log::info('File inspection results', $fileInspection);
+
+            \Log::info('File received', [
+                'size' => $file->getSize(),
+                'mime' => $file->getMimeType(),
+                'original_name' => $file->getClientOriginalName(),
+                'extension' => $file->getClientOriginalExtension()
+            ]);
+
+            // First try with raw import to get all data
+            $rawImport = new GRNExcelRawImport();
+            \Log::info('Starting RAW Excel parsing (without heading row)');
+            $rawCollection = Excel::toCollection($rawImport, $file);
+
+            \Log::info('Raw collection parsed', [
+                'sheets_count' => $rawCollection->count(),
+                'sheet_details' => $rawCollection->map(function($sheet, $index) {
+                    return [
+                        'sheet_' . $index => [
+                            'total_rows' => $sheet->count(),
+                            'first_3_rows' => $sheet->take(3)->map(function($row) {
+                                return $row->toArray();
+                            })->toArray()
+                        ]
+                    ];
+                })->toArray()
+            ]);
+
+            // Now try with heading row import
             $import = new GRNExcelImport();
+            \Log::info('Starting Excel parsing with WithHeadingRow');
+            $fullCollection = Excel::toCollection($import, $file);
+            \Log::info('Full collection parsed with heading row', [
+                'sheets_count' => $fullCollection->count(),
+                'first_sheet_rows' => $fullCollection->first() ? $fullCollection->first()->count() : 0
+            ]);
 
-            // Parse the Excel file
-            \Log::info('Starting Excel parsing');
-            $collection = Excel::toCollection($import, $file)->first();
-            \Log::info('Excel parsed', ['rows' => $collection->count()]);
+            // Try to find a sheet with valid GRN data
+            $collection = null;
+            $sheetIndex = 0;
+            $sheetsInfo = [];
+            $requiredHeaders = ['item_code', 'description', 'location', 'quantity', 'unit_cost'];
 
-            // Validate that the file has the required columns
-            if ($collection->isEmpty()) {
-                \Log::warning('Collection is empty');
+            foreach ($fullCollection as $index => $sheet) {
+                $nonEmptyRows = $sheet->filter(function($row) {
+                    return $row->filter()->isNotEmpty();
+                })->count();
+
+                $firstRow = $sheet->first();
+                $headers = $firstRow ? array_keys($firstRow->toArray()) : [];
+
+                // Normalize headers for this sheet
+                $normalizedHeaders = array_map(function($header) {
+                    return (new GRNExcelImport())->normalizeColumnName($header);
+                }, $headers);
+
+                // Check if this sheet has the required columns
+                $hasRequiredColumns = true;
+                $missingColumns = [];
+                foreach ($requiredHeaders as $required) {
+                    if (!in_array($required, $normalizedHeaders)) {
+                        $hasRequiredColumns = false;
+                        $missingColumns[] = $required;
+                    }
+                }
+
+                $sheetsInfo[] = [
+                    'sheet_index' => $index,
+                    'total_rows' => $sheet->count(),
+                    'non_empty_rows' => $nonEmptyRows,
+                    'first_row' => $sheet->first() ? $sheet->first()->toArray() : null,
+                    'headers' => $headers,
+                    'normalized_headers' => $normalizedHeaders,
+                    'has_required_columns' => $hasRequiredColumns,
+                    'missing_columns' => $missingColumns
+                ];
+
+                // Use the first sheet that has valid GRN columns
+                if ($collection === null && $hasRequiredColumns && $nonEmptyRows > 0) {
+                    $collection = $sheet;
+                    $sheetIndex = $index;
+                    \Log::info('Found valid sheet with GRN data', [
+                        'sheet_index' => $index,
+                        'headers' => $headers,
+                        'rows' => $nonEmptyRows
+                    ]);
+                }
+            }
+
+            \Log::info('Sheets analysis', [
+                'sheets_info' => $sheetsInfo,
+                'selected_sheet_index' => $sheetIndex
+            ]);
+
+            // If no sheet has data with heading row, try raw data
+            if ($collection === null || $collection->isEmpty()) {
+                \Log::warning('No data found with WithHeadingRow, trying raw data');
+
+                // Try using raw collection instead
+                foreach ($rawCollection as $index => $sheet) {
+                    if ($sheet->count() > 1) { // More than just header row
+                        // Check if first row looks like headers
+                        $headers = $sheet->first()->toArray();
+
+                        // Normalize potential headers
+                        $normalizedHeaders = array_map(function($header) {
+                            return (new GRNExcelImport())->normalizeColumnName((string)$header);
+                        }, $headers);
+
+                        // Check if this sheet has required columns in headers
+                        $hasRequiredColumns = true;
+                        foreach ($requiredHeaders as $required) {
+                            if (!in_array($required, $normalizedHeaders)) {
+                                $hasRequiredColumns = false;
+                                break;
+                            }
+                        }
+
+                        if ($hasRequiredColumns) {
+                            // Convert raw data to headed format
+                            $dataRows = $sheet->slice(1);
+                            $convertedRows = collect();
+
+                            foreach ($dataRows as $row) {
+                                $rowArray = $row->toArray();
+                                $associativeRow = [];
+                                foreach ($headers as $i => $header) {
+                                    if (isset($rowArray[$i])) {
+                                        $associativeRow[$header] = $rowArray[$i];
+                                    }
+                                }
+                                // Only add non-empty rows
+                                if (!empty(array_filter($associativeRow, function($value) {
+                                    return $value !== null && $value !== '';
+                                }))) {
+                                    $convertedRows->push(collect($associativeRow));
+                                }
+                            }
+
+                            if ($convertedRows->count() > 0) {
+                                $collection = $convertedRows;
+                                $sheetIndex = $index;
+                                \Log::info('Using raw data conversion from sheet ' . $index, [
+                                    'rows_converted' => $convertedRows->count(),
+                                    'headers' => $headers,
+                                    'normalized_headers' => $normalizedHeaders
+                                ]);
+                                break;
+                            }
+                        } else {
+                            \Log::debug('Sheet ' . $index . ' does not have required headers in raw format', [
+                                'headers' => $headers,
+                                'normalized_headers' => $normalizedHeaders
+                            ]);
+                        }
+                    }
+                }
+            }
+
+            // If still no data, return error
+            if ($collection === null || $collection->isEmpty()) {
+                \Log::warning('No valid data found in any sheet even with raw parsing', [
+                    'file_size' => $file->getSize(),
+                    'mime_type' => $file->getMimeType(),
+                    'sheets_in_workbook' => $fullCollection->count(),
+                    'all_sheets_info' => $sheetsInfo,
+                    'raw_sheets_count' => $rawCollection->count()
+                ]);
+
+                // Build a more informative error message
+                $sheetDetails = [];
+                foreach ($sheetsInfo as $info) {
+                    $sheetDetails[] = "Sheet {$info['sheet_index']}: " .
+                        ($info['has_required_columns'] ? 'Valid headers found' :
+                        'Missing: ' . implode(', ', $info['missing_columns']));
+                }
+
                 return response()->json([
                     'success' => false,
-                    'message' => 'The uploaded file is empty or has no valid data.'
+                    'message' => 'No valid GRN data found in any sheet. The file should have columns: ITEM_CODE, DESCRIPTION, Location, GRN QTY, Unit Cost Price. Sheet analysis: ' . implode('; ', $sheetDetails),
+                    'debug_info' => [
+                        'file_size' => $file->getSize(),
+                        'sheets_found' => $fullCollection->count(),
+                        'sheets_info' => $sheetsInfo,
+                        'file_name' => $file->getClientOriginalName(),
+                        'raw_data_found' => $rawCollection->first() ? $rawCollection->first()->count() : 0,
+                        'expected_columns' => ['ITEM_CODE', 'DESCRIPTION', 'Location', 'GRN QTY', 'Unit Cost Price']
+                    ]
                 ]);
             }
+
+            \Log::info('Excel parsed successfully', [
+                'selected_sheet' => $sheetIndex,
+                'rows' => $collection->count(),
+                'first_row_sample' => $collection->first() ? $collection->first()->toArray() : null,
+                'total_non_empty_rows' => $collection->filter(function($row) {
+                    return $row->filter()->isNotEmpty();
+                })->count()
+            ]);
 
             // Get headers from first row (assuming first row contains headers)
             $firstRow = $collection->first();
             if (!$firstRow) {
-                \Log::error('First row is null');
+                \Log::error('First row is null', [
+                    'collection_count' => $collection->count(),
+                    'collection_class' => get_class($collection),
+                    'file_info' => [
+                        'name' => $file->getClientOriginalName(),
+                        'size' => $file->getSize(),
+                        'mime' => $file->getMimeType()
+                    ]
+                ]);
                 return response()->json([
                     'success' => false,
-                    'message' => 'Unable to read file headers. Please check the file format.'
+                    'message' => 'Unable to read file headers. Please check the file format.',
+                    'debug_info' => [
+                        'collection_count' => $collection->count(),
+                        'file_name' => $file->getClientOriginalName()
+                    ]
                 ]);
             }
 
             $headers = array_keys($firstRow->toArray());
-            \Log::info('Headers found', ['headers' => $headers]);
+            \Log::info('Headers found', [
+                'headers' => $headers,
+                'header_count' => count($headers),
+                'first_row_data' => $firstRow->toArray()
+            ]);
 
             $validation = GRNExcelImport::validateRequiredColumns($headers);
-            \Log::info('Validation result', $validation);
+            \Log::info('Validation result', array_merge($validation, [
+                'provided_headers' => $headers,
+                'normalized_headers' => array_map(function($header) {
+                    return (new GRNExcelImport())->normalizeColumnName($header);
+                }, $headers)
+            ]));
 
             if (!$validation['valid']) {
                 return response()->json([
@@ -245,9 +453,14 @@ class GRNController extends Controller
 
             // Convert to array and clean data
             $importData = [];
+            $skippedRows = 0;
+            $processedRows = 0;
+
             foreach ($collection as $rowIndex => $row) {
                 // Skip if row is empty
                 if ($row->filter()->isEmpty()) {
+                    $skippedRows++;
+                    \Log::debug('Skipping empty row', ['row_index' => $rowIndex]);
                     continue;
                 }
 
@@ -261,23 +474,34 @@ class GRNController extends Controller
                 \Log::debug('Processing row', [
                     'row_index' => $rowIndex,
                     'original_row' => $row->toArray(),
-                    'normalized_row' => $normalizedRow
+                    'normalized_row' => $normalizedRow,
+                    'has_item_code' => !empty($normalizedRow['item_code']),
+                    'has_description' => !empty($normalizedRow['description'])
                 ]);
 
                 // Check if we have required columns
                 if (!empty($normalizedRow['item_code']) && !empty($normalizedRow['description'])) {
+                    $processedRows++;
                     // Calculate default selling price if not provided
-                    $unitCost = (float) ($normalizedRow['unit_cost'] ?? 0);
-                    $sellingPrice = (float) ($normalizedRow['selling_price'] ?? 0);
+                    // Clean numeric values (remove commas from Excel formatting)
+                    $unitCost = $this->cleanNumericValue($normalizedRow['unit_cost'] ?? 0);
+                    $sellingPrice = $this->cleanNumericValue($normalizedRow['selling_price'] ?? 0);
 
-                    // If no selling price provided, calculate using the correct formula
+                    // Standard business logic: selling price should be higher than unit cost
+                    // If no selling price provided, set it to unit cost + 30% markup
                     if ($sellingPrice == 0 && $unitCost > 0) {
-                        $vat = (float) ($normalizedRow['vat'] ?? 0);
-                        $discount = (float) ($normalizedRow['discount'] ?? 0);
-                        $vatAmount = $unitCost * ($vat / 100);
-                        $discountAmount = $unitCost * ($discount / 100);
-                        $sellingPrice = $unitCost + $vatAmount - $discountAmount;
+                        $sellingPrice = $unitCost * 1.3; // 30% markup
                     }
+
+                    // Debug: Log the raw values to see what's being parsed
+                    \Log::debug('Processing Excel row data', [
+                        'row_index' => $rowIndex,
+                        'raw_unit_cost' => $normalizedRow['unit_cost'] ?? 'missing',
+                        'raw_selling_price' => $normalizedRow['selling_price'] ?? 'missing',
+                        'parsed_unit_cost' => $unitCost,
+                        'parsed_selling_price' => $sellingPrice,
+                        'all_normalized_keys' => array_keys($normalizedRow)
+                    ]);
 
                     $importData[] = [
                         'item_code' => trim($normalizedRow['item_code']),
@@ -287,14 +511,28 @@ class GRNController extends Controller
                         'selling_price' => round($sellingPrice, 2),
                         'vat' => (float) ($normalizedRow['vat'] ?? 0),
                         'discount' => (float) ($normalizedRow['discount'] ?? 0),
+                        'bin_code' => trim($normalizedRow['location'] ?? $normalizedRow['bin_code'] ?? ''),
                     ];
                 }
             }
 
+            \Log::info('Data processing completed', [
+                'total_rows_in_collection' => $collection->count(),
+                'skipped_empty_rows' => $skippedRows,
+                'processed_rows' => $processedRows,
+                'valid_import_data_count' => count($importData)
+            ]);
+
             if (empty($importData)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'No valid data found in the Excel file.'
+                    'message' => 'No valid data found in the Excel file. Please ensure your file has rows with both Item Code and Description columns filled.',
+                    'debug_info' => [
+                        'total_rows' => $collection->count(),
+                        'skipped_empty_rows' => $skippedRows,
+                        'processed_rows' => $processedRows,
+                        'headers_found' => $headers
+                    ]
                 ]);
             }
 
@@ -559,11 +797,12 @@ class GRNController extends Controller
                 $grnData['items'][] = [
                     'vendor_item_code' => $item['item_code'],
                     'quantity' => $item['quantity'] ?? 1,
-                    'unit_cost' => $item['unit_cost'],
-                    'selling_price' => $item['selling_price'] ?? ($item['unit_cost'] + ($item['unit_cost'] * 0.3)), // Use imported selling price or default calculation
+                    'unit_cost' => $item['unit_cost'], // Purchase cost from vendor
+                    'selling_price' => $item['selling_price'] ?? ($item['unit_cost'] * 1.3), // Retail price (default 30% markup)
                     'discount' => $item['discount'] ?? 0,
                     'vat' => $item['vat'] ?? 0,
-                    'store_id' => $request->default_store_id ?? $defaultStore->id, // Use provided store or first available
+                    'bin_code' => $item['bin_code'] ?? '',
+                    'store_id' => $request->default_store_id ?? $defaultStore->id,
                 ];
             }
 
@@ -738,8 +977,33 @@ class GRNController extends Controller
             'total price' => 'total_value',
             'total_price' => 'total_value',
             'total' => 'total_value',
+
+            // Bin Location variations
+            'bin' => 'bin_code',
+            'bin code' => 'bin_code',
+            'bin_code' => 'bin_code',
+            'bin location' => 'bin_code',
+            'bin_location' => 'bin_code',
+            'location' => 'bin_code',
+            'shelf' => 'bin_code',
+            'rack' => 'bin_code',
+            'position' => 'bin_code',
         ];
 
         return $mappings[$columnName] ?? $columnName;
+    }
+
+    /**
+     * Clean numeric values from Excel (remove commas, convert to float)
+     */
+    private function cleanNumericValue($value)
+    {
+        if (is_numeric($value)) {
+            return (float) $value;
+        }
+
+        // Remove commas and other formatting, then convert to float
+        $cleaned = preg_replace('/[^\d.-]/', '', (string) $value);
+        return (float) $cleaned;
     }
 }

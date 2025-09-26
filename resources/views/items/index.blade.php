@@ -117,7 +117,7 @@
                                         <span class="font-medium text-slate-900 dark:text-white">{{ $batchCount }} batch{{ $batchCount > 1 ? 'es' : '' }}</span>
                                         @if($avgSellingPrice > 0)
                                             <span class="block text-xs text-slate-500 dark:text-slate-400 mt-1">
-                                                Avg. Price: ${{ number_format($avgSellingPrice, 2) }}
+                                                Avg. Price: LKR {{ number_format($avgSellingPrice, 2) }}
                                             </span>
                                         @endif
                                     @else

@@ -184,11 +184,11 @@
                                         <span class="text-sm">{{ $batch->received_date->format('d/m/Y') }}</span>
                                     </td>
                                     <td>
-                                        <span class="font-medium">${{ number_format($batch->unit_cost, 2) }}</span>
+                                        <span class="font-medium">LKR {{ number_format($batch->unit_cost, 2) }}</span>
                                     </td>
                                     <td>
                                         @if($batch->selling_price > 0)
-                                            <span class="font-medium text-green-600 dark:text-green-400">${{ number_format($batch->selling_price, 2) }}</span>
+                                            <span class="font-medium text-green-600 dark:text-green-400">LKR {{ number_format($batch->selling_price, 2) }}</span>
                                         @else
                                             <span class="text-slate-400">Not set</span>
                                         @endif
@@ -239,7 +239,7 @@
                         <div class="text-sm text-slate-600 dark:text-slate-400">Avg. Cost</div>
                         <div class="text-xl font-bold text-slate-900 dark:text-white">
                             @if($avgCost > 0)
-                                ${{ number_format($avgCost, 2) }}
+                                LKR {{ number_format($avgCost, 2) }}
                             @else
                                 -
                             @endif
@@ -249,7 +249,7 @@
                         <div class="text-sm text-slate-600 dark:text-slate-400">Avg. Selling Price</div>
                         <div class="text-xl font-bold text-slate-900 dark:text-white">
                             @if($avgSellingPrice > 0)
-                                ${{ number_format($avgSellingPrice, 2) }}
+                                LKR {{ number_format($avgSellingPrice, 2) }}
                             @else
                                 -
                             @endif

@@ -68,7 +68,7 @@ class InventoryController extends Controller
         // Filter options
         $stores = Store::orderBy('store_name')->get();
         $items = Item::where('is_active', true)->orderBy('name')->get();
-        $bins = Bin::with('store')->orderBy('bin_name')->get();
+        $bins = Bin::with('store')->orderBy('name')->get();
 
         return view('inventory.index', compact(
             'inventory', 'totalItems', 'totalQuantity', 'lowStockItems',
@@ -165,7 +165,7 @@ class InventoryController extends Controller
     public function showTransfer()
     {
         $stores = Store::orderBy('store_name')->get();
-        $bins = Bin::with('store')->orderBy('bin_name')->get();
+        $bins = Bin::with('store')->orderBy('name')->get();
         $items = Item::where('is_active', true)
             ->whereHas('inventoryStock', function ($q) {
                 $q->where('quantity', '>', 0);
@@ -260,7 +260,7 @@ class InventoryController extends Controller
             'stocks' => $stocks->map(function ($stock) {
                 return [
                     'store' => $stock->store->store_name,
-                    'bin' => $stock->bin ? $stock->bin->bin_name : 'No Bin',
+                    'bin' => $stock->bin ? $stock->bin->name : 'No Bin',
                     'batch' => $stock->batch->batch_no,
                     'quantity' => $stock->quantity,
                     'unit_cost' => $stock->batch->unit_cost,

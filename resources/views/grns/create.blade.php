@@ -316,16 +316,16 @@
                                 </div>
                                 <div class="flex justify-between">
                                     <span class="text-slate-600 dark:text-slate-400">Subtotal:</span>
-                                    <span class="font-medium text-slate-900 dark:text-white">$<span id="subtotal">0.00</span></span>
+                                    <span class="font-medium text-slate-900 dark:text-white">LKR <span id="subtotal">0.00</span></span>
                                 </div>
                                 <div class="flex justify-between">
                                     <span class="text-slate-600 dark:text-slate-400">VAT:</span>
-                                    <span class="font-medium text-slate-900 dark:text-white">$<span id="total-vat">0.00</span></span>
+                                    <span class="font-medium text-slate-900 dark:text-white">LKR <span id="total-vat">0.00</span></span>
                                 </div>
                                 <div class="pt-4 border-t border-slate-200 dark:border-slate-700">
                                     <div class="flex justify-between">
                                         <span class="text-lg font-semibold text-slate-900 dark:text-white">Total:</span>
-                                        <span class="text-lg font-bold text-primary-600 dark:text-primary-400">$<span id="grand-total">0.00</span></span>
+                                        <span class="text-lg font-bold text-primary-600 dark:text-primary-400">LKR <span id="grand-total">0.00</span></span>
                                     </div>
                                 </div>
                             </div>
@@ -667,20 +667,30 @@
                                 max="100"
                                 step="0.01">
                         </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                Bin Location
+                            </label>
+                            <input type="text"
+                                name="items[INDEX][bin_code]"
+                                class="bin-code w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                placeholder="Enter bin code (e.g., A-01-05)"
+                                maxlength="50">
+                        </div>
                     </div>
                     <div class="bg-slate-50 dark:bg-slate-700 rounded-lg p-4">
                         <div class="grid grid-cols-2 gap-4 text-sm">
                             <div class="flex justify-between">
-                                <span class="text-slate-600 dark:text-slate-400">Unit Cost:</span>
-                                <span class="font-medium text-slate-900 dark:text-white">$<span class="unit-cost-display">0.00</span></span>
+                                <span class="text-slate-600 dark:text-slate-400">Actual Cost:</span>
+                                <span class="font-medium text-slate-900 dark:text-white">LKR <span class="unit-cost-display">0.00</span></span>
                             </div>
                             <div class="flex justify-between">
                                 <span class="text-slate-600 dark:text-slate-400">Selling Price:</span>
-                                <span class="font-medium text-slate-900 dark:text-white">$<span class="selling-price-display">0.00</span></span>
+                                <span class="font-medium text-slate-900 dark:text-white">LKR <span class="selling-price-display">0.00</span></span>
                             </div>
                             <div class="flex justify-between col-span-2 pt-2 border-t border-slate-200 dark:border-slate-600">
                                 <span class="text-slate-700 dark:text-slate-300 font-medium">Total:</span>
-                                <span class="font-bold text-primary-600 dark:text-primary-400">$<span class="item-total">0.00</span></span>
+                                <span class="font-bold text-primary-600 dark:text-primary-400">LKR <span class="item-total">0.00</span></span>
                             </div>
                         </div>
                     </div>
@@ -982,23 +992,16 @@
                 });
             });
 
-            // Auto-calculate selling price based on unit_cost + vat - discount
+            // Auto-set selling price to unit cost (vendor's list price)
             function updateSellingPrice() {
                 const sellingPriceInput = itemDiv.querySelector('.selling-price');
                 const sellingPriceDisplay = itemDiv.querySelector('.selling-price-display');
                 const unitCost = parseFloat(itemDiv.querySelector('.unit-cost').value) || 0;
-                const vat = parseFloat(itemDiv.querySelector('.vat').value) || 0;
-                const discount = parseFloat(itemDiv.querySelector('.discount').value) || 0;
 
-                // Always calculate the selling price
-                const vatAmount = unitCost * (vat / 100);
-                const discountAmount = unitCost * (discount / 100);
-                const calculatedPrice = unitCost + vatAmount - discountAmount;
-
-                // Update both input field and display
-                sellingPriceInput.value = calculatedPrice.toFixed(2);
+                // Always set selling price to unit cost when unit cost changes
+                sellingPriceInput.value = unitCost.toFixed(2);
                 if (sellingPriceDisplay) {
-                    sellingPriceDisplay.textContent = calculatedPrice.toFixed(2);
+                    sellingPriceDisplay.textContent = unitCost.toFixed(2);
                 }
 
                 calculateItemTotal(itemDiv);
@@ -1006,13 +1009,29 @@
             }
 
             itemDiv.querySelector('.unit-cost').addEventListener('input', updateSellingPrice);
-            itemDiv.querySelector('.vat').addEventListener('input', updateSellingPrice);
-            itemDiv.querySelector('.discount').addEventListener('input', updateSellingPrice);
+
+            // Add listeners for discount and VAT to update calculations
+            itemDiv.querySelector('.discount').addEventListener('input', function() {
+                calculateItemTotal(itemDiv);
+                updateTotals();
+            });
+            itemDiv.querySelector('.vat').addEventListener('input', function() {
+                calculateItemTotal(itemDiv);
+                updateTotals();
+            });
 
             // Also update display when selling price is manually changed
             itemDiv.querySelector('.selling-price').addEventListener('input', function() {
                 const sellingPriceDisplay = itemDiv.querySelector('.selling-price-display');
-                const sellingPrice = parseFloat(this.value) || 0;
+                const unitCost = parseFloat(itemDiv.querySelector('.unit-cost').value) || 0;
+                let sellingPrice = parseFloat(this.value) || 0;
+
+                // Ensure selling price never exceeds unit cost
+                if (sellingPrice > unitCost) {
+                    sellingPrice = unitCost;
+                    this.value = sellingPrice.toFixed(2);
+                }
+
                 if (sellingPriceDisplay) {
                     sellingPriceDisplay.textContent = sellingPrice.toFixed(2);
                 }
@@ -1048,15 +1067,23 @@
             const discount = parseFloat(itemDiv.querySelector('.discount').value) || 0;
             const vat = parseFloat(itemDiv.querySelector('.vat').value) || 0;
 
-            // Calculate total cost (unit cost * quantity)
-            const total = unitCost * quantity;
+            // Calculate actual cost (what we pay vendor after discount)
+            const discountAmount = unitCost * (discount / 100);
+            const actualCost = unitCost - discountAmount;
+
+            // Calculate VAT on actual cost
+            const vatAmount = actualCost * (vat / 100);
+
+            // Total cost is what we actually pay vendor (including VAT)
+            const total = (actualCost + vatAmount) * quantity;
 
             // Update display elements if they exist
             const unitCostDisplay = itemDiv.querySelector('.unit-cost-display');
             const sellingPriceDisplay = itemDiv.querySelector('.selling-price-display');
             const itemTotal = itemDiv.querySelector('.item-total');
 
-            if (unitCostDisplay) unitCostDisplay.textContent = unitCost.toFixed(2);
+            // Show actual cost in unit-cost-display
+            if (unitCostDisplay) unitCostDisplay.textContent = actualCost.toFixed(2);
             if (sellingPriceDisplay) sellingPriceDisplay.textContent = sellingPrice.toFixed(2);
             if (itemTotal) itemTotal.textContent = total.toFixed(2);
         }
@@ -1066,13 +1093,27 @@
             let totalItems = items.length;
             let totalQuantity = 0;
             let subtotal = 0;
+            let totalVAT = 0;
 
             items.forEach(item => {
                 const quantity = parseInt(item.querySelector('.quantity').value) || 1;
                 const unitCost = parseFloat(item.querySelector('.unit-cost').value) || 0;
+                const discount = parseFloat(item.querySelector('.discount').value) || 0;
+                const vat = parseFloat(item.querySelector('.vat').value) || 0;
+
+                // Calculate actual cost (what we pay vendor after discount)
+                const discountAmount = unitCost * (discount / 100);
+                const actualCost = unitCost - discountAmount;
+
+                // Calculate VAT on actual cost
+                const vatAmount = actualCost * (vat / 100);
+
                 totalQuantity += quantity;
-                subtotal += unitCost * quantity;
+                subtotal += actualCost * quantity; // Use actual cost for subtotal
+                totalVAT += vatAmount * quantity; // Track VAT separately
             });
+
+            const grandTotal = subtotal + totalVAT;
 
             // Update display elements if they exist
             const totalItemsElement = document.getElementById('total-items');
@@ -1084,8 +1125,8 @@
             if (totalItemsElement) totalItemsElement.textContent = totalItems;
             if (totalQuantityElement) totalQuantityElement.textContent = totalQuantity;
             if (subtotalElement) subtotalElement.textContent = subtotal.toFixed(2);
-            if (totalVatElement) totalVatElement.textContent = '0.00'; // No separate VAT calculation at total level
-            if (grandTotalElement) grandTotalElement.textContent = subtotal.toFixed(2);
+            if (totalVatElement) totalVatElement.textContent = totalVAT.toFixed(2);
+            if (grandTotalElement) grandTotalElement.textContent = grandTotal.toFixed(2);
         }
 
         function updateItemNumbers() {

@@ -53,6 +53,28 @@ class BatchService
         return $batch;
     }
 
+    /**
+     * Create batch with new pricing logic where discount represents profit margin
+     */
+    public function createBatchWithNewPricing($itemId, $vendorId, $pricingData, $quantity)
+    {
+        $batchNumber = Batch::generateBatchNumber($itemId, $vendorId);
+
+        return Batch::create([
+            'item_id' => $itemId,
+            'vendor_id' => $vendorId,
+            'batch_no' => $batchNumber,
+            'unit_cost' => $pricingData['actual_cost'], // What we actually pay vendor
+            'selling_price' => $pricingData['selling_price'], // Our selling price (vendor's list price)
+            'received_qty' => $quantity,
+            'remaining_qty' => $quantity,
+            'received_date' => now()->toDateString(),
+            'expiry_date' => $pricingData['expiry_date'] ?? null,
+            'discount_percent' => $pricingData['discount'] ?? 0, // Our profit margin %
+            'vat_percent' => $pricingData['vat'] ?? 0,
+        ]);
+    }
+
 
     /**
      * Update batch quantity

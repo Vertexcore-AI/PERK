@@ -69,7 +69,18 @@ class BinController extends Controller
     public function show(Bin $bin)
     {
         $bin->load('store');
-        return view('bins.show', compact('bin'));
+
+        // Calculate bin statistics
+        $inventoryData = \App\Models\InventoryStock::where('bin_id', $bin->id)
+            ->with(['batch', 'item'])
+            ->get();
+
+        $totalItems = $inventoryData->sum('quantity');
+        $totalValue = $inventoryData->sum(function ($stock) {
+            return $stock->quantity * $stock->batch->unit_cost;
+        });
+
+        return view('bins.show', compact('bin', 'totalItems', 'totalValue'));
     }
 
     /**

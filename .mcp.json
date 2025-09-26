@@ -39,6 +39,14 @@
             "type": "stdio",
             "command": "npx",
             "args": ["-y", "mcp-sqlite", "database\\database.sqlite"]
+        },
+        "excel": {
+            "type": "stdio",
+            "command": "cmd",
+            "args": ["/c", "npx", "-y", "@negokaz/excel-mcp-server"],
+            "env": {
+                "EXCEL_MCP_PAGING_CELLS_LIMIT": "4000"
+            }
         }
     }
 }

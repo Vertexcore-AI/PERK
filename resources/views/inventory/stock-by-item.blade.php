@@ -72,7 +72,7 @@
                     </div>
                     <div class="ml-4">
                         <p class="text-sm font-medium text-slate-600 dark:text-slate-400">Total Value</p>
-                        <p class="text-2xl font-bold text-slate-900 dark:text-white">${{ number_format($totalValue, 2) }}</p>
+                        <p class="text-2xl font-bold text-slate-900 dark:text-white">LKR {{ number_format($totalValue, 2) }}</p>
                     </div>
                 </div>
             </div>
@@ -180,7 +180,7 @@
                                             @endif
                                         </td>
                                         <td class="py-4 px-4 text-right font-bold text-slate-900 dark:text-white">
-                                            ${{ number_format($itemData['stock_value'], 2) }}
+                                            LKR {{ number_format($itemData['stock_value'], 2) }}
                                         </td>
                                         <td class="py-4 px-4">
                                             <div class="space-y-1">
@@ -297,7 +297,7 @@
                         <td class="py-2">${stock.bin}</td>
                         <td class="py-2"><span class="font-mono text-xs bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded">${stock.batch}</span></td>
                         <td class="py-2 text-center">${stock.quantity}</td>
-                        <td class="py-2 text-right">$${parseFloat(stock.unit_cost).toFixed(2)}</td>
+                        <td class="py-2 text-right">LKR ${parseFloat(stock.unit_cost).toFixed(2)}</td>
                     </tr>
                 `;
             });

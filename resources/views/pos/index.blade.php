@@ -179,13 +179,13 @@
 
                                 <!-- Quantity Controls -->
                                 <div class="flex items-center space-x-2 mb-3">
-                                    <button @click="decreaseQuantity(index)" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-600">
-                                        <i data-lucide="minus" class="w-3 h-3"></i>
+                                    <button @click="decreaseQuantity(index)" class="w-8 h-8 rounded-full bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400 flex items-center justify-center hover:bg-red-200 dark:hover:bg-red-800">
+                                        <i data-lucide="minus" class="w-4 h-4"></i>
                                     </button>
                                     <input type="number" x-model="item.quantity" @change="updateCartItem(index)"
                                            class="w-16 text-center py-1 px-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
-                                    <button @click="increaseQuantity(index)" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-600">
-                                        <i data-lucide="plus" class="w-3 h-3"></i>
+                                    <button @click="increaseQuantity(index)" class="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400 flex items-center justify-center hover:bg-green-200 dark:hover:bg-green-800">
+                                        <i data-lucide="plus" class="w-4 h-4"></i>
                                     </button>
                                     <button @click="showBatchSelector(index)" class="ml-2 px-2 py-1 text-xs bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 rounded">
                                         Batch
@@ -194,10 +194,25 @@
 
                                 <!-- Pricing Details -->
                                 <div class="space-y-2 text-xs">
-                                    <div class="flex justify-between">
+                                    <div class="flex justify-between items-center">
                                         <span class="text-slate-600 dark:text-slate-400">Unit Price:</span>
-                                        <span x-text="formatCurrency(item.unit_price)"></span>
+                                        <div class="flex items-center space-x-1">
+                                            <input
+                                                type="number"
+                                                step="0.01"
+                                                min="0"
+                                                x-model="item.unit_price"
+                                                @input="validateAndUpdatePrice(index, $event.target.value)"
+                                                @blur="updateCartSummary()"
+                                                class="w-24 px-2 py-1 text-sm text-right border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white font-medium"
+                                                :class="item.priceError ? 'border-red-500 ring-1 ring-red-500' : 'border-slate-300 dark:border-slate-600'"
+                                            >
+                                            <span class="text-xs text-slate-500">LKR</span>
+                                        </div>
                                     </div>
+
+                                    <!-- Price error message -->
+                                    <div x-show="item.priceError" class="text-red-500 text-xs mt-1" x-text="item.priceError"></div>
                                     <div class="flex justify-between">
                                         <span class="text-slate-600 dark:text-slate-400">Batch:</span>
                                         <span x-text="item.batch_number || 'Auto'"></span>
@@ -802,6 +817,7 @@ function posApp() {
                             batch_number: item.original_batch ? item.original_batch.batch_no : 'N/A',
                             quantity: item.quantity,
                             unit_price: item.unit_price,
+                            selling_price: item.unit_price, // Store original selling price for validation
                             discount: item.discount || 0,
                             vat: item.vat || 0,
                             unit_cost: item.original_batch ? item.original_batch.unit_cost : 0,
@@ -812,7 +828,8 @@ function posApp() {
                                 vat: item.vat || 0
                             }),
                             stock_available: item.status === 'available',
-                            alternatives: item.alternatives || []
+                            alternatives: item.alternatives || [],
+                            priceError: null // Error message for price validation
                         };
 
                         this.cartItems.push(cartItem);
@@ -1004,10 +1021,11 @@ function posApp() {
                             batch_number: item.original_batch.batch_no,
                             quantity: item.quantity,
                             unit_price: parseFloat(item.unit_price),
+                            selling_price: parseFloat(item.unit_price), // Store original selling price for validation
                             discount: parseFloat(item.discount || 0),
                             vat: parseFloat(item.vat || 0),
                             available_stock: item.original_batch.remaining_qty,
-                            selling_price: parseFloat(item.unit_price)
+                            priceError: null // Error message for price validation
                         };
                         this.cartItems.push(cartItem);
                     } else if (item.status === 'no_batch') {
@@ -1031,10 +1049,11 @@ function posApp() {
                                     batch_number: alt.batch_number,
                                     quantity: item.quantity,
                                     unit_price: parseFloat(item.unit_price),
+                                    selling_price: parseFloat(item.unit_price), // Store original selling price for validation
                                     discount: parseFloat(item.discount || 0),
                                     vat: parseFloat(item.vat || 0),
                                     available_stock: alt.remaining_quantity,
-                                    selling_price: parseFloat(item.unit_price)
+                                    priceError: null // Error message for price validation
                                 };
                                 this.cartItems.push(cartItem);
                                 this.closeConfirm();
@@ -1063,10 +1082,11 @@ function posApp() {
                                     batch_number: alt.batch_number,
                                     quantity: item.quantity,
                                     unit_price: parseFloat(alt.selling_price),
+                                    selling_price: parseFloat(alt.selling_price), // Store original selling price for validation
                                     discount: parseFloat(item.discount || 0),
                                     vat: parseFloat(item.vat || 0),
                                     available_stock: alt.remaining_quantity,
-                                    selling_price: parseFloat(alt.selling_price)
+                                    priceError: null // Error message for price validation
                                 };
                                 this.cartItems.push(cartItem);
                                 this.closeConfirm();
@@ -1168,10 +1188,12 @@ function posApp() {
                 description: item.description,
                 quantity: 1,
                 unit_price: item.selling_price,
+                selling_price: item.selling_price, // Store original selling price for validation
                 unit_cost: item.unit_cost,
                 batch_id: item.batch_id,
                 batch_number: item.batch_number,
-                available_quantity: item.available_stock
+                available_quantity: item.available_stock,
+                priceError: null // Error message for price validation
             });
 
             this.updateCartSummary();
@@ -1234,16 +1256,41 @@ function posApp() {
             if (this.selectedBatch && this.currentCartIndex !== null) {
                 const item = this.cartItems[this.currentCartIndex];
                 item.unit_price = this.selectedBatch.selling_price;
+                item.selling_price = this.selectedBatch.selling_price; // Update selling price for validation
                 item.unit_cost = this.selectedBatch.unit_cost;
                 item.batch_id = this.selectedBatch.batch_id;
                 item.batch_number = this.selectedBatch.batch_number;
                 item.available_quantity = this.selectedBatch.available_quantity;
+                item.priceError = null; // Clear any errors
 
                 this.updateCartSummary();
                 this.showBatchModal = false;
                 this.selectedBatch = null;
                 this.currentCartIndex = null;
             }
+        },
+
+        // Price Validation Method
+        validateAndUpdatePrice(index, newValue) {
+            const item = this.cartItems[index];
+            const newPrice = parseFloat(newValue);
+
+            // Clear previous error
+            item.priceError = null;
+
+            // Validate the new price
+            if (isNaN(newPrice) || newPrice < 0) {
+                item.priceError = 'Price must be a valid positive number';
+                return;
+            }
+
+            if (newPrice < item.selling_price) {
+                item.priceError = `Price cannot be lower than ${this.formatCurrency(item.selling_price)}`;
+                return;
+            }
+
+            // Price is valid - update cart summary
+            this.updateCartSummary();
         },
 
         async updateCartSummary() {
@@ -1378,4 +1425,24 @@ function posApp() {
     }
 }
 </script>
+
+@push('scripts')
+<script>
+    // Initialize Lucide icons when the page loads and when Alpine components update
+    document.addEventListener('DOMContentLoaded', function() {
+        lucide.createIcons();
+
+        // Re-initialize icons after Alpine.js updates the DOM
+        document.addEventListener('alpine:updated', function() {
+            lucide.createIcons();
+        });
+
+        // Also re-initialize icons after a short delay to catch any dynamic content
+        setTimeout(() => {
+            lucide.createIcons();
+        }, 100);
+    });
+</script>
+@endpush
+
 @endsection

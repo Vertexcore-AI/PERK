@@ -6,6 +6,7 @@ use App\Models\GRN;
 use App\Models\GRNItem;
 use App\Models\Item;
 use App\Models\Batch;
+use App\Models\Bin;
 use App\Models\VendorItemMapping;
 use App\Models\InventoryStock;
 use App\Models\Category;
@@ -54,59 +55,66 @@ class GRNService
                     $itemData // Pass full item data for auto-creation
                 );
 
-                // Calculate costs
+                // Use standard business logic: unit_cost = purchase cost, selling_price = retail price
+                $sellingPrice = $itemData['selling_price'] ?? ($itemData['unit_cost'] * 1.3); // Default 30% markup
+
+                // Calculate costs with standard business logic
                 $costs = $this->calculateCosts(
-                    $itemData['unit_cost'],
-                    $itemData['discount'] ?? 0,
+                    $itemData['unit_cost'], // Purchase cost from vendor
+                    $itemData['discount'] ?? 0, // Vendor discount %
                     $itemData['vat'] ?? 0,
+                    $sellingPrice, // Our retail price
                     $itemData['quantity'] ?? 1
                 );
 
-                // Create batch with enhanced pricing data including selling price
-                $batch = $this->batchService->createBatchWithPricing(
+                // Create batch with standard business logic
+                $batch = $this->batchService->createBatchWithNewPricing(
                     $item->id,
                     $grnData['vendor_id'],
                     [
-                        'unit_price' => $itemData['unit_cost'], // BatchService still expects 'unit_price' parameter
-                        'selling_price' => $itemData['selling_price'] ?? null, // Get selling price from GRN input
-                        'discount' => $itemData['discount'] ?? 0,
+                        'unit_price' => $itemData['unit_cost'], // Purchase cost from vendor
+                        'actual_cost' => $costs['actual_cost'], // Final cost per unit (after discount + VAT)
+                        'selling_price' => $sellingPrice, // Our retail price
+                        'discount' => $itemData['discount'] ?? 0, // Vendor discount %
                         'vat' => $itemData['vat'] ?? 0,
                         'expiry_date' => $itemData['expiry_date'] ?? null,
                         'notes' => $itemData['notes'] ?? null,
                     ],
-                    $itemData['quantity'] ?? 1 // Use the actual quantity from GRN
+                    $itemData['quantity'] ?? 1
                 );
 
-                // Calculate selling price using the correct formula if not provided
-                $sellingPrice = $itemData['selling_price'];
-                if (!$sellingPrice) {
-                    $vatAmount = $itemData['unit_cost'] * (($itemData['vat'] ?? 0) / 100);
-                    $discountAmount = $itemData['unit_cost'] * (($itemData['discount'] ?? 0) / 100);
-                    $sellingPrice = $itemData['unit_cost'] + $vatAmount - $discountAmount;
-                }
-
-                // Create GRN item record with selling price
+                // Create GRN item record with standard business logic
                 $grnItem = GRNItem::create([
                     'grn_id' => $grn->grn_id,
                     'item_id' => $item->id,
                     'batch_id' => $batch->id,
                     'vendor_item_code' => $itemData['vendor_item_code'],
                     'quantity' => $itemData['quantity'] ?? 1,
-                    'unit_cost' => $itemData['unit_cost'],
-                    'selling_price' => $sellingPrice,
-                    'discount' => $itemData['discount'] ?? 0,
+                    'unit_cost' => $itemData['unit_cost'], // Purchase cost from vendor
+                    'selling_price' => $sellingPrice, // Our retail price
+                    'discount' => $itemData['discount'] ?? 0, // Vendor discount %
+                    'profit_margin' => $costs['profit_margin_amount'], // Profit amount per unit
                     'vat' => $itemData['vat'] ?? 0,
-                    'total_cost' => $costs['total_cost'],
+                    'total_cost' => $costs['total_cost'], // Total cost for quantity
                     'notes' => $itemData['notes'] ?? null,
                 ]);
 
-                // Update inventory stock (items are automatically available after GRN creation)
+                // Resolve bin location if bin code provided
                 $storeId = $itemData['store_id'] ?? \App\Models\Store::first()?->id;
+                $binId = null;
+
+                if (!empty($itemData['bin_code']) && $storeId) {
+                    $binId = $this->resolveBinLocation($storeId, $itemData['bin_code']);
+                } else {
+                    $binId = $itemData['bin_id'] ?? null; // Fallback to direct bin_id if provided
+                }
+
+                // Update inventory stock (items are automatically available after GRN creation)
                 if ($storeId) {
                     $this->inventoryService->updateStock(
                         $item->id,
                         $storeId,
-                        $itemData['bin_id'] ?? null,
+                        $binId,
                         $batch->id,
                         $itemData['quantity'] ?? 1 // Use the actual quantity for inventory tracking
                     );
@@ -171,21 +179,35 @@ class GRNService
     }
 
     /**
-     * Calculate costs including discount and VAT
+     * Calculate costs using standard business logic
+     * Unit Cost = What we pay vendor (purchase cost)
+     * Selling Price = What we charge customers (retail price)
+     * Discount = Vendor discount % (reduces our cost)
+     * Profit Margin = Selling Price - Total Cost
      */
-    public function calculateCosts($unitCost, $discount, $vat, $quantity = 1)
+    public function calculateCosts($unitCost, $discount, $vat, $sellingPrice, $quantity = 1)
     {
+        // Apply vendor discount to our purchase cost
         $discountAmount = $unitCost * ($discount / 100);
-        $vatAmount = $unitCost * ($vat / 100);
+        $discountedCost = $unitCost - $discountAmount;
 
-        // Total cost is (unit cost after discount) * quantity (what we actually paid)
-        $totalCost = ($unitCost - $discountAmount) * $quantity;
+        // Apply VAT to the discounted cost
+        $vatAmount = $discountedCost * ($vat / 100);
+        $totalCostPerUnit = $discountedCost + $vatAmount;
+
+        // Calculate profit margin per unit
+        $profitMarginAmount = $sellingPrice - $totalCostPerUnit;
+
+        // Total cost for the quantity
+        $totalCost = $totalCostPerUnit * $quantity;
 
         return [
-            'unit_cost' => $unitCost,
-            'discount_amount' => $discountAmount,
-            'vat_amount' => $vatAmount,
-            'total_cost' => $totalCost,
+            'unit_cost' => $unitCost, // Original purchase cost from vendor
+            'actual_cost' => $totalCostPerUnit, // Final cost per unit (after discount + VAT)
+            'profit_margin_amount' => $profitMarginAmount, // Our profit per unit
+            'discount_percent' => $discount, // Vendor discount %
+            'vat_amount' => $vatAmount, // VAT amount per unit
+            'total_cost' => $totalCost, // Total cost for quantity
             'quantity' => $quantity,
         ];
     }
@@ -402,5 +424,41 @@ class GRNService
         );
 
         return $category->id;
+    }
+
+    /**
+     * Resolve bin location by code, create if doesn't exist
+     */
+    public function resolveBinLocation($storeId, $binCode)
+    {
+        if (empty($binCode)) {
+            return null;
+        }
+
+        // Normalize bin code (trim whitespace, convert to uppercase)
+        $binCode = strtoupper(trim($binCode));
+
+        // Try to find existing bin in the store
+        $bin = Bin::where('store_id', $storeId)
+            ->where('code', $binCode)
+            ->first();
+
+        if ($bin) {
+            \Log::info('GRNService: Found existing bin', ['bin_id' => $bin->id, 'code' => $binCode]);
+            return $bin->id;
+        }
+
+        // Create new bin if not found
+        \Log::info('GRNService: Creating new bin', ['store_id' => $storeId, 'code' => $binCode]);
+
+        $newBin = Bin::create([
+            'store_id' => $storeId,
+            'code' => $binCode,
+            'name' => $binCode, // Use code as name by default
+            'description' => 'Auto-created during GRN processing',
+            'is_active' => true,
+        ]);
+
+        return $newBin->id;
     }
 }

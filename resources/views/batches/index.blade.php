@@ -72,7 +72,7 @@
                     </div>
                     <div class="ml-4">
                         <p class="text-sm font-medium text-slate-600 dark:text-slate-400">Total Value</p>
-                        <p class="text-2xl font-bold text-slate-900 dark:text-white">${{ number_format($totalValue, 2) }}</p>
+                        <p class="text-2xl font-bold text-slate-900 dark:text-white">LKR {{ number_format($totalValue, 2) }}</p>
                     </div>
                 </div>
             </div>
@@ -212,7 +212,7 @@
                                         </td>
                                        
                                         <td class="py-4 px-4 text-right font-bold text-slate-900 dark:text-white">
-                                            ${{ number_format($stockValue, 2) }}
+                                            LKR {{ number_format($stockValue, 2) }}
                                         </td>
                                         <td class="py-4 px-4 text-center">
                                             @if($currentStock > 0)

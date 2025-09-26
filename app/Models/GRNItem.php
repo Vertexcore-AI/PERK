@@ -19,6 +19,7 @@ class GRNItem extends Model
         'unit_cost',
         'selling_price',
         'discount',
+        'profit_margin',
         'vat',
         'total_cost',
         'notes',
@@ -28,6 +29,7 @@ class GRNItem extends Model
         'unit_cost' => 'decimal:2',
         'selling_price' => 'decimal:2',
         'discount' => 'decimal:2',
+        'profit_margin' => 'decimal:2',
         'vat' => 'decimal:2',
         'total_cost' => 'decimal:2',
     ];
@@ -49,14 +51,20 @@ class GRNItem extends Model
 
     public function calculateCosts()
     {
-        // Calculate actual amounts from percentages
+        // Standard business logic: unit_cost = purchase cost, selling_price = retail price
+
+        // Apply vendor discount to reduce our purchase cost
         $discountAmount = $this->unit_cost * ($this->discount / 100);
-        $vatAmount = $this->unit_cost * ($this->vat / 100);
+        $discountedCost = $this->unit_cost - $discountAmount;
 
-        // total_cost = (unit_cost after discount) * quantity (what we actually paid)
-        $this->total_cost = ($this->unit_cost - $discountAmount) * ($this->quantity ?? 1);
+        // Apply VAT to our discounted cost
+        $vatAmount = $discountedCost * ($this->vat / 100);
+        $finalCostPerUnit = $discountedCost + $vatAmount;
 
-        // selling_price = unit_cost + vat_amount - discount_amount (per unit)
-        $this->selling_price = $this->unit_cost + $vatAmount - $discountAmount;
+        // Calculate total cost for the quantity
+        $this->total_cost = $finalCostPerUnit * ($this->quantity ?? 1);
+
+        // Profit margin is the difference between selling price and final cost
+        $this->profit_margin = ($this->selling_price ?? 0) - $finalCostPerUnit;
     }
 }

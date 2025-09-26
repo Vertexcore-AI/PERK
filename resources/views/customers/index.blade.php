@@ -98,7 +98,7 @@
                 </div>
                 <div class="flex-1">
                     <div class="flex items-center justify-between">
-                        <h4 class="text-2xl font-bold text-slate-900 dark:text-white">${{ number_format($totalRevenue ?? 0, 0) }}</h4>
+                        <h4 class="text-2xl font-bold text-slate-900 dark:text-white">LKR {{ number_format($totalRevenue ?? 0, 0) }}</h4>
                         <span class="badge badge-success">Revenue</span>
                     </div>
                     <p class="text-sm text-slate-600 dark:text-slate-400">Total Revenue</p>
@@ -222,7 +222,7 @@
                             </td>
                             <td>
                                 <span class="text-slate-900 dark:text-slate-100 font-medium">
-                                    ${{ number_format($customer->total_spent ?? 0, 2) }}
+                                    LKR {{ number_format($customer->total_spent ?? 0, 2) }}
                                 </span>
                             </td>
                             <td>

@@ -52,7 +52,7 @@
                     <div>
                         <label class="text-sm font-medium text-slate-700 dark:text-slate-300">Total Amount</label>
                         <p class="text-slate-900 dark:text-white font-bold text-lg mt-1">
-                            ${{ number_format($grn->total_amount, 2) }}
+                            LKR {{ number_format($grn->total_amount, 2) }}
                         </p>
                     </div>
                 </div>
@@ -76,11 +76,12 @@
                                     <th class="text-center py-3 px-4 font-medium text-slate-700 dark:text-slate-300">Quantity</th>
                                     <th class="text-right py-3 px-4 font-medium text-slate-700 dark:text-slate-300">Unit Cost</th>
                                     <th class="text-right py-3 px-4 font-medium text-slate-700 dark:text-slate-300">Selling Price</th>
-                                    <th class="text-center py-3 px-4 font-medium text-slate-700 dark:text-slate-300">Margin</th>
-                                    <th class="text-center py-3 px-4 font-medium text-slate-700 dark:text-slate-300">Discount</th>
+                                    <th class="text-center py-3 px-4 font-medium text-slate-700 dark:text-slate-300">Profit Margin</th>
+                                    <th class="text-center py-3 px-4 font-medium text-slate-700 dark:text-slate-300">Vendor Discount</th>
                                     <th class="text-center py-3 px-4 font-medium text-slate-700 dark:text-slate-300">VAT</th>
                                     <th class="text-right py-3 px-4 font-medium text-slate-700 dark:text-slate-300">Net Cost</th>
                                     <th class="text-center py-3 px-4 font-medium text-slate-700 dark:text-slate-300">Batch</th>
+                                    <th class="text-center py-3 px-4 font-medium text-slate-700 dark:text-slate-300">Bin Location</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
@@ -110,23 +111,26 @@
                                             {{ number_format($grnItem->quantity ?? 1) }}
                                         </td>
                                         <td class="py-4 px-4 text-right font-medium text-slate-900 dark:text-white">
-                                            ${{ number_format($grnItem->unit_cost, 2) }}
+                                            LKR {{ number_format($grnItem->unit_cost, 2) }}
                                         </td>
                                         <td class="py-4 px-4 text-right font-medium text-green-600 dark:text-green-400">
                                             @if($grnItem->selling_price > 0)
-                                                ${{ number_format($grnItem->selling_price, 2) }}
+                                                LKR {{ number_format($grnItem->selling_price, 2) }}
                                             @else
                                                 <span class="text-slate-400">Not set</span>
                                             @endif
                                         </td>
                                         <td class="py-4 px-4 text-center">
-                                            @if($grnItem->selling_price > 0 && $grnItem->unit_cost > 0)
-                                                @php
-                                                    $margin = (($grnItem->selling_price - $grnItem->unit_cost) / $grnItem->unit_cost) * 100;
-                                                @endphp
-                                                <span class="text-sm font-medium {{ $margin > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}">
-                                                    {{ number_format($margin, 1) }}%
+                                            @if($grnItem->profit_margin > 0)
+                                                <span class="text-sm font-medium text-green-600 dark:text-green-400">
+                                                    LKR {{ number_format($grnItem->profit_margin, 2) }}
                                                 </span>
+                                                @php
+                                                    $profitPercent = $grnItem->unit_cost > 0 ? (($grnItem->profit_margin / $grnItem->unit_cost) * 100) : 0;
+                                                @endphp
+                                                <div class="text-xs text-slate-500">
+                                                    ({{ number_format($profitPercent, 1) }}%)
+                                                </div>
                                             @else
                                                 <span class="text-slate-400">-</span>
                                             @endif
@@ -150,13 +154,36 @@
                                             @endif
                                         </td>
                                         <td class="py-4 px-4 text-right font-bold text-slate-900 dark:text-white">
-                                            ${{ number_format($grnItem->total_cost, 2) }}
+                                            LKR {{ number_format($grnItem->total_cost, 2) }}
                                         </td>
                                         <td class="py-4 px-4 text-center">
                                             @if($grnItem->batch)
                                                 <span class="font-mono text-xs bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 px-2 py-1 rounded">
                                                     {{ $grnItem->batch->batch_no }}
                                                 </span>
+                                            @else
+                                                <span class="text-slate-400">-</span>
+                                            @endif
+                                        </td>
+                                        <td class="py-4 px-4 text-center">
+                                            @php
+                                                $binLocation = null;
+                                                if ($grnItem->batch && $grnItem->batch->item) {
+                                                    // Find inventory stock for this item to get bin location
+                                                    $inventoryStock = \App\Models\InventoryStock::where('item_id', $grnItem->item_id)
+                                                        ->where('batch_id', $grnItem->batch_id)
+                                                        ->with('bin')
+                                                        ->first();
+                                                    $binLocation = $inventoryStock?->bin;
+                                                }
+                                            @endphp
+                                            @if($binLocation)
+                                                <span class="inline-block bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded text-xs font-medium">
+                                                    {{ $binLocation->code }}
+                                                </span>
+                                                <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                                    {{ $binLocation->name }}
+                                                </div>
                                             @else
                                                 <span class="text-slate-400">-</span>
                                             @endif
@@ -174,21 +201,28 @@
                         </div>
 
                         @php
-                            $totalSellingValue = $grn->grnItems->sum('selling_price');
-                            $avgMargin = $grn->grnItems->where('selling_price', '>', 0)->avg(function($item) {
-                                return $item->unit_cost > 0 ? (($item->selling_price - $item->unit_cost) / $item->unit_cost) * 100 : 0;
+                            $totalSellingValue = $grn->grnItems->sum(function($item) {
+                                return $item->selling_price * $item->quantity;
                             });
+                            $totalProfitMargin = $grn->grnItems->sum(function($item) {
+                                return $item->profit_margin * $item->quantity;
+                            });
+                            $avgDiscountPercent = $grn->grnItems->avg('discount');
                         @endphp
 
                         @if($totalSellingValue > 0)
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
                                     <div class="text-sm text-green-700 dark:text-green-300">Potential Selling Value</div>
-                                    <div class="text-xl font-bold text-green-900 dark:text-green-100">${{ number_format($totalSellingValue, 2) }}</div>
+                                    <div class="text-xl font-bold text-green-900 dark:text-green-100">LKR {{ number_format($totalSellingValue, 2) }}</div>
                                 </div>
                                 <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                                    <div class="text-sm text-blue-700 dark:text-blue-300">Average Margin</div>
-                                    <div class="text-xl font-bold text-blue-900 dark:text-blue-100">{{ number_format($avgMargin ?? 0, 1) }}%</div>
+                                    <div class="text-sm text-blue-700 dark:text-blue-300">Total Profit Margin</div>
+                                    <div class="text-xl font-bold text-blue-900 dark:text-blue-100">LKR {{ number_format($totalProfitMargin, 2) }}</div>
+                                </div>
+                                <div class="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-4">
+                                    <div class="text-sm text-orange-700 dark:text-orange-300">Avg Vendor Discount</div>
+                                    <div class="text-xl font-bold text-orange-900 dark:text-orange-100">{{ number_format($avgDiscountPercent ?? 0, 1) }}%</div>
                                 </div>
                             </div>
                         @endif
